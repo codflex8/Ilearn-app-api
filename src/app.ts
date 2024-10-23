@@ -6,7 +6,6 @@ import morgan from "morgan";
 import { globalError } from "./middleware/ErrorMiddleware";
 import ApiError from "./utils/ApiError";
 import dotenv from "dotenv";
-import { protect } from "./controllers/authentication.controller";
 
 export default class Server {
   constructor(app: Application) {
