@@ -16,13 +16,22 @@ interface JwtPayload extends jwt.JwtPayload {
 
 export const signup = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
+    const { username, email, password, imageUrl } = req.body;
+    const isUserExist = await User.findOne({
+      where: {
+        email: Equal(req.body.email),
+      },
+    });
+    if (isUserExist) {
+      return next(new ApiError("email is used by other user", 409));
+    }
     // 1- Create user
-    const cryptedPassword = await bcryptPassword(req.body.password);
+    const cryptedPassword = await bcryptPassword(password);
     const user = await User.create({
-      username: req.body.username,
-      email: req.body.email,
-      password: cryptedPassword,
-      imageUrl: req.body.imageUrl,
+      username,
+      email,
+      password,
+      imageUrl,
     });
 
     await user.save();
@@ -90,7 +99,7 @@ export const protect = asyncHandler(
       const passChangedTimestamp =
         currentUser.passwordChangedAt.getTime() / 1000;
       // Password changed after token created (Error)
-      if (passChangedTimestamp > decoded.at) {
+      if (passChangedTimestamp > decoded.iat) {
         return next(
           new ApiError(
             "User recently changed his password. please login again..",
@@ -100,7 +109,7 @@ export const protect = asyncHandler(
       }
     }
     // ToDo: set user
-    // req.user = currentUser;
+    req.user = currentUser;
     next();
   }
 );
@@ -190,9 +199,10 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   }
   const cryptedPassword = await bcryptPassword(req.body.password);
   user.password = cryptedPassword;
+  user.passwordChangedAt = new Date();
   user.passwordResetCode = undefined;
   user.passwordResetExpires = undefined;
-  user.passwordResetVerified = undefined;
+  user.passwordResetVerified = false;
 
   await user.save();
 

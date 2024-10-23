@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export enum GenderEnum {
+  MALE = "male",
+  FEMALE = "female",
+}
+
 export const signInValidator = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -7,7 +12,7 @@ export const signInValidator = z.object({
 
 export const signUpValidator = signInValidator.extend({
   username: z.string(),
-  imageUrl: z.string().nullable(),
+  imageUrl: z.string().optional().nullable(),
 });
 
 export const forgetPasswordValidator = z.object({

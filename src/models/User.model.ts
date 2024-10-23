@@ -1,18 +1,29 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
+import { Category } from "./Categories.model";
+import { Book } from "./Books.model";
+import { GenderEnum } from "../utils/validators/AuthValidator";
+import { BaseModel } from "./BaseModel";
+import { Chatbot } from "./ChatBot.model";
 
 @Entity()
-export class User extends BaseEntity {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
-
+export class User extends BaseModel {
   @Column({ unique: true })
   email: string;
+
+  @Column({ unique: true, nullable: true })
+  phoneNumber: string;
 
   @Column()
   username: string;
 
   @Column()
   password: string;
+
+  @Column({ type: "datetime", nullable: true })
+  birthDate: Date;
+
+  @Column({ type: "enum", nullable: true, enum: GenderEnum })
+  gender: GenderEnum;
 
   @Column({ nullable: true })
   imageUrl: string;
@@ -28,4 +39,13 @@ export class User extends BaseEntity {
 
   @Column({ type: "boolean", default: false })
   passwordResetVerified: Boolean;
+
+  @OneToMany(() => Category, (category) => category.user)
+  categories: Category[];
+
+  @OneToMany(() => Book, (book) => book.user)
+  books: Book[];
+
+  @OneToMany(() => Chatbot, (chatbot) => chatbot.user)
+  chatbots: Chatbot[];
 }
