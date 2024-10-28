@@ -10,6 +10,7 @@ import { BaseModel } from "./BaseModel";
 import { Quiz } from "./Quiz.model";
 import { Answer } from "./Answers.model";
 import { QuestionType } from "../utils/validators/QuizValidator";
+import { Bookmark } from "./Bookmarks.model";
 
 @Entity()
 export class Question extends BaseModel {
@@ -28,4 +29,8 @@ export class Question extends BaseModel {
     onUpdate: "CASCADE",
   })
   answers: Answer[];
+
+  @OneToOne(() => Bookmark, (bookmark) => bookmark.question)
+  // @JoinColumn()
+  bookmark: Bookmark;
 }

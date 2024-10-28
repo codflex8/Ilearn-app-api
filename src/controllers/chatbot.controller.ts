@@ -132,6 +132,9 @@ export const getChatbotMessages = asyncHandler(
       where: condition,
       take,
       skip,
+      relations: {
+        bookmark: true,
+      },
     });
 
     res

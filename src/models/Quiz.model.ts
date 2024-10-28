@@ -51,6 +51,7 @@ export class Quiz extends BaseModel {
       relations: {
         questions: {
           answers: true,
+          bookmark: true,
         },
       },
     });

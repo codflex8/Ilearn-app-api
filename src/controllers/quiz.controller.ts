@@ -158,6 +158,7 @@ export const getQuizQuestionById = asyncHandler(
       },
       relations: {
         answers: true,
+        bookmark: true,
       },
     });
     res.status(200).json({ question });

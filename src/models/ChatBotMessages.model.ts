@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 import { BaseModel } from "./BaseModel";
 import { Chatbot } from "./ChatBot.model";
 import { MessageFrom } from "../utils/validators/ChatbotValidator";
+import { Bookmark } from "./Bookmarks.model";
 
 @Entity()
 export class ChatbotMessages extends BaseModel {
@@ -19,4 +20,8 @@ export class ChatbotMessages extends BaseModel {
 
   @ManyToOne(() => Chatbot)
   chatbot: Chatbot;
+
+  @OneToOne(() => Bookmark, (bookmark) => bookmark.chatbotMessage)
+  // @JoinColumn()
+  bookmark: Bookmark;
 }

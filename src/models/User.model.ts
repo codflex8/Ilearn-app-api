@@ -5,6 +5,7 @@ import { GenderEnum } from "../utils/validators/AuthValidator";
 import { BaseModel } from "./BaseModel";
 import { Chatbot } from "./ChatBot.model";
 import { Quiz } from "./Quiz.model";
+import { Bookmark } from "./Bookmarks.model";
 
 @Entity()
 export class User extends BaseModel {
@@ -52,4 +53,7 @@ export class User extends BaseModel {
 
   @OneToMany(() => Chatbot, (chatbot) => chatbot.user)
   chatbots: Chatbot[];
+
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.user)
+  bookmarks: Bookmark[];
 }
