@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  addBooksToChatbot,
   addChatbots,
   addMessage,
   deleteChatbot,
@@ -12,6 +13,7 @@ import { validateData } from "../middleware/validationMiddleware";
 import {
   refineChatbotMessageValidator,
   chatBotValidator,
+  addBooksToChatbotValidator,
 } from "../utils/validators/ChatbotValidator";
 
 const router = Router();
@@ -25,6 +27,11 @@ router.post(
   "/:id/messages",
   validateData(refineChatbotMessageValidator),
   addMessage
+);
+router.post(
+  "/:id/books",
+  validateData(addBooksToChatbotValidator),
+  addBooksToChatbot
 );
 
 export default router;

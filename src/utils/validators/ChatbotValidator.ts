@@ -1,4 +1,4 @@
-import { z, ZodRawShape } from "zod";
+import { z } from "zod";
 
 export enum MessageFrom {
   user = "user",
@@ -7,6 +7,11 @@ export enum MessageFrom {
 
 export const chatBotValidator = z.object({
   name: z.string(),
+  booksIds: z.array(z.string()).optional(),
+});
+
+export const addBooksToChatbotValidator = z.object({
+  booksIds: z.array(z.string()).optional(),
 });
 
 const chatbotMessageValidator = z.object({
