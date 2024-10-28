@@ -4,6 +4,7 @@ import { Book } from "./Books.model";
 import { GenderEnum } from "../utils/validators/AuthValidator";
 import { BaseModel } from "./BaseModel";
 import { Chatbot } from "./ChatBot.model";
+import { Quiz } from "./Quiz.model";
 
 @Entity()
 export class User extends BaseModel {
@@ -45,6 +46,9 @@ export class User extends BaseModel {
 
   @OneToMany(() => Book, (book) => book.user)
   books: Book[];
+
+  @OneToMany(() => Quiz, (quiz) => quiz.user)
+  quizes: Quiz[];
 
   @OneToMany(() => Chatbot, (chatbot) => chatbot.user)
   chatbots: Chatbot[];

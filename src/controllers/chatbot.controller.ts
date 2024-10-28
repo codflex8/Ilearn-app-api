@@ -35,16 +35,7 @@ export const getChatbotById = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
     const { id } = req.params;
-    const chatbot = await Chatbot.findOne({
-      where: {
-        id: Equal(id),
-        user: {
-          id: user.id,
-        },
-      },
-      relations: ["books", "messages"],
-    });
-
+    const chatbot = await Chatbot.getUserChatbotById(user.id, id);
     if (!chatbot) {
       res.status(203).json({ message: "no content" });
     }
@@ -72,14 +63,7 @@ export const updateChatbot = asyncHandler(
     const { name } = req.body;
     const { id } = req.params;
     const user = req.user;
-    const chatbot = await Chatbot.findOne({
-      where: {
-        id: Equal(id),
-        user: {
-          id: user.id,
-        },
-      },
-    });
+    const chatbot = await Chatbot.getUserChatbotById(user.id, id);
     if (!chatbot) {
       next(new ApiError("chatbot not found", 404));
     }
@@ -93,15 +77,7 @@ export const deleteChatbot = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
     const { id } = req.params;
-    const chatbot = await Chatbot.findOne({
-      where: {
-        id: Equal(id),
-        user: {
-          id: user.id,
-        },
-      },
-      relations: ["books", "messages"],
-    });
+    const chatbot = await Chatbot.getUserChatbotById(user.id, id);
 
     if (!chatbot) {
       next(new ApiError("chatbot not found", 404));

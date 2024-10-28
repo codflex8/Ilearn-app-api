@@ -40,15 +40,7 @@ export const getCategoryByID = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const category = await Category.findOne({
-      where: {
-        id: Equal(id),
-        user: {
-          id: Equal(user.id),
-        },
-      },
-      relations: ["books", "user"],
-    });
+    const category = await Category.getUserCategoryById(user.id, id);
     if (!category) {
       res.status(203).json({ message: "no content" });
       return;
@@ -72,14 +64,7 @@ export const updateCategory = asyncHandler(
     const { id } = req.params;
     const { name, imageUrl } = req.body;
     const user = req.user;
-    const updateCategory = await Category.findOne({
-      where: {
-        id: Equal(id),
-        user: {
-          id: Equal(user.id),
-        },
-      },
-    });
+    const updateCategory = await Category.getUserCategoryById(user.id, id);
     updateCategory.name = name;
     updateCategory.imageUrl = imageUrl;
     await updateCategory.save();
@@ -91,14 +76,8 @@ export const deleteCategory = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const category = await Category.findOne({
-      where: {
-        id: Equal(id),
-        user: {
-          id: Equal(user.id),
-        },
-      },
-    });
+    const category = await Category.getUserCategoryById(user.id, id);
+    await category.remove();
     res.status(200).json({ category });
   }
 );

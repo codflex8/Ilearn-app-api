@@ -1,15 +1,18 @@
 import "reflect-metadata";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const dbConfig = {
-  HOST: "localhost",
-  USER: "root",
-  PASSWORD: "krzh",
-  DB: "ai_learning",
+  HOST: process.env.DB_HOST,
+  USER: process.env.DB_User,
+  PASSWORD: process.env.DB_PASSWORD,
+  DB: process.env.DB,
   pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000,
+    max: process.env.Pool_Max,
+    min: process.env.Pool_Min,
+    acquire: process.env.Pool_Acquire,
+    idle: process.env.Pool_Idle,
   },
 };
 

@@ -44,15 +44,7 @@ export const getBookById = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const book = await Book.findOne({
-      where: {
-        id: Equal(id),
-        user: {
-          id: Equal(user.id),
-        },
-      },
-      relations: ["categories", "user"],
-    });
+    const book = await Book.getUserBookById(user.id, id);
     if (!book) {
       res.send(203).json({ message: "no content" });
       return;
@@ -93,14 +85,7 @@ export const updateBook = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const { name, imageUrl, fileUrl, link, content } = req.body;
-    const book = await Book.findOne({
-      where: {
-        id: Equal(id),
-        user: {
-          id: Equal(user.id),
-        },
-      },
-    });
+    const book = await Book.getUserBookById(user.id, id);
     book.name = name;
     book.imageUrl = imageUrl;
     book.fileUrl = fileUrl;
@@ -115,7 +100,6 @@ export const deleteBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const book = await Book.delete(id);
-
     res.status(200).json({ book });
   }
 );

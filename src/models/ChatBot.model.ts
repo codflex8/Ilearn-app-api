@@ -35,4 +35,17 @@ export class Chatbot extends BaseModel {
     },
   })
   books: Book[];
+
+  static getUserChatbotById(userId: string, chatbotId: string) {
+    return this.findOne({
+      where: {
+        id: chatbotId,
+        user: { id: userId },
+      },
+      relations: {
+        books: true,
+        messages: true,
+      },
+    });
+  }
 }

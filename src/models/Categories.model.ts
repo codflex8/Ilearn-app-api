@@ -37,4 +37,16 @@ export class Category extends BaseModel {
     name: "userId",
   })
   user: User;
+
+  static getUserCategoryById(userId: string, categoryId: string) {
+    return this.findOne({
+      where: {
+        id: categoryId,
+        user: { id: userId },
+      },
+      relations: {
+        books: true,
+      },
+    });
+  }
 }

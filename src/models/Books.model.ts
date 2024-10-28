@@ -10,6 +10,7 @@ import { Category } from "./Categories.model";
 import { User } from "./User.model";
 import { BaseModel } from "./BaseModel";
 import { Chatbot } from "./ChatBot.model";
+import { Quiz } from "./Quiz.model";
 
 @Entity()
 export class Book extends BaseModel {
@@ -61,4 +62,20 @@ export class Book extends BaseModel {
     },
   })
   chatbots: Chatbot[];
+
+  // @ManyToMany(() => Book)
+  // @JoinTable()
+  // quizes: Quiz[];
+
+  static getUserBookById(userId: string, bookId: string) {
+    return this.findOne({
+      where: {
+        id: bookId,
+        user: { id: userId },
+      },
+      relations: {
+        categories: true,
+      },
+    });
+  }
 }

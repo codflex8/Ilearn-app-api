@@ -30,7 +30,7 @@ export const signup = asyncHandler(
     const user = await User.create({
       username,
       email,
-      password,
+      password: cryptedPassword,
       imageUrl,
     });
 
