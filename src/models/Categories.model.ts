@@ -5,6 +5,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
 } from "typeorm";
 import { Book } from "./Books.model";
 import { User } from "./User.model";
@@ -18,17 +19,10 @@ export class Category extends BaseModel {
   @Column({ nullable: true })
   imageUrl: string;
 
-  @ManyToMany(() => Book)
-  @JoinTable({
-    name: "CategoriesBooks",
-    joinColumn: {
-      name: "categoryId",
-      referencedColumnName: "id",
-    },
-    inverseJoinColumn: {
-      name: "bookId",
-      referencedColumnName: "id",
-    },
+  @OneToMany(() => Book, (book) => book.category, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
   })
   books: Book[];
 

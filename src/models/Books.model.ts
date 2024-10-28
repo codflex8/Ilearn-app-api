@@ -29,19 +29,9 @@ export class Book extends BaseModel {
   @Column({ nullable: true })
   content: string;
 
-  @ManyToMany(() => Category)
-  @JoinTable({
-    name: "CategoriesBooks",
-    inverseJoinColumn: {
-      name: "categoryId",
-      referencedColumnName: "id",
-    },
-    joinColumn: {
-      name: "bookId",
-      referencedColumnName: "id",
-    },
-  })
-  categories: Category[];
+  @ManyToOne(() => Category)
+  @JoinColumn({ name: "categoryId" })
+  category: Category;
 
   @ManyToOne(() => User, (user) => user.books)
   @JoinColumn({
@@ -74,7 +64,7 @@ export class Book extends BaseModel {
         user: { id: userId },
       },
       relations: {
-        categories: true,
+        category: true,
       },
     });
   }
