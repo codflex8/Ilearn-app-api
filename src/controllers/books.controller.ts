@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { Book } from "../models/Books.model";
-import { Equal, FindOptionsWhere, ILike, In } from "typeorm";
+import { FindOptionsWhere, ILike } from "typeorm";
 import { Category } from "../models/Categories.model";
 import { GenericResponse } from "../utils/GenericResponse";
 import { getPaginationData } from "../utils/getPaginationData";

@@ -106,6 +106,7 @@ export const updateQuestionValidator = questionValidatorWithRefine(
 
 export const addQuizValidator = z.object({
   name: z.string(),
+  mark: z.number().optional(),
   questionsType: z.nativeEnum(QuizQuestionsType),
   quizLevel: z.nativeEnum(QuizLevel),
   questions: z.array(addQuestionValidator),

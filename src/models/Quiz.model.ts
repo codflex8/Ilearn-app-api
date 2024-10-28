@@ -1,14 +1,6 @@
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-} from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { BaseModel } from "./BaseModel";
 import { Question } from "./Questions.model";
-import { Book } from "./Books.model";
 import { User } from "./User.model";
 import { QuestionType, QuizLevel } from "../utils/validators/QuizValidator";
 
@@ -16,6 +8,9 @@ import { QuestionType, QuizLevel } from "../utils/validators/QuizValidator";
 export class Quiz extends BaseModel {
   @Column()
   name: string;
+
+  @Column({ type: "int", nullable: true })
+  mark: number;
 
   @Column()
   questionsType: QuestionType;

@@ -46,13 +46,14 @@ export const getQuizes = asyncHandler(
 
 export const addQuize = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, questionsType, quizLevel, questions } = req.body;
+    const { name, questionsType, quizLevel, questions, mark } = req.body;
     const user = req.user;
     const newQuiz = Quiz.create({
       name,
       questionsType,
       quizLevel,
       user,
+      mark,
       questions: questions.map((question) =>
         addQuestion({
           question: question.question,
@@ -70,7 +71,7 @@ export const updateQuiz = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const { name, questionsType, quizLevel, questions } = req.body;
+    const { name, questionsType, quizLevel, questions, mark } = req.body;
     const quiz = await Quiz.getUserQuizById(user.id, id);
     if (!quiz) {
       return next(new ApiError("quiz not found", 400));
@@ -79,6 +80,7 @@ export const updateQuiz = asyncHandler(
     quiz.quizLevel = quizLevel;
     quiz.questionsType = questionsType;
     quiz.questions = questions;
+    quiz.mark = mark;
     await quiz.save();
     res.status(200).json({ quiz });
   }
