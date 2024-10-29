@@ -69,7 +69,10 @@ const questionValidatorWithRefine = (
     .refine(
       (data) => {
         if (data.questionType === QuestionType.Writing) {
-          return data.answers.length == 1;
+          return (
+            data.answers.length <= 2 &&
+            data.answers.find((answer) => answer.isCorrectAnswer)
+          );
         }
         return true;
       },
@@ -86,11 +89,22 @@ const questionValidatorWithRefine = (
         path: ["question"],
         message: "can not have more than one user answer for the question",
       }
+    )
+    .refine(
+      (data) => {
+        return (
+          data.answers.filter((answer) => answer.isCorrectAnswer).length <= 1
+        );
+      },
+      {
+        path: ["question"],
+        message: "can not have more than one correct answer for the question",
+      }
     );
 
 const addQuestionObject = z.object({
   question: z.string(),
-  questionType: z.nativeEnum(QuestionType),
+  type: z.nativeEnum(QuestionType),
   answers: z.array(addAnswerValidator),
 });
 

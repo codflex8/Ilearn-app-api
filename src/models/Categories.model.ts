@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  FindOptionsWhere,
   JoinColumn,
   JoinTable,
   ManyToMany,
@@ -10,6 +11,7 @@ import {
 import { Book } from "./Books.model";
 import { User } from "./User.model";
 import { BaseModel } from "./BaseModel";
+import { getPaginationData } from "../utils/getPaginationData";
 
 @Entity()
 export class Category extends BaseModel {

@@ -58,7 +58,7 @@ export const addQuize = asyncHandler(
         addQuestion({
           question: question.question,
           answers: question.answers,
-          questionType: question.questionType,
+          type: question.type,
         })
       ),
     });
@@ -167,16 +167,16 @@ export const getQuizQuestionById = asyncHandler(
 
 const addQuestion = ({
   question,
-  questionType,
+  type,
   answers,
 }: {
   question: string;
-  questionType: QuestionType;
+  type: QuestionType;
   answers: Answer[];
 }) => {
   const newQuestion = Question.create({
     question,
-    type: questionType,
+    type,
     answers: answers.map((answer) =>
       Answer.create({
         answer: answer.answer,
@@ -193,7 +193,7 @@ export const addQuestionHanlder = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const { question, questionType, answers } = req.body;
+    const { question, type, answers } = req.body;
     const quiz = await Quiz.findOne({
       where: {
         id,
@@ -205,7 +205,7 @@ export const addQuestionHanlder = asyncHandler(
     if (!quiz) return next(new ApiError("quiz not found", 400));
     const newQuestion = addQuestion({
       question,
-      questionType,
+      type,
       answers,
     });
     newQuestion.quiz = quiz;
