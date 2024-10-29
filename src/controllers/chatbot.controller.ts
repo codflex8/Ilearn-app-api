@@ -37,10 +37,6 @@ export const getChatbotById = asyncHandler(
     const user = req.user;
     const { id } = req.params;
     const chatbot = await Chatbot.getUserChatbotById(user.id, id);
-    if (!chatbot) {
-      res.status(203).json({ message: "no content" });
-    }
-
     res.status(200).json({ chatbot });
   }
 );
@@ -102,7 +98,7 @@ export const deleteChatbot = asyncHandler(
       next(new ApiError("chatbot not found", 404));
     }
     await chatbot.remove();
-    res.status(200).json({ chatbot });
+    res.status(200).json({ message: "delete success" });
   }
 );
 

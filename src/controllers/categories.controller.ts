@@ -41,10 +41,6 @@ export const getCategoryByID = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const category = await Category.getUserCategoryById(user.id, id);
-    if (!category) {
-      res.status(203).json({ message: "no content" });
-      return;
-    }
     res.status(200).json({ category });
   }
 );
@@ -77,7 +73,7 @@ export const deleteCategory = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const category = await Category.getUserCategoryById(user.id, id);
-    await category.remove();
-    res.status(200).json({ category });
+    await category?.remove();
+    res.status(200).json({ message: "delete success" });
   }
 );

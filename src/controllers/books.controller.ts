@@ -52,10 +52,6 @@ export const getBookById = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const book = await Book.getUserBookById(user.id, id);
-    if (!book) {
-      res.send(203).json({ message: "no content" });
-      return;
-    }
     res.status(200).json({ book });
   }
 );
@@ -100,6 +96,6 @@ export const deleteBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const book = await Book.delete(id);
-    res.status(200).json({ book });
+    res.status(200).json({ message: "delete success" });
   }
 );

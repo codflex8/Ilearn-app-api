@@ -24,11 +24,11 @@ router.put("/:id", validateData(updateQuizValidator), updateQuiz);
 router.get("/:id", getQuizById);
 router.delete("/:id", deleteQuiz);
 router.get("/:id/questions", getQuizQuestions);
-router.get("/:id/questions/:questionId", getQuizQuestionById);
-router.post(
-  "/:id/questions",
-  validateData(addQuestionValidator),
-  addQuestionHanlder
-);
+// router.get("/:id/questions/:questionId", getQuizQuestionById);
+// router.post(
+//   "/:id/questions",
+//   validateData(addQuestionValidator),
+//   addQuestionHanlder
+// );
 
 export default router;

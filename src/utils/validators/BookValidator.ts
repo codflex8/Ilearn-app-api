@@ -7,5 +7,4 @@ export const addBookValidator = z.object({
   fileUrl: z.string().optional().nullable(),
   link: z.string().optional().nullable(),
   content: z.string().optional().nullable(),
-  categoriesIds: z.array(z.string()).optional(),
 });

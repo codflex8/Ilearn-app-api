@@ -91,11 +91,6 @@ export const getQuizById = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const quiz = await Quiz.getUserQuizById(user.id, id);
-    if (!quiz) {
-      res.status(203).json({ message: "no content" });
-      return;
-    }
-
     res.status(200).json({ quiz });
   }
 );
