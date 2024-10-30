@@ -1,3 +1,4 @@
+import multer from "multer";
 import ApiError from "../utils/ApiError";
 
 const sendErrorForDev = (err, res) =>

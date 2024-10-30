@@ -7,28 +7,33 @@ import { ChatbotMessages } from "../models/ChatBotMessages.model";
 import { getPaginationData } from "../utils/getPaginationData";
 import { GenericResponse } from "../utils/GenericResponse";
 import { Book } from "../models/Books.model";
+import { ChatbotsQuery } from "../utils/validators/ChatbotValidator";
 
 export const getChatbots = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (
+    req: Request<{}, {}, {}, ChatbotsQuery>,
+    res: Response,
+    next: NextFunction
+  ) => {
     const user = req.user;
-    const { page, pageSize } = req.query;
+    const { page, pageSize, name, bookId, categoryId, fromDate, toDate } =
+      req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
-    const condition = {
-      user: {
-        id: user.id,
-      },
-    };
-
-    const [chatbots, count] = await Chatbot.findAndCount({
-      where: condition,
-      relations: ["books"],
-      take,
-      skip,
+    let querable = Chatbot.getChatbotFilterQuerable({
+      userId: user.id,
+      name,
+      bookId,
+      categoryId,
+      fromDate,
+      toDate,
     });
+
+    const chatbots = await querable.skip(skip).take(take).getMany();
+    const count = await querable.getCount();
 
     res
       .status(200)
-      .json(new GenericResponse<Chatbot>(Number(page), take, count, chatbots));
+      .json(new GenericResponse<Chatbot>(page, take, count, chatbots));
   }
 );
 

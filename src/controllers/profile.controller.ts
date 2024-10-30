@@ -7,7 +7,8 @@ import ApiError from "../utils/ApiError";
 export const updateProfileData = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    const { phoneNumber, email, username, birthDate, gender } = req.body;
+    const { phoneNumber, email, username, birthDate, gender, imageUrl } =
+      req.body;
     const isEmailExist = await User.findOne({
       where: {
         email: Equal(email),
@@ -32,6 +33,7 @@ export const updateProfileData = asyncHandler(
     user.phoneNumber = phoneNumber;
     user.birthDate = birthDate;
     user.gender = gender;
+    user.imageUrl = imageUrl;
     await user.save();
     res.status(200).json({ user });
   }

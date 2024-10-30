@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { globalError } from "./middleware/ErrorMiddleware";
 import ApiError from "./utils/ApiError";
 import dotenv from "dotenv";
+import path from "path";
 
 export default class Server {
   constructor(app: Application) {
@@ -19,6 +20,7 @@ export default class Server {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(morgan());
+    app.use("/public", express.static(path.join(__dirname, "public")));
     app.get("/", (req: Request, res: Response, next: NextFunction) => {
       return res.send("hello world");
     });

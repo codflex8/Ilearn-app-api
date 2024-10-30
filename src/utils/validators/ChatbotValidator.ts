@@ -1,4 +1,13 @@
 import { z } from "zod";
+import { BaseQuery } from "./BaseQuery";
+
+export interface ChatbotsQuery extends BaseQuery {
+  name: string;
+  bookId: string;
+  categoryId: string;
+  fromDate: Date;
+  toDate: Date;
+}
 
 export enum MessageFrom {
   user = "user",

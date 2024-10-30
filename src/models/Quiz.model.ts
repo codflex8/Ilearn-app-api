@@ -1,8 +1,16 @@
-import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
 import { BaseModel } from "./BaseModel";
 import { Question } from "./Questions.model";
 import { User } from "./User.model";
 import { QuestionType, QuizLevel } from "../utils/validators/QuizValidator";
+import { Book } from "./Books.model";
 
 @Entity()
 export class Quiz extends BaseModel {
@@ -28,19 +36,19 @@ export class Quiz extends BaseModel {
   @ManyToOne(() => User)
   user: User;
 
-  // @ManyToMany(() => Book)
-  // @JoinTable({
-  //   name: "QuizBooks",
-  //   inverseJoinColumn: {
-  //     name: "bookId",
-  //     referencedColumnName: "id",
-  //   },
-  //   joinColumn: {
-  //     name: "quizId",
-  //     referencedColumnName: "id",
-  //   },
-  // })
-  // books: Book[];
+  @ManyToMany(() => Book)
+  @JoinTable({
+    name: "QuizBooks",
+    inverseJoinColumn: {
+      name: "bookId",
+      referencedColumnName: "id",
+    },
+    joinColumn: {
+      name: "quizId",
+      referencedColumnName: "id",
+    },
+  })
+  books: Book[];
 
   static getUserQuizById(userId: string, quizId: string) {
     return this.findOne({
@@ -53,7 +61,69 @@ export class Quiz extends BaseModel {
           answers: true,
           bookmark: true,
         },
+        books: true,
       },
     });
+  }
+
+  static getQuizQuerable({
+    userId,
+    name,
+    bookId,
+    categoryId,
+    fromDate,
+    toDate,
+  }: {
+    userId: string;
+    name?: string;
+    bookId?: string;
+    categoryId?: string;
+    fromDate?: Date | string;
+    toDate?: Date | string;
+  }) {
+    let querable = this.getRepository()
+      .createQueryBuilder("quiz")
+      .leftJoin("quiz.user", "user")
+      .leftJoinAndSelect("quiz.books", "book")
+      .leftJoinAndSelect("book.category", "category")
+      .where("user.id = :userId", { userId });
+
+    if (name) {
+      querable = querable.andWhere("LOWER(quiz.name) LIKE :name", {
+        name: `%${name.toLowerCase()}%`,
+      });
+    }
+
+    if (bookId) {
+      querable = querable.andWhere("book.id = :bookId", { bookId });
+    }
+
+    if (categoryId) {
+      querable = querable.andWhere("category.id = :categoryId", { categoryId });
+    }
+
+    if (fromDate && toDate) {
+      querable = querable.andWhere(
+        "DATE(quiz.createdAt) BETWEEN :fromDate AND :toDate",
+        {
+          fromDate,
+          toDate,
+        }
+      );
+    } else {
+      if (fromDate) {
+        querable = querable.andWhere("DATE(quiz.createdAt) >= :fromDate", {
+          fromDate,
+        });
+      }
+
+      if (toDate) {
+        querable = querable.andWhere("DATE(quiz.createdAt) <= :toDate", {
+          toDate,
+        });
+      }
+    }
+
+    return querable.orderBy("quiz.createdAt", "DESC");
   }
 }

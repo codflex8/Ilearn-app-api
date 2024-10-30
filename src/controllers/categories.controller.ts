@@ -5,6 +5,7 @@ import { Equal, FindOptionsWhere, And, ILike } from "typeorm";
 import { Book } from "../models/Books.model";
 import { getPaginationData } from "../utils/getPaginationData";
 import { GenericResponse } from "../utils/GenericResponse";
+import path from "path";
 
 export const getCategories = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {

@@ -53,9 +53,19 @@ export class Book extends BaseModel {
   })
   chatbots: Chatbot[];
 
-  // @ManyToMany(() => Book)
-  // @JoinTable()
-  // quizes: Quiz[];
+  @ManyToMany(() => Quiz)
+  @JoinTable({
+    name: "QuizBooks",
+    joinColumn: {
+      name: "bookId",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "quizId",
+      referencedColumnName: "id",
+    },
+  })
+  quizes: Quiz[];
 
   static getUserBookById(userId: string, bookId: string) {
     return this.findOne({

@@ -123,6 +123,7 @@ export const addQuizValidator = z.object({
   mark: z.number().optional(),
   questionsType: z.nativeEnum(QuizQuestionsType),
   quizLevel: z.nativeEnum(QuizLevel),
+  booksIds: z.array(z.string()),
   questions: z.array(addQuestionValidator),
 });
 export const updateQuizValidator = addQuizValidator.extend({

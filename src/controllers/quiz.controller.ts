@@ -3,11 +3,12 @@ import asyncHandler from "express-async-handler";
 import { Quiz } from "../models/Quiz.model";
 import { getPaginationData } from "../utils/getPaginationData";
 import { GenericResponse } from "../utils/GenericResponse";
-import { Equal, FindOptionsWhere, ILike } from "typeorm";
+import { Equal, FindOptionsWhere, ILike, In } from "typeorm";
 import { QuestionType, QuizLevel } from "../utils/validators/QuizValidator";
 import ApiError from "../utils/ApiError";
 import { Question } from "../models/Questions.model";
 import { Answer } from "../models/Answers.model";
+import { Book } from "../models/Books.model";
 
 export const getQuizes = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -34,6 +35,9 @@ export const getQuizes = asyncHandler(
       where: conditions,
       skip,
       take,
+      relations: {
+        books: true,
+      },
       order: {
         createdAt: "DESC",
       },
@@ -46,14 +50,21 @@ export const getQuizes = asyncHandler(
 
 export const addQuize = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, questionsType, quizLevel, questions, mark } = req.body;
+    const { name, questionsType, quizLevel, questions, mark, booksIds } =
+      req.body;
     const user = req.user;
+    const books = await Book.find({
+      where: {
+        id: In(booksIds),
+      },
+    });
     const newQuiz = Quiz.create({
       name,
       questionsType,
       quizLevel,
       user,
       mark,
+      books,
       questions: questions.map((question) =>
         addQuestion({
           question: question.question,
@@ -71,16 +82,23 @@ export const updateQuiz = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const { name, questionsType, quizLevel, questions, mark } = req.body;
+    const { name, questionsType, quizLevel, questions, mark, booksIds } =
+      req.body;
     const quiz = await Quiz.getUserQuizById(user.id, id);
     if (!quiz) {
       return next(new ApiError("quiz not found", 400));
     }
+    const books = await Book.find({
+      where: {
+        id: In(booksIds),
+      },
+    });
     quiz.name = name;
     quiz.quizLevel = quizLevel;
     quiz.questionsType = questionsType;
     quiz.questions = questions;
     quiz.mark = mark;
+    quiz.books = books;
     await quiz.save();
     res.status(200).json({ quiz });
   }

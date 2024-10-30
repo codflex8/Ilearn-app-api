@@ -6,7 +6,7 @@ export class GenericResponse<T extends object> {
   items: T[];
   constructor(page: number, pageSize: number, count: number, items: T[]) {
     this.page = page ? page : 1;
-    this.pageSize = pageSize;
+    this.pageSize = Number(pageSize);
     this.count = count;
     this.pages = Math.ceil(count / pageSize);
     this.items = items;
