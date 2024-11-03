@@ -10,7 +10,7 @@ const router = Router();
 router.put(
   "/",
   upload.single("image"),
-  setImageUrl,
+  setImageUrl(),
   validateData(updateProfileValidator),
   updateProfileData
 );

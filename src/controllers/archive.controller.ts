@@ -29,29 +29,35 @@ export const getArchiveChatbots = asyncHandler(
     res: Response,
     next: NextFunction
   ) => {
-    const { name, page, pageSize } = req.query;
+    const { name, page, pageSize, categoryId, bookId } = req.query;
     const user = req.user;
     const { take, skip } = getPaginationData({ page, pageSize });
     const { todayDate, yesterdayDate, previousDate } = getArchiveDates();
 
-    const todayChatbots = await Chatbot.getChatbotFilterQuerable({
+    const todayChatbots = await Chatbot.getChatbotQuerable({
       userId: user.id,
       name,
       fromDate: todayDate,
       toDate: todayDate,
+      categoryId,
+      bookId,
     }).getMany();
 
-    const yasterdayChatbots = await Chatbot.getChatbotFilterQuerable({
+    const yasterdayChatbots = await Chatbot.getChatbotQuerable({
       userId: user.id,
       name,
       fromDate: yesterdayDate,
       toDate: yesterdayDate,
+      categoryId,
+      bookId,
     }).getMany();
 
-    const previousChatbotsQuerable = Chatbot.getChatbotFilterQuerable({
+    const previousChatbotsQuerable = Chatbot.getChatbotQuerable({
       userId: user.id,
       name,
       toDate: previousDate,
+      categoryId,
+      bookId,
     });
 
     const previousChatbotsCount = await previousChatbotsQuerable.getCount();
@@ -79,7 +85,7 @@ export const getArchiveQuizes = asyncHandler(
     res: Response,
     next: NextFunction
   ) => {
-    const { name, page, pageSize } = req.query;
+    const { name, page, pageSize, categoryId, bookId } = req.query;
     const user = req.user;
     const { take, skip } = getPaginationData({ page, pageSize });
     const { todayDate, yesterdayDate, previousDate } = getArchiveDates();
@@ -89,6 +95,8 @@ export const getArchiveQuizes = asyncHandler(
       name,
       fromDate: todayDate,
       toDate: todayDate,
+      categoryId,
+      bookId,
     }).getMany();
 
     const yasterdayQuizes = await Quiz.getQuizQuerable({
@@ -96,12 +104,16 @@ export const getArchiveQuizes = asyncHandler(
       name,
       fromDate: yesterdayDate,
       toDate: yesterdayDate,
+      categoryId,
+      bookId,
     }).getMany();
 
     const previousQuizesQuerable = Quiz.getQuizQuerable({
       userId: user.id,
       name,
       toDate: previousDate,
+      categoryId,
+      bookId,
     });
 
     const previousQuizesCount = await previousQuizesQuerable.getCount();

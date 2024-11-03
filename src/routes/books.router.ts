@@ -17,7 +17,7 @@ router.get("/", getBooks);
 router.post(
   "/",
   upload.single("image"),
-  setImageUrl,
+  setImageUrl(),
   validateData(addBookValidator),
   addBook
 );
@@ -25,7 +25,7 @@ router.get("/:id", getBookById);
 router.put(
   "/:id",
   upload.single("image"),
-  setImageUrl,
+  setImageUrl(),
   validateData(addBookValidator),
   updateBook
 );

@@ -19,7 +19,7 @@ export const getChatbots = asyncHandler(
     const { page, pageSize, name, bookId, categoryId, fromDate, toDate } =
       req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
-    let querable = Chatbot.getChatbotFilterQuerable({
+    let querable = Chatbot.getChatbotQuerable({
       userId: user.id,
       name,
       bookId,

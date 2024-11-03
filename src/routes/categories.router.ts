@@ -17,7 +17,7 @@ router.get("/", getCategories);
 router.post(
   "/",
   upload.single("image"),
-  setImageUrl,
+  setImageUrl(),
   validateData(addCategoryValidator),
   addCategory
 );
@@ -25,7 +25,7 @@ router.get("/:id", getCategoryByID);
 router.put(
   "/:id",
   upload.single("image"),
-  setImageUrl,
+  setImageUrl(),
   validateData(addCategoryValidator),
   updateCategory
 );

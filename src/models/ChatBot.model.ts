@@ -49,7 +49,7 @@ export class Chatbot extends BaseModel {
     });
   }
 
-  static getChatbotFilterQuerable({
+  static getChatbotQuerable({
     userId,
     name,
     bookId,

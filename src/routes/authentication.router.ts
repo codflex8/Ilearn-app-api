@@ -22,7 +22,7 @@ const router = Router();
 router.post(
   "/signup",
   upload.single("image"),
-  setImageUrl,
+  setImageUrl(),
   validateData(signUpValidator),
   signup
 );

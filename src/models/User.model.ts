@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
 import { Category } from "./Categories.model";
 import { Book } from "./Books.model";
 import { GenderEnum } from "../utils/validators/AuthValidator";
@@ -6,6 +6,8 @@ import { BaseModel } from "./BaseModel";
 import { Chatbot } from "./ChatBot.model";
 import { Quiz } from "./Quiz.model";
 import { Bookmark } from "./Bookmarks.model";
+import { GroupsChat } from "./GroupsChat.model";
+import { GroupsChatUsers } from "./GroupsChatUsers.model";
 
 @Entity()
 export class User extends BaseModel {
@@ -56,4 +58,21 @@ export class User extends BaseModel {
 
   @OneToMany(() => Bookmark, (bookmark) => bookmark.user)
   bookmarks: Bookmark[];
+
+  @OneToMany(() => GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.user)
+  userGroupsChats: GroupsChatUsers[];
+
+  @ManyToMany(() => GroupsChat)
+  @JoinTable({
+    name: "GroupsChatUsers",
+    joinColumn: {
+      name: "userId",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "chatId",
+      referencedColumnName: "id",
+    },
+  })
+  groupsChat: GroupsChat[];
 }
