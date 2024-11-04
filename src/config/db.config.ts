@@ -7,6 +7,7 @@ const dbConfig = {
   USER: process.env.DB_User,
   PASSWORD: process.env.DB_PASSWORD,
   DB: process.env.DB,
+  port: process.env.DB_PORT,
   pool: {
     max: Number(process.env.Pool_Max) || 5,
     min: Number(process.env.Pool_Min) || 0,

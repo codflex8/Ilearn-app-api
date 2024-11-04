@@ -7,6 +7,7 @@ export const dataSource = new DataSource({
   database: dbConfig.DB,
   username: dbConfig.USER,
   password: dbConfig.PASSWORD,
+  port: Number(dbConfig.port),
   // pool: { ...dbConfig.pool },
   type: "mysql",
   synchronize: false,
