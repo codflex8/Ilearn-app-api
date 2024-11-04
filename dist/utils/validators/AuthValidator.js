@@ -1,7 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPasswordValidator = exports.verifyForgetPasswordValidator = exports.forgetPasswordValidator = exports.signUpValidator = exports.signInValidator = void 0;
+exports.resetPasswordValidator = exports.verifyForgetPasswordValidator = exports.forgetPasswordValidator = exports.signUpValidator = exports.signInValidator = exports.GenderEnum = void 0;
 const zod_1 = require("zod");
+var GenderEnum;
+(function (GenderEnum) {
+    GenderEnum["MALE"] = "male";
+    GenderEnum["FEMALE"] = "female";
+})(GenderEnum || (exports.GenderEnum = GenderEnum = {}));
 exports.signInValidator = zod_1.z.object({
     email: zod_1.z.string().email(),
     password: zod_1.z.string().min(6),

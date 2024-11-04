@@ -22,7 +22,6 @@ const handleJwtExpired = () =>
   new ApiError("Expired token, please login again..", 401);
 
 export const globalError = (err: ApiError, req, res, next) => {
-  console.log("global error");
   err.statusCode = err.statusCode || 500;
   if (process.env.NODE_ENV === "development") {
     sendErrorForDev(err, res);

@@ -1,19 +1,21 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dialect = void 0;
-require("reflect-metadata");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const dbConfig = {
-    HOST: "localhost",
-    USER: "root",
-    PASSWORD: "krzh",
-    DB: "ai_learning",
+    HOST: process.env.DB_HOST,
+    USER: process.env.DB_User,
+    PASSWORD: process.env.DB_PASSWORD,
+    DB: process.env.DB,
     pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 10000,
+        max: Number(process.env.Pool_Max) || 5,
+        min: Number(process.env.Pool_Min) || 0,
+        acquire: Number(process.env.Pool_Acquire) || 30000,
+        idle: Number(process.env.Pool_Idle) || 10000,
     },
 };
-exports.dialect = "mysql";
 exports.default = dbConfig;
 //# sourceMappingURL=db.config.js.map

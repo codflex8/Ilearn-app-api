@@ -22,15 +22,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -46,16 +37,25 @@ const sendEmail_1 = __importDefault(require("../utils/sendEmail"));
 const bcryptPassword_1 = __importDefault(require("../utils/bcryptPassword"));
 const generateCode_1 = __importDefault(require("../utils/generateCode"));
 const typeorm_1 = require("typeorm");
-exports.signup = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // 1- Create user
-    const cryptedPassword = yield (0, bcryptPassword_1.default)(req.body.password);
-    const user = yield User_model_1.User.create({
-        username: req.body.username,
-        email: req.body.email,
-        password: cryptedPassword,
-        imageUrl: req.body.imageUrl,
+exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const { username, email, password, imageUrl } = req.body;
+    const isUserExist = await User_model_1.User.findOne({
+        where: {
+            email: (0, typeorm_1.Equal)(req.body.email),
+        },
     });
-    yield user.save();
+    if (isUserExist) {
+        return next(new ApiError_1.default("email is used by other user", 409));
+    }
+    // 1- Create user
+    const cryptedPassword = await (0, bcryptPassword_1.default)(password);
+    const user = await User_model_1.User.create({
+        username,
+        email,
+        password: cryptedPassword,
+        imageUrl,
+    });
+    await user.save();
     delete user.password;
     delete user.passwordChangedAt;
     delete user.passwordResetCode;
@@ -64,17 +64,17 @@ exports.signup = (0, express_async_handler_1.default)((req, res, next) => __awai
     // 2- Generate token
     const token = (0, createToken_1.default)(user.id);
     res.status(201).json({ data: user, token });
-}));
-exports.signIn = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield User_model_1.User.findOneBy({ email: (0, typeorm_1.Equal)(req.body.email) });
-    if (!user || !(yield bcrypt.compare(req.body.password, user.password))) {
+});
+exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const user = await User_model_1.User.findOneBy({ email: (0, typeorm_1.Equal)(req.body.email) });
+    if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
         return next(new ApiError_1.default("Incorrect email or password", 401));
     }
     const token = (0, createToken_1.default)(user.id);
     delete user.password;
     res.status(200).json({ user, token });
-}));
-exports.protect = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.protect = (0, express_async_handler_1.default)(async (req, res, next) => {
     let token;
     if (req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")) {
@@ -86,7 +86,18 @@ exports.protect = (0, express_async_handler_1.default)((req, res, next) => __awa
     // 2) Verify token (no change happens, expired token)
     const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
     // 3) Check if user exists
-    const currentUser = yield User_model_1.User.findOne({ where: { id: decoded.userId } });
+    const currentUser = await User_model_1.User.findOne({
+        where: { id: decoded.userId },
+        select: [
+            "id",
+            "username",
+            "email",
+            "gender",
+            "phoneNumber",
+            "birthDate",
+            "imageUrl",
+        ],
+    });
     if (!currentUser) {
         return next(new ApiError_1.default("The user that belong to this token does no longer exist", 401));
     }
@@ -94,17 +105,17 @@ exports.protect = (0, express_async_handler_1.default)((req, res, next) => __awa
     if (currentUser.passwordChangedAt) {
         const passChangedTimestamp = currentUser.passwordChangedAt.getTime() / 1000;
         // Password changed after token created (Error)
-        if (passChangedTimestamp > decoded.at) {
+        if (decoded.iat && passChangedTimestamp > decoded.iat) {
             return next(new ApiError_1.default("User recently changed his password. please login again..", 401));
         }
     }
     // ToDo: set user
     req.user = currentUser;
     next();
-}));
-exports.forgotPassword = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.forgotPassword = (0, express_async_handler_1.default)(async (req, res, next) => {
     // 1) Get user by email
-    const user = yield User_model_1.User.findOne({ where: { email: (0, typeorm_1.Equal)(req.body.email) } });
+    const user = await User_model_1.User.findOne({ where: { email: (0, typeorm_1.Equal)(req.body.email) } });
     if (!user) {
         return next(new ApiError_1.default(`There is no user with that email ${req.body.email}`, 404));
     }
@@ -116,11 +127,11 @@ exports.forgotPassword = (0, express_async_handler_1.default)((req, res, next) =
     const oneMinuteLater = new Date(Date.now() + 1 * 60 * 1000);
     user.passwordResetExpires = oneMinuteLater;
     user.passwordResetVerified = false;
-    yield user.save();
+    await user.save();
     // 3) Send the reset code via email
     const message = `Hi ${user.username},\n We received a request to reset the password on your E-shop Account. \n ${resetCode} \n Enter this code to complete the reset. \n Thanks for helping us keep your account secure.\n The E-shop Team`;
     try {
-        yield (0, sendEmail_1.default)({
+        await (0, sendEmail_1.default)({
             email: user.email,
             subject: "Your password reset code (valid for 10 min)",
             message,
@@ -130,16 +141,16 @@ exports.forgotPassword = (0, express_async_handler_1.default)((req, res, next) =
         user.passwordResetCode = undefined;
         user.passwordResetExpires = undefined;
         user.passwordResetVerified = undefined;
-        yield user.save();
+        await user.save();
         return next(new ApiError_1.default("There is an error in sending email", 500));
     }
     res
         .status(200)
         .json({ status: "Success", message: "Reset code sent to email" });
-}));
-exports.verifyPassResetCode = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.verifyPassResetCode = (0, express_async_handler_1.default)(async (req, res, next) => {
     // 1) Get user based on reset code
-    const user = yield User_model_1.User.findOne({
+    const user = await User_model_1.User.findOne({
         where: {
             email: req.body.email,
         },
@@ -155,14 +166,14 @@ exports.verifyPassResetCode = (0, express_async_handler_1.default)((req, res, ne
     }
     // 2) Reset code valid
     user.passwordResetVerified = true;
-    yield user.save();
+    await user.save();
     res.status(200).json({
         status: "Success",
     });
-}));
-exports.resetPassword = (0, express_async_handler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+exports.resetPassword = (0, express_async_handler_1.default)(async (req, res, next) => {
     // 1) Get user based on email
-    const user = yield User_model_1.User.findOne({ where: { email: (0, typeorm_1.Equal)(req.body.email) } });
+    const user = await User_model_1.User.findOne({ where: { email: (0, typeorm_1.Equal)(req.body.email) } });
     if (!user) {
         return next(new ApiError_1.default(`There is no user with email ${req.body.email}`, 404));
     }
@@ -170,14 +181,15 @@ exports.resetPassword = (0, express_async_handler_1.default)((req, res, next) =>
     if (!user.passwordResetVerified) {
         return next(new ApiError_1.default("Reset code not verified", 400));
     }
-    const cryptedPassword = yield (0, bcryptPassword_1.default)(req.body.password);
+    const cryptedPassword = await (0, bcryptPassword_1.default)(req.body.password);
     user.password = cryptedPassword;
+    user.passwordChangedAt = new Date();
     user.passwordResetCode = undefined;
     user.passwordResetExpires = undefined;
-    user.passwordResetVerified = undefined;
-    yield user.save();
+    user.passwordResetVerified = false;
+    await user.save();
     // 3) if everything is ok, generate token
     const token = (0, createToken_1.default)(user.id);
     res.status(200).json({ token });
-}));
+});
 //# sourceMappingURL=authentication.controller.js.map

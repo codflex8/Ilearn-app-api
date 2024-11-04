@@ -81,7 +81,10 @@ export const protect = asyncHandler(
     }
 
     // 2) Verify token (no change happens, expired token)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY) as JwtPayload;
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET_KEY as string
+    ) as JwtPayload;
 
     // 3) Check if user exists
     const currentUser = await User.findOne({
@@ -110,7 +113,7 @@ export const protect = asyncHandler(
       const passChangedTimestamp =
         currentUser.passwordChangedAt.getTime() / 1000;
       // Password changed after token created (Error)
-      if (passChangedTimestamp > decoded.iat) {
+      if (decoded.iat && passChangedTimestamp > decoded.iat) {
         return next(
           new ApiError(
             "User recently changed his password. please login again..",

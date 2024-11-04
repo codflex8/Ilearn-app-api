@@ -12,13 +12,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Category = void 0;
 const typeorm_1 = require("typeorm");
 const Books_model_1 = require("./Books.model");
-let Category = class Category extends typeorm_1.BaseEntity {
+const User_model_1 = require("./User.model");
+const BaseModel_1 = require("./BaseModel");
+let Category = class Category extends BaseModel_1.BaseModel {
+    static getUserCategoryById(userId, categoryId) {
+        return this.findOne({
+            where: {
+                id: categoryId,
+                user: { id: userId },
+            },
+            relations: {
+                books: true,
+            },
+        });
+    }
 };
 exports.Category = Category;
-__decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)("uuid"),
-    __metadata("design:type", String)
-], Category.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
@@ -28,20 +37,20 @@ __decorate([
     __metadata("design:type", String)
 ], Category.prototype, "imageUrl", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => Books_model_1.Book),
-    (0, typeorm_1.JoinTable)({
-        name: "CategoriesBooks",
-        joinColumn: {
-            name: "categoryId",
-            referencedColumnName: "id",
-        },
-        inverseJoinColumn: {
-            name: "bookId",
-            referencedColumnName: "id",
-        },
+    (0, typeorm_1.OneToMany)(() => Books_model_1.Book, (book) => book.category, {
+        cascade: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
     }),
     __metadata("design:type", Array)
 ], Category.prototype, "books", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.categories),
+    (0, typeorm_1.JoinColumn)({
+        name: "userId",
+    }),
+    __metadata("design:type", User_model_1.User)
+], Category.prototype, "user", void 0);
 exports.Category = Category = __decorate([
     (0, typeorm_1.Entity)()
 ], Category);

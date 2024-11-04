@@ -7,21 +7,22 @@ const express_1 = __importDefault(require("express"));
 const dataSource_1 = require("./models/dataSource");
 const routes_1 = __importDefault(require("./routes"));
 const cors_1 = __importDefault(require("cors"));
-const morgan_1 = __importDefault(require("morgan"));
 const ErrorMiddleware_1 = require("./middleware/ErrorMiddleware");
 const ApiError_1 = __importDefault(require("./utils/ApiError"));
 const dotenv_1 = __importDefault(require("dotenv"));
-class Server {
+const path_1 = __importDefault(require("path"));
+class AppServer {
     constructor(app) {
-        this.config(app);
         this.syncDatabase();
+        this.config(app);
     }
     config(app) {
         dotenv_1.default.config();
         app.use((0, cors_1.default)());
         app.use(express_1.default.json());
         app.use(express_1.default.urlencoded({ extended: true }));
-        app.use((0, morgan_1.default)());
+        // app.use(morgan());
+        app.use("/public", express_1.default.static(path_1.default.join(__dirname, "public")));
         app.get("/", (req, res, next) => {
             return res.send("hello world");
         });
@@ -43,5 +44,5 @@ class Server {
         });
     }
 }
-exports.default = Server;
+exports.default = AppServer;
 //# sourceMappingURL=app.js.map

@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
-import dbConfig, { dialect } from "../config/db.config";
+import dbConfig from "../config/db.config";
+import path from "path";
 
 export const dataSource = new DataSource({
   host: dbConfig.HOST,
@@ -7,10 +8,10 @@ export const dataSource = new DataSource({
   username: dbConfig.USER,
   password: dbConfig.PASSWORD,
   // pool: { ...dbConfig.pool },
-  type: dialect,
-  entities: [__dirname + "/**/*.model{.ts,.js}"],
+  type: "mysql",
   synchronize: false,
-  migrations: ["src/migrations/**/*{.ts,.js}"],
-  subscribers: ["src/subscribers/**/*{.ts,.js}"],
+  entities: [path.join(__dirname, "/**/*.model.{js,ts}")],
+  migrations: [path.join(__dirname, "../migrations/**/*.{js,ts}")],
+  subscribers: [path.join(__dirname, "../subscribers/**/*.{js,ts}")],
   logging: true,
 });

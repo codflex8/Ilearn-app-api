@@ -1,10 +1,11 @@
 export class GenericResponse<T extends object> {
-  page: number;
-  pageSize: number;
-  count: number;
-  pages: number;
-  items: T[];
-  constructor(page: number, pageSize: number, count: number, items: T[]) {
+  public pages: number;
+  constructor(
+    private page: number,
+    private pageSize: number,
+    private count: number,
+    private items: T[]
+  ) {
     this.page = page ? page : 1;
     this.pageSize = Number(pageSize);
     this.count = count;

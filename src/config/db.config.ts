@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -9,13 +8,11 @@ const dbConfig = {
   PASSWORD: process.env.DB_PASSWORD,
   DB: process.env.DB,
   pool: {
-    max: process.env.Pool_Max,
-    min: process.env.Pool_Min,
-    acquire: process.env.Pool_Acquire,
-    idle: process.env.Pool_Idle,
+    max: Number(process.env.Pool_Max) || 5,
+    min: Number(process.env.Pool_Min) || 0,
+    acquire: Number(process.env.Pool_Acquire) || 30000,
+    idle: Number(process.env.Pool_Idle) || 10000,
   },
 };
-
-export const dialect = "mysql";
 
 export default dbConfig;
