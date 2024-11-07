@@ -1,10 +1,14 @@
 import {
+  AfterInsert,
+  AfterLoad,
+  AfterUpdate,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
+  VirtualColumn,
 } from "typeorm";
 import { BaseModel } from "./BaseModel";
 import { Quiz } from "./Quiz.model";
@@ -33,4 +37,13 @@ export class Question extends BaseModel {
   @OneToOne(() => Bookmark, (bookmark) => bookmark.question)
   // @JoinColumn()
   bookmark: Bookmark;
+
+  isBookmarked: boolean;
+
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  updateCoverPhotoLink() {
+    this.isBookmarked = !!this.bookmark;
+  }
 }

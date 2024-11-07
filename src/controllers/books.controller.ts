@@ -34,9 +34,9 @@ export const getBooks = asyncHandler(
       where: condition,
       skip,
       take,
-      relations: {
-        category: true,
-      },
+      // relations: {
+      //   category: true,
+      // },
       order: {
         createdAt: "DESC",
       },

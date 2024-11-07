@@ -51,19 +51,14 @@ export class Quiz extends BaseModel {
   books: Book[];
 
   static getUserQuizById(userId: string, quizId: string) {
-    return this.findOne({
-      where: {
-        id: quizId,
-        user: { id: userId },
-      },
-      relations: {
-        questions: {
-          answers: true,
-          bookmark: true,
-        },
-        books: true,
-      },
-    });
+    return this.createQueryBuilder("quiz")
+      .leftJoinAndSelect("quiz.questions", "question")
+      .leftJoinAndSelect("question.answers", "answer")
+      .leftJoinAndSelect("question.bookmark", "bookmark")
+      .leftJoinAndSelect("quiz.books", "book")
+      .where("quiz.id = :quizId", { quizId })
+      .andWhere("quiz.userId = :userId", { userId })
+      .getOne();
   }
 
   static getQuizQuerable({

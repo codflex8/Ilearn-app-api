@@ -52,6 +52,7 @@ export const addCategory = asyncHandler(
     const user = req.user;
     const newCategory = Category.create({ name, imageUrl, user });
     await newCategory.save();
+    delete newCategory.user;
     res.status(201).json({ category: newCategory });
   }
 );
