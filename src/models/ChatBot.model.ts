@@ -68,7 +68,7 @@ export class Chatbot extends BaseModel {
       .createQueryBuilder("chatbot")
       .leftJoin("chatbot.user", "user")
       .leftJoinAndSelect("chatbot.books", "book")
-      .leftJoinAndSelect("book.category", "category")
+      .leftJoin("book.category", "category")
       .where("user.id = :userId", { userId });
 
     if (name) {
