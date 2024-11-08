@@ -4,10 +4,14 @@ import { GroupsChat } from "../models/GroupsChat.model";
 import { getPaginationData } from "../utils/getPaginationData";
 import { BaseQuery } from "../utils/validators/BaseQuery";
 import { GenericResponse } from "../utils/GenericResponse";
-import { addGroupChatValidator } from "../utils/validators/GroupsChatValidator";
+import {
+  addGroupChatValidator,
+  GroupChatRoles,
+} from "../utils/validators/GroupsChatValidator";
 import { User } from "../models/User.model";
 import { FindOptionsWhere, ILike, In } from "typeorm";
 import { GroupsChatUsers } from "../models/GroupsChatUsers.model";
+import ApiError from "../utils/ApiError";
 
 interface GroupsChatQuery extends BaseQuery {
   name?: string;
@@ -23,8 +27,10 @@ export const getGroupsChat = asyncHandler(
     const { page, pageSize, name } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
     let condition: FindOptionsWhere<GroupsChat> = {
-      users: {
-        id: user.id,
+      userGroupsChats: {
+        user: {
+          id: user.id,
+        },
       },
     };
     if (name) {
@@ -32,6 +38,9 @@ export const getGroupsChat = asyncHandler(
     }
     const [groupsChat, count] = await GroupsChat.findAndCount({
       where: condition,
+      relations: {
+        userGroupsChats: true,
+      },
       order: {
         createdAt: "desc",
       },
@@ -54,21 +63,29 @@ export const createGroupChat = asyncHandler(
     next: NextFunction
   ) => {
     const { name, usersIds, imageUrl } = req.body;
-    // ToDO: set group chat admin and memebers
     const user = req.user;
     const users = await User.find({
       where: {
-        id: In(usersIds),
+        id: In([...(usersIds ?? []), user.id]),
       },
     });
     const newGroupChat = GroupsChat.create({
       name,
-      users,
       imageUrl,
     });
-
     await newGroupChat.save();
+    const usersGroupChat = users.map((currentUser) =>
+      GroupsChatUsers.create({
+        user: currentUser,
+        groupChat: newGroupChat,
+        role:
+          user.id === currentUser.id
+            ? GroupChatRoles.Admin
+            : GroupChatRoles.Member,
+      })
+    );
 
+    await GroupsChatUsers.save(usersGroupChat);
     res.status(201).json({ newGroupChat });
   }
 );
@@ -85,44 +102,36 @@ export const getGroupChatById = asyncHandler(
 export const updateGroupChat = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const {
-      name,
-      usersIds,
-      image,
-      muteNotification,
-      backgroundColor,
-      backgroundCover,
-    } = req.body;
-    // ToDO: set group chat admin and memebers
+    const { name, image, muteNotification, backgroundColor, backgroundCover } =
+      req.body;
     const user = req.user;
-    const users = await User.find({
-      where: {
-        id: In(usersIds ?? []),
-      },
-    });
     const groupChat = await GroupsChat.findOne({
       where: {
         id,
-        // userGroupsChats: {
-        //   userId: user.id,
-        // },
-        // users: {
-        //   id: user.id,
-        // },
+        userGroupsChats: {
+          user: {
+            id: user.id,
+          },
+        },
       },
       relations: {
-        users: true,
-        userGroupsChats: true,
+        userGroupsChats: { user: true },
       },
     });
     groupChat.name = name;
-    if (users.length > 0) groupChat.users = [...groupChat.users, ...users];
     if (image) groupChat.imageUrl = image;
     groupChat.backgroundColor = backgroundColor;
     if (backgroundCover) groupChat.backgroundCoverUrl = backgroundCover;
-    // groupChat.userGroupsChats.
-
+    if (muteNotification) {
+      const userGroupsChatIndex = groupChat.userGroupsChats.findIndex(
+        (groupchat) => groupchat.user.id === user.id
+      );
+      const userGroupsChat = groupChat.userGroupsChats[userGroupsChatIndex];
+      userGroupsChat.muteNotification = Boolean(muteNotification);
+      groupChat.userGroupsChats.splice(userGroupsChatIndex, 1, userGroupsChat);
+    }
     await groupChat.save();
+    await GroupsChatUsers.save(groupChat.userGroupsChats);
     res.status(201).json({ groupChat });
   }
 );
@@ -137,13 +146,27 @@ export const addUsersToGroupChat = asyncHandler(
     const user = req.user;
     const { usersIds } = req.body;
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
+    const isAdmin = isUserGroupAdmin(user, groupChat?.userGroupsChats);
+    if (!isAdmin) return next(new ApiError("you are not group admin", 400));
+    const filterdUserIds = usersIds.filter(
+      (userId) =>
+        !groupChat.userGroupsChats.find((group) => group.user.id === userId)
+    );
+
     const users = await User.find({
       where: {
-        id: In(usersIds),
+        id: In(filterdUserIds),
       },
     });
-    groupChat.users = [...groupChat.users, ...users];
-    await groupChat.save();
+    const usersGroupChat = users.map((user) =>
+      GroupsChatUsers.create({
+        user,
+        groupChat,
+        role: GroupChatRoles.Member,
+      })
+    );
+
+    await GroupsChatUsers.save(usersGroupChat);
 
     res.status(200).json({ message: "add users to groupchat succes" });
   }
@@ -157,13 +180,19 @@ export const removeUsersfromGroupChat = asyncHandler(
   ) => {
     const { id } = req.params;
     const { usersIds } = req.body;
+    const user = req.user;
+    const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
     const deletedRows = await GroupsChatUsers.find({
       where: {
-        chatId: id,
-        userId: In(usersIds),
+        groupChat: { id },
+        user: { id: In(usersIds) },
+      },
+      relations: {
+        user: true,
       },
     });
-
+    const isAdmin = isUserGroupAdmin(user, groupChat.userGroupsChats);
+    if (!isAdmin) return next(new ApiError("you are not group admin", 400));
     await GroupsChatUsers.remove(deletedRows);
 
     res.status(200).json({ message: "removed users to groupchat succes" });
@@ -180,8 +209,8 @@ export const leaveGroupChat = asyncHandler(
     const user = req.user;
     const deletedRows = await GroupsChatUsers.find({
       where: {
-        chatId: id,
-        userId: user.id,
+        groupChat: { id },
+        user: { id: user.id },
       },
     });
     await GroupsChatUsers.remove(deletedRows);
@@ -189,3 +218,11 @@ export const leaveGroupChat = asyncHandler(
     res.status(200).json({ message: "user leaved groupchat succes" });
   }
 );
+
+const isUserGroupAdmin = (user: User, userGroupsChat: GroupsChatUsers[]) => {
+  console.log("userrrrr", { user, userGroupsChat });
+  const userGroupChat = userGroupsChat.find(
+    (chat) => chat.user?.id === user.id
+  );
+  return userGroupChat?.role === GroupChatRoles.Admin;
+};

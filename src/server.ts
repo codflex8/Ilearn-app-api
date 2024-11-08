@@ -1,12 +1,22 @@
 import "reflect-metadata";
 import express, { NextFunction, Request, Response } from "express";
-import Server from "./src/app";
+import Server from "./app";
+import { createServer } from "http";
+import Websocket from "./websocket/websocket";
+import { Socket } from "socket.io";
 const app = express();
 
 new Server(app);
+const httpServer = createServer(app);
+const io = Websocket.getInstance(httpServer);
 
-const server = app.listen(process.env.PORT || 3000, () => {
+const server = httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`listen on ${process.env.PORT || 3000} port`);
+});
+
+io.on("connection", (socket: Socket) => {
+  console.log("user connection");
+  socket.emit("coonect-success");
 });
 
 process.on("unhandledRejection", (err: Error) => {

@@ -62,17 +62,7 @@ export class User extends BaseModel {
   @OneToMany(() => GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.user)
   userGroupsChats: GroupsChatUsers[];
 
-  @ManyToMany(() => GroupsChat)
-  @JoinTable({
-    name: "GroupsChatUsers",
-    joinColumn: {
-      name: "userId",
-      referencedColumnName: "id",
-    },
-    inverseJoinColumn: {
-      name: "chatId",
-      referencedColumnName: "id",
-    },
-  })
-  groupsChat: GroupsChat[];
+  // @ManyToMany(() => GroupsChat, (group) => group.users)
+  // @JoinTable({ name: "groups_chat_users" })
+  // groupsChat: GroupsChat[];
 }

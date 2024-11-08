@@ -27,39 +27,41 @@ export class GroupsChat extends BaseModel {
   )
   userGroupsChats: GroupsChatUsers[];
 
-  @ManyToMany(() => User)
-  @JoinTable({
-    name: "GroupsChatUsers",
-    inverseJoinColumn: {
-      name: "userId",
-      referencedColumnName: "id",
-    },
-    joinColumn: {
-      name: "chatId",
-      referencedColumnName: "id",
-    },
-  })
-  users: User[];
+  // @ManyToMany(() => User, (user) => user.groupsChat)
+  // @JoinTable({
+  //   name: "groups_chat_users",
+  //   inverseJoinColumn: {
+  //     name: "userId",
+  //     referencedColumnName: "id",
+  //   },
+  //   joinColumn: {
+  //     name: "groupChatId",
+  //     referencedColumnName: "id",
+  //   },
+  // })
+  // users: User[];
 
   static getUserGroupChatById(userId: string, id: string) {
-    return this.getRepository()
-      .createQueryBuilder("chat")
-      .leftJoinAndSelect("chat.users", "users")
-      .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
-      .where("chat.id = :id", { id })
-      .andWhere("userGroupsChats.userId = :userId", { userId })
-      .select("chat")
-      .addSelect("userGroupsChats")
-      .addSelect([
-        "users.id",
-        "users.email",
-        "users.phoneNumber",
-        "users.username",
-        "users.gender",
-        "users.imageUrl",
-        "users.gender",
-        "users.birthDate",
-      ])
-      .getOne();
+    return (
+      this.getRepository()
+        .createQueryBuilder("chat")
+        .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
+        .leftJoinAndSelect("userGroupsChats.user", "user")
+        .where("chat.id = :id", { id })
+        // .andWhere("userGroupsChats.userId = :userId", { userId })
+        .select("chat")
+        .addSelect("userGroupsChats")
+        .addSelect([
+          "user.id",
+          "user.email",
+          "user.phoneNumber",
+          "user.username",
+          "user.gender",
+          "user.imageUrl",
+          "user.gender",
+          "user.birthDate",
+        ])
+        .getOne()
+    );
   }
 }

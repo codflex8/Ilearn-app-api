@@ -19,7 +19,7 @@ export default class Server {
     app.use(cors());
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-    app.use(morgan());
+    // app.use(morgan());
     app.use("/public", express.static(path.join(__dirname, "public")));
     app.get("/", (req: Request, res: Response, next: NextFunction) => {
       return res.send("hello world");
