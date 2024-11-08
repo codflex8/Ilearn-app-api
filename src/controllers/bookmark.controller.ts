@@ -7,18 +7,42 @@ import { ChatbotMessages } from "../models/ChatBotMessages.model";
 import ApiError from "../utils/ApiError";
 import { Question } from "../models/Questions.model";
 import { User } from "../models/User.model";
+import { FindOneOptions, FindOptions, FindOptionsWhere, In } from "typeorm";
 
 export const getBookmarks = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    const { page, pageSize } = req.query;
+    const { page, pageSize, bookId, chatbotId } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
-    const [bookmarks, count] = await Bookmark.findAndCount({
-      where: {
-        user: {
-          id: user.id,
-        },
+    let conditions: FindOptionsWhere<Bookmark> = {
+      user: {
+        id: user.id,
       },
+    };
+    if (bookId) {
+      conditions = {
+        ...conditions,
+        question: {
+          quiz: {
+            books: {
+              id: In([bookId]),
+            },
+          },
+        },
+      };
+    }
+    if (chatbotId) {
+      conditions = {
+        ...conditions,
+        chatbotMessage: {
+          chatbot: {
+            id: In([chatbotId]),
+          },
+        },
+      };
+    }
+    const [bookmarks, count] = await Bookmark.findAndCount({
+      where: conditions,
       relations: {
         chatbotMessage: true,
         question: true,

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { Book } from "../models/Books.model";
-import { FindOptionsWhere, ILike } from "typeorm";
+import { FindOptionsWhere, ILike, IsNull, Not } from "typeorm";
 import { Category } from "../models/Categories.model";
 import { GenericResponse } from "../utils/GenericResponse";
 import { getPaginationData } from "../utils/getPaginationData";
@@ -9,9 +9,8 @@ import ApiError from "../utils/ApiError";
 
 export const getBooks = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { categoryId, name } = req.query;
+    const { page, pageSize, categoryId, name, forArchive } = req.query;
     const user = req.user;
-    const { page, pageSize } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
     let condition: FindOptionsWhere<Book> = {
       user: {
@@ -30,8 +29,24 @@ export const getBooks = asyncHandler(
         },
       };
     }
+
     const [books, count] = await Book.findAndCount({
-      where: condition,
+      where: forArchive
+        ? [
+            {
+              ...condition,
+              quizes: {
+                id: Not(IsNull()),
+              },
+            },
+            {
+              ...condition,
+              chatbots: {
+                id: Not(IsNull()),
+              },
+            },
+          ]
+        : condition,
       skip,
       take,
       // relations: {
@@ -67,6 +82,8 @@ export const addBook = asyncHandler(
     }
     book.category = category;
     await book.save();
+    delete book.user;
+    delete book.category;
     res.status(201).json({ book });
   }
 );
