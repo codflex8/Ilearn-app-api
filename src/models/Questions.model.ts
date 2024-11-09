@@ -27,6 +27,15 @@ export class Question extends BaseModel {
   @ManyToOne(() => Quiz)
   quiz: Quiz;
 
+  @Column({ type: "int", nullable: true })
+  userAnswerIndex: number;
+
+  @Column({ type: "int", nullable: true })
+  aiAnswerIndex: number;
+
+  @Column({ type: "int", nullable: true })
+  correctAnswerIndex: number;
+
   @OneToMany(() => Answer, (answer) => answer.question, {
     cascade: true,
     onDelete: "CASCADE",

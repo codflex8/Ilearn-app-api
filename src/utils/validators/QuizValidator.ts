@@ -22,8 +22,8 @@ export enum QuizLevel {
 
 const addAnswerValidator = z.object({
   answer: z.string(),
-  isCorrectAnswer: z.boolean().default(false),
-  isUserAnswer: z.boolean().default(false),
+  // isCorrectAnswer: z.boolean().default(false),
+  // isUserAnswer: z.boolean().default(false),
 });
 
 const updateAnswerValidator = addAnswerValidator.extend({
@@ -105,7 +105,11 @@ const questionValidatorWithRefine = (
 const addQuestionObject = z.object({
   question: z.string(),
   type: z.nativeEnum(QuestionType),
-  answers: z.array(addAnswerValidator),
+  userAnswerIndex: z.number().nullable(),
+  aiAnswerIndex: z.number().nullable(),
+  correctAnswerIndex: z.number().nullable(),
+  answers: z.array(z.string()),
+  // answers: z.array(addAnswerValidator),
 });
 
 export const addQuestionValidator =

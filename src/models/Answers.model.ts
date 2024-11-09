@@ -7,11 +7,14 @@ export class Answer extends BaseModel {
   @Column()
   answer: string;
 
-  @Column({ type: "boolean", default: false })
-  isCorrectAnswer: boolean;
+  // @Column({ type: "boolean", default: false })
+  // isCorrectAnswer: boolean;
 
-  @Column({ type: "boolean", default: false })
-  isUserAnswer: boolean;
+  // @Column({ type: "boolean", default: false })
+  // aiAnswer: boolean;
+
+  // @Column({ type: "boolean", default: false })
+  // isUserAnswer: boolean;
 
   @ManyToOne(() => Question, (question) => question.answers)
   question: Question;

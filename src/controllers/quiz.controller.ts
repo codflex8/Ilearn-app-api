@@ -50,8 +50,17 @@ export const getQuizes = asyncHandler(
 
 export const addQuize = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, questionsType, quizLevel, questions, mark, booksIds } =
-      req.body;
+    const {
+      name,
+      questionsType,
+      quizLevel,
+      questions,
+      mark,
+      booksIds,
+      userAnswerIndex,
+      aiAnswerIndex,
+      correctAnswerIndex,
+    } = req.body;
     const user = req.user;
     const books = await Book.find({
       where: {
@@ -70,6 +79,9 @@ export const addQuize = asyncHandler(
           question: question.question,
           answers: question.answers,
           type: question.type,
+          userAnswerIndex,
+          aiAnswerIndex,
+          correctAnswerIndex,
         })
       ),
     });
@@ -182,19 +194,28 @@ const addQuestion = ({
   question,
   type,
   answers,
+  userAnswerIndex,
+  aiAnswerIndex,
+  correctAnswerIndex,
 }: {
   question: string;
   type: QuestionType;
   answers: Answer[];
+  userAnswerIndex: number;
+  aiAnswerIndex: number;
+  correctAnswerIndex: number;
 }) => {
   const newQuestion = Question.create({
     question,
     type,
-    answers: answers.map((answer) =>
+    userAnswerIndex,
+    aiAnswerIndex,
+    correctAnswerIndex,
+    answers: answers.map((answer, index) =>
       Answer.create({
         answer: answer.answer,
-        isCorrectAnswer: answer.isCorrectAnswer,
-        isUserAnswer: answer.isUserAnswer,
+        // isCorrectAnswer: answer.isCorrectAnswer,
+        // isUserAnswer: answer.isUserAnswer,
       })
     ),
   });
@@ -206,7 +227,14 @@ export const addQuestionHanlder = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const { question, type, answers } = req.body;
+    const {
+      question,
+      type,
+      answers,
+      userAnswerIndex,
+      aiAnswerIndex,
+      correctAnswerIndex,
+    } = req.body;
     const quiz = await Quiz.findOne({
       where: {
         id,
@@ -220,6 +248,9 @@ export const addQuestionHanlder = asyncHandler(
       question,
       type,
       answers,
+      userAnswerIndex,
+      aiAnswerIndex,
+      correctAnswerIndex,
     });
     newQuestion.quiz = quiz;
     await newQuestion.save();
