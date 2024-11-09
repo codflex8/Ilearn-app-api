@@ -5,19 +5,20 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./User.model";
 import { GroupsChat } from "./GroupsChat.model";
 import { GroupChatRoles } from "../utils/validators/GroupsChatValidator";
 import { BaseModel } from "./BaseModel";
 
-@Entity("GroupsChatUsers")
+@Entity("groups_chat_users")
 export class GroupsChatUsers extends BaseModel {
-  @Column({ type: "uuid" })
-  userId: string;
+  // @Column({ type: "uuid", primary: true })
+  // userId: string;
 
-  @Column({ type: "uuid" })
-  chatId: string;
+  // @Column({ type: "uuid", primary: true })
+  // groupChatId: string;
 
   @Column({ type: "boolean", default: false })
   muteNotification: boolean;
@@ -26,10 +27,10 @@ export class GroupsChatUsers extends BaseModel {
   role: GroupChatRoles;
 
   @ManyToOne(() => User, (user) => user.userGroupsChats)
-  @JoinColumn({ name: "userId" })
+  //   @JoinColumn()
   user: User;
 
   @ManyToOne(() => GroupsChat, (chat) => chat.userGroupsChats)
-  @JoinColumn({ name: "chatId" })
+  //   @JoinColumn()
   groupChat: GroupsChat;
 }

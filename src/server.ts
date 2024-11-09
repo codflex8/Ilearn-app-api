@@ -1,18 +1,30 @@
 import "reflect-metadata";
 import express from "express";
-import AppServer from "./app";
+import Server from "./app";
+import { createServer } from "http";
+import Websocket from "./websocket/websocket";
+import { Socket } from "socket.io";
 const app = express();
 
-new AppServer(app);
+new Server(app);
+const httpServer = createServer(app);
+const io = Websocket.getInstance(httpServer);
 
-const server = app.listen(process.env.PORT || 3000, () => {
+const server = httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`listen on ${process.env.PORT || 3000} port`);
 });
-process.on("unhandledRejection", (err: any) => {
-  console.error("Unhandled Rejection:", err.stack || err);
+
+io.on("connection", (socket: Socket) => {
+  console.log("user connection");
+  socket.emit("coonect-success");
+});
+
+process.on("unhandledRejection", (err: Error) => {
+  console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
   server.close(() => {
-    console.error(`Shutting down due to unhandled rejection.`);
+    console.error(`Shutting down....`);
     process.exit(1);
   });
 });
+
 // /usr/local/mysql/data/mysqld.local.pid

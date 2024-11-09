@@ -6,11 +6,11 @@ export const groupsChatUsersValidator = z.object({
 
 export const addGroupChatValidator = z.object({
   name: z.string(),
-  usersIds: z.array(z.string()).default([]),
+  usersIds: z.array(z.string()).nullable().default([]),
 });
 
 export const updateGroupChatValidator = addGroupChatValidator.extend({
-  muteNotification: z.boolean().default(false),
+  muteNotification: z.string().default("false"),
   backgroundColor: z.string().optional().nullable(),
 });
 

@@ -1,11 +1,11 @@
 import { Router } from "express";
 import {
-  // addUsersToGroupChat,
+  addUsersToGroupChat,
   createGroupChat,
   getGroupChatById,
   getGroupsChat,
-  // leaveGroupChat,
-  // removeUsersfromGroupChat,
+  leaveGroupChat,
+  removeUsersfromGroupChat,
   updateGroupChat,
 } from "../controllers/GroupsChat.controller";
 import { upload } from "../middleware/uploadFiles";
@@ -23,8 +23,8 @@ router.get("/", getGroupsChat);
 router.post(
   "/",
   upload.single("image"),
-  validateData(addGroupChatValidator),
   setImageUrl(),
+  validateData(addGroupChatValidator),
   createGroupChat
 );
 router.put(
@@ -38,17 +38,17 @@ router.put(
   updateGroupChat
 );
 router.get("/:id", getGroupChatById);
-// router.post(
-//   "/:id/users",
-//   validateData(groupsChatUsersValidator),
-//   addUsersToGroupChat
-// );
-// router.delete(
-//   "/:id/users",
-//   validateData(groupsChatUsersValidator),
-//   removeUsersfromGroupChat
-// );
+router.post(
+  "/:id/users",
+  validateData(groupsChatUsersValidator),
+  addUsersToGroupChat
+);
+router.delete(
+  "/:id/users",
+  validateData(groupsChatUsersValidator),
+  removeUsersfromGroupChat
+);
 
-// router.post("/:id/leave", leaveGroupChat);
+router.post("/:id/leave", leaveGroupChat);
 
 export default router;

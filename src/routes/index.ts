@@ -9,6 +9,7 @@ import bookmarksRouter from "./bookmarks.router";
 import homeRouter from "./home.router";
 import archiveRouter from "./archive.router";
 import groupChatRouter from "./groupsChat.router";
+import usersRouter from "./users.router";
 
 import { protect } from "../controllers/authentication.controller";
 
@@ -16,6 +17,7 @@ export default class Routes {
   constructor(app: Application) {
     app.use("/api/v1/auth", AuthRouter);
     app.use("/api/v1", protect, homeRouter);
+    app.use("/api/v1", protect, usersRouter);
     app.use("/api/v1/archive", protect, archiveRouter);
     app.use("/api/v1/categories", protect, categoriesRouter);
     app.use("/api/v1/books", protect, booksRouter);
