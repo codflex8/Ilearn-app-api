@@ -32,9 +32,9 @@ exports.getQuizes = (0, express_async_handler_1.default)(async (req, res, next) 
         where: conditions,
         skip,
         take,
-        relations: {
-            books: true,
-        },
+        // relations: {
+        //   books: true,
+        // },
         order: {
             createdAt: "DESC",
         },
@@ -51,6 +51,9 @@ exports.addQuize = (0, express_async_handler_1.default)(async (req, res, next) =
             id: (0, typeorm_1.In)(booksIds),
         },
     });
+    if (!books.length) {
+        return next(new ApiError_1.default("can not find any book of booksIds", 400));
+    }
     const newQuiz = Quiz_model_1.Quiz.create({
         name,
         questionsType,
@@ -62,9 +65,14 @@ exports.addQuize = (0, express_async_handler_1.default)(async (req, res, next) =
             question: question.question,
             answers: question.answers,
             type: question.type,
+            userAnswerIndex: question.userAnswerIndex,
+            aiAnswerIndex: question.aiAnswerIndex,
+            correctAnswerIndex: question.correctAnswerIndex,
+            isBookmarked: question.isBookmarked,
         })),
     });
     await newQuiz.save();
+    delete newQuiz.user;
     res.status(201).json({ quiz: newQuiz });
 });
 exports.updateQuiz = (0, express_async_handler_1.default)(async (req, res, next) => {
@@ -149,14 +157,17 @@ exports.getQuizQuestionById = (0, express_async_handler_1.default)(async (req, r
     });
     res.status(200).json({ question });
 });
-const addQuestion = ({ question, type, answers, }) => {
+const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, isBookmarked, }) => {
     const newQuestion = Questions_model_1.Question.create({
         question,
         type,
-        answers: answers.map((answer) => Answers_model_1.Answer.create({
-            answer: answer.answer,
-            isCorrectAnswer: answer.isCorrectAnswer,
-            isUserAnswer: answer.isUserAnswer,
+        userAnswerIndex,
+        aiAnswerIndex,
+        correctAnswerIndex,
+        answers: answers.map((answer, index) => Answers_model_1.Answer.create({
+            answer,
+            // isCorrectAnswer: answer.isCorrectAnswer,
+            // isUserAnswer: answer.isUserAnswer,
         })),
     });
     return newQuestion;
@@ -164,7 +175,7 @@ const addQuestion = ({ question, type, answers, }) => {
 exports.addQuestionHanlder = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
-    const { question, type, answers } = req.body;
+    const { question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, } = req.body;
     const quiz = await Quiz_model_1.Quiz.findOne({
         where: {
             id,
@@ -179,6 +190,10 @@ exports.addQuestionHanlder = (0, express_async_handler_1.default)(async (req, re
         question,
         type,
         answers,
+        userAnswerIndex,
+        aiAnswerIndex,
+        correctAnswerIndex,
+        isBookmarked: question.isBookmarked,
     });
     newQuestion.quiz = quiz;
     await newQuestion.save();

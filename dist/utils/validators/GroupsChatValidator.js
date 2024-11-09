@@ -7,10 +7,10 @@ exports.groupsChatUsersValidator = zod_1.z.object({
 });
 exports.addGroupChatValidator = zod_1.z.object({
     name: zod_1.z.string(),
-    usersIds: zod_1.z.array(zod_1.z.string()).default([]),
+    usersIds: zod_1.z.array(zod_1.z.string()).nullable().default([]),
 });
 exports.updateGroupChatValidator = exports.addGroupChatValidator.extend({
-    muteNotification: zod_1.z.boolean().default(false),
+    muteNotification: zod_1.z.string().default("false"),
     backgroundColor: zod_1.z.string().optional().nullable(),
 });
 var GroupChatRoles;

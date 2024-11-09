@@ -13,29 +13,41 @@ exports.GroupsChat = void 0;
 const typeorm_1 = require("typeorm");
 const BaseModel_1 = require("./BaseModel");
 const GroupsChatMessages_model_1 = require("./GroupsChatMessages.model");
-const User_model_1 = require("./User.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
+    // @ManyToMany(() => User, (user) => user.groupsChat)
+    // @JoinTable({
+    //   name: "groups_chat_users",
+    //   inverseJoinColumn: {
+    //     name: "userId",
+    //     referencedColumnName: "id",
+    //   },
+    //   joinColumn: {
+    //     name: "groupChatId",
+    //     referencedColumnName: "id",
+    //   },
+    // })
+    // users: User[];
     static getUserGroupChatById(userId, id) {
-        return this.getRepository()
+        return (this.getRepository()
             .createQueryBuilder("chat")
-            .leftJoinAndSelect("chat.users", "users")
             .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
+            .leftJoinAndSelect("userGroupsChats.user", "user")
             .where("chat.id = :id", { id })
-            .andWhere("userGroupsChats.userId = :userId", { userId })
+            // .andWhere("userGroupsChats.userId = :userId", { userId })
             .select("chat")
             .addSelect("userGroupsChats")
             .addSelect([
-            "users.id",
-            "users.email",
-            "users.phoneNumber",
-            "users.username",
-            "users.gender",
-            "users.imageUrl",
-            "users.gender",
-            "users.birthDate",
+            "user.id",
+            "user.email",
+            "user.phoneNumber",
+            "user.username",
+            "user.gender",
+            "user.imageUrl",
+            "user.gender",
+            "user.birthDate",
         ])
-            .getOne();
+            .getOne());
     }
 };
 exports.GroupsChat = GroupsChat;
@@ -63,21 +75,6 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => GroupsChatUsers_model_1.GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.groupChat),
     __metadata("design:type", Array)
 ], GroupsChat.prototype, "userGroupsChats", void 0);
-__decorate([
-    (0, typeorm_1.ManyToMany)(() => User_model_1.User),
-    (0, typeorm_1.JoinTable)({
-        name: "GroupsChatUsers",
-        inverseJoinColumn: {
-            name: "userId",
-            referencedColumnName: "id",
-        },
-        joinColumn: {
-            name: "chatId",
-            referencedColumnName: "id",
-        },
-    }),
-    __metadata("design:type", Array)
-], GroupsChat.prototype, "users", void 0);
 exports.GroupsChat = GroupsChat = __decorate([
     (0, typeorm_1.Entity)()
 ], GroupsChat);

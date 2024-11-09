@@ -18,19 +18,14 @@ const QuizValidator_1 = require("../utils/validators/QuizValidator");
 const Books_model_1 = require("./Books.model");
 let Quiz = class Quiz extends BaseModel_1.BaseModel {
     static getUserQuizById(userId, quizId) {
-        return this.findOne({
-            where: {
-                id: quizId,
-                user: { id: userId },
-            },
-            relations: {
-                questions: {
-                    answers: true,
-                    bookmark: true,
-                },
-                books: true,
-            },
-        });
+        return this.createQueryBuilder("quiz")
+            .leftJoinAndSelect("quiz.questions", "question")
+            .leftJoinAndSelect("question.answers", "answer")
+            .leftJoinAndSelect("question.bookmark", "bookmark")
+            .leftJoinAndSelect("quiz.books", "book")
+            .where("quiz.id = :quizId", { quizId })
+            .andWhere("quiz.userId = :userId", { userId })
+            .getOne();
     }
     static getQuizQuerable({ userId, name, bookId, categoryId, fromDate, toDate, }) {
         let querable = this.getRepository()

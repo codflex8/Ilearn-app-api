@@ -19,14 +19,6 @@ let GroupsChatUsers = class GroupsChatUsers extends BaseModel_1.BaseModel {
 };
 exports.GroupsChatUsers = GroupsChatUsers;
 __decorate([
-    (0, typeorm_1.Column)({ type: "uuid" }),
-    __metadata("design:type", String)
-], GroupsChatUsers.prototype, "userId", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: "uuid" }),
-    __metadata("design:type", String)
-], GroupsChatUsers.prototype, "chatId", void 0);
-__decorate([
     (0, typeorm_1.Column)({ type: "boolean", default: false }),
     __metadata("design:type", Boolean)
 ], GroupsChatUsers.prototype, "muteNotification", void 0);
@@ -35,16 +27,18 @@ __decorate([
     __metadata("design:type", String)
 ], GroupsChatUsers.prototype, "role", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.userGroupsChats),
-    (0, typeorm_1.JoinColumn)({ name: "userId" }),
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.userGroupsChats)
+    //   @JoinColumn()
+    ,
     __metadata("design:type", User_model_1.User)
 ], GroupsChatUsers.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => GroupsChat_model_1.GroupsChat, (chat) => chat.userGroupsChats),
-    (0, typeorm_1.JoinColumn)({ name: "chatId" }),
+    (0, typeorm_1.ManyToOne)(() => GroupsChat_model_1.GroupsChat, (chat) => chat.userGroupsChats)
+    //   @JoinColumn()
+    ,
     __metadata("design:type", GroupsChat_model_1.GroupsChat)
 ], GroupsChatUsers.prototype, "groupChat", void 0);
 exports.GroupsChatUsers = GroupsChatUsers = __decorate([
-    (0, typeorm_1.Entity)("GroupsChatUsers")
+    (0, typeorm_1.Entity)("groups_chat_users")
 ], GroupsChatUsers);
 //# sourceMappingURL=GroupsChatUsers.model.js.map

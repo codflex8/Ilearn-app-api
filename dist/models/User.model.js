@@ -18,7 +18,6 @@ const BaseModel_1 = require("./BaseModel");
 const ChatBot_model_1 = require("./ChatBot.model");
 const Quiz_model_1 = require("./Quiz.model");
 const Bookmarks_model_1 = require("./Bookmarks.model");
-const GroupsChat_model_1 = require("./GroupsChat.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 let User = class User extends BaseModel_1.BaseModel {
 };
@@ -91,21 +90,6 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => GroupsChatUsers_model_1.GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.user),
     __metadata("design:type", Array)
 ], User.prototype, "userGroupsChats", void 0);
-__decorate([
-    (0, typeorm_1.ManyToMany)(() => GroupsChat_model_1.GroupsChat),
-    (0, typeorm_1.JoinTable)({
-        name: "GroupsChatUsers",
-        joinColumn: {
-            name: "userId",
-            referencedColumnName: "id",
-        },
-        inverseJoinColumn: {
-            name: "chatId",
-            referencedColumnName: "id",
-        },
-    }),
-    __metadata("design:type", Array)
-], User.prototype, "groupsChat", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);

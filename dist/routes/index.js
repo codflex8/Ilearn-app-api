@@ -13,11 +13,13 @@ const bookmarks_router_1 = __importDefault(require("./bookmarks.router"));
 const home_router_1 = __importDefault(require("./home.router"));
 const archive_router_1 = __importDefault(require("./archive.router"));
 const groupsChat_router_1 = __importDefault(require("./groupsChat.router"));
+const users_router_1 = __importDefault(require("./users.router"));
 const authentication_controller_1 = require("../controllers/authentication.controller");
 class Routes {
     constructor(app) {
         app.use("/api/v1/auth", authentication_router_1.default);
         app.use("/api/v1", authentication_controller_1.protect, home_router_1.default);
+        app.use("/api/v1", authentication_controller_1.protect, users_router_1.default);
         app.use("/api/v1/archive", authentication_controller_1.protect, archive_router_1.default);
         app.use("/api/v1/categories", authentication_controller_1.protect, categories_router_1.default);
         app.use("/api/v1/books", authentication_controller_1.protect, books_router_1.default);

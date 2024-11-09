@@ -11,12 +11,10 @@ function validateData(schema) {
         }
         catch (error) {
             if (error instanceof zod_1.ZodError) {
-                const errorMessages = error.errors.map((issue) => ({
-                    message: `${issue.path.join(".")} is ${issue.message}`,
-                }));
-                res
-                    .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
-                    .json({ error: "Invalid data", details: errorMessages });
+                const errorMessages = error.errors
+                    .map((issue) => `${issue.path.join(".")} is ${issue.message}`)
+                    .join(", ");
+                res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({ message: errorMessages });
             }
             else {
                 res

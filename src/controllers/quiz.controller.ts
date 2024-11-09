@@ -50,23 +50,17 @@ export const getQuizes = asyncHandler(
 
 export const addQuize = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {
-      name,
-      questionsType,
-      quizLevel,
-      questions,
-      mark,
-      booksIds,
-      userAnswerIndex,
-      aiAnswerIndex,
-      correctAnswerIndex,
-    } = req.body;
+    const { name, questionsType, quizLevel, questions, mark, booksIds } =
+      req.body;
     const user = req.user;
     const books = await Book.find({
       where: {
         id: In(booksIds),
       },
     });
+    if (!books.length) {
+      return next(new ApiError("can not find any book of booksIds", 400));
+    }
     const newQuiz = Quiz.create({
       name,
       questionsType,
@@ -79,13 +73,15 @@ export const addQuize = asyncHandler(
           question: question.question,
           answers: question.answers,
           type: question.type,
-          userAnswerIndex,
-          aiAnswerIndex,
-          correctAnswerIndex,
+          userAnswerIndex: question.userAnswerIndex,
+          aiAnswerIndex: question.aiAnswerIndex,
+          correctAnswerIndex: question.correctAnswerIndex,
+          isBookmarked: question.isBookmarked,
         })
       ),
     });
     await newQuiz.save();
+    delete newQuiz.user;
     res.status(201).json({ quiz: newQuiz });
   }
 );
@@ -197,13 +193,15 @@ const addQuestion = ({
   userAnswerIndex,
   aiAnswerIndex,
   correctAnswerIndex,
+  isBookmarked,
 }: {
   question: string;
   type: QuestionType;
-  answers: Answer[];
+  answers: string[];
   userAnswerIndex: number;
   aiAnswerIndex: number;
   correctAnswerIndex: number;
+  isBookmarked: boolean;
 }) => {
   const newQuestion = Question.create({
     question,
@@ -213,7 +211,7 @@ const addQuestion = ({
     correctAnswerIndex,
     answers: answers.map((answer, index) =>
       Answer.create({
-        answer: answer.answer,
+        answer,
         // isCorrectAnswer: answer.isCorrectAnswer,
         // isUserAnswer: answer.isUserAnswer,
       })
@@ -251,6 +249,7 @@ export const addQuestionHanlder = asyncHandler(
       userAnswerIndex,
       aiAnswerIndex,
       correctAnswerIndex,
+      isBookmarked: question.isBookmarked,
     });
     newQuestion.quiz = quiz;
     await newQuestion.save();

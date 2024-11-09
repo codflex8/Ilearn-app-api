@@ -19,6 +19,7 @@ const handleJwtInvalidSignature = () => new ApiError_1.default("Invalid token, p
 const handleJwtExpired = () => new ApiError_1.default("Expired token, please login again..", 401);
 const globalError = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
+    console.log(err);
     if (process.env.NODE_ENV === "development") {
         sendErrorForDev(err, res);
     }

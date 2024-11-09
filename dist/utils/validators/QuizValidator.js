@@ -24,59 +24,42 @@ var QuizLevel;
 })(QuizLevel || (exports.QuizLevel = QuizLevel = {}));
 const addAnswerValidator = zod_1.z.object({
     answer: zod_1.z.string(),
-    isCorrectAnswer: zod_1.z.boolean().default(false),
-    isUserAnswer: zod_1.z.boolean().default(false),
+    // isCorrectAnswer: z.boolean().default(false),
+    // isUserAnswer: z.boolean().default(false),
 });
 const updateAnswerValidator = addAnswerValidator.extend({
     id: zod_1.z.string(),
 });
 const questionValidatorWithRefine = (questionObject) => questionObject
     .refine((data) => {
-    if (data.questionType === QuestionType.MultiChoic) {
-        return (data.answers.length > 1 &&
-            !!data.answers.find((answer) => answer.isCorrectAnswer));
+    console.log("dataaaa", data);
+    if (data.type === QuestionType.MultiChoic ||
+        data.type === QuestionType.TrueFalse) {
+        return data.answers.length > 1 && data.correctAnswerIndex != null;
     }
     return true;
 }, {
     path: ["question"],
-    message: "multi choic, answers array should have multiple answers and one of them is the correct answer",
+    message: "correctAnswerIndex required",
 })
     .refine((data) => {
-    if (data.questionType === QuestionType.TrueFalse) {
-        return (data.answers.length == 2 &&
-            !!data.answers.find((answer) => answer.isCorrectAnswer));
+    if (data.type === QuestionType.Writing) {
+        return data.answers.length <= 2 && data.aiAnswerIndex;
     }
     return true;
 }, {
     path: ["question"],
-    message: "true/false, answers array  should have 2 answers and one of them is the correct answer",
-})
-    .refine((data) => {
-    if (data.questionType === QuestionType.Writing) {
-        return (data.answers.length <= 2 &&
-            data.answers.find((answer) => answer.isCorrectAnswer));
-    }
-    return true;
-}, {
-    path: ["question"],
-    message: "writing,  answers array should have 1 correct answer ",
-})
-    .refine((data) => {
-    return data.answers.filter((answer) => answer.isUserAnswer).length <= 1;
-}, {
-    path: ["question"],
-    message: "can not have more than one user answer for the question",
-})
-    .refine((data) => {
-    return (data.answers.filter((answer) => answer.isCorrectAnswer).length <= 1);
-}, {
-    path: ["question"],
-    message: "can not have more than one correct answer for the question",
+    message: "aiAnswerIndex required",
 });
 const addQuestionObject = zod_1.z.object({
     question: zod_1.z.string(),
     type: zod_1.z.nativeEnum(QuestionType),
-    answers: zod_1.z.array(addAnswerValidator),
+    userAnswerIndex: zod_1.z.number().optional().nullable(),
+    aiAnswerIndex: zod_1.z.number().optional().nullable(),
+    correctAnswerIndex: zod_1.z.number().optional().nullable(),
+    answers: zod_1.z.array(zod_1.z.string()),
+    isBookmarked: zod_1.z.boolean().optional().nullable(),
+    // answers: z.array(addAnswerValidator),
 });
 exports.addQuestionValidator = questionValidatorWithRefine(addQuestionObject);
 exports.updateQuestionValidator = questionValidatorWithRefine(addQuestionObject.extend({
@@ -88,7 +71,7 @@ exports.addQuizValidator = zod_1.z.object({
     mark: zod_1.z.number().optional(),
     questionsType: zod_1.z.nativeEnum(QuizQuestionsType),
     quizLevel: zod_1.z.nativeEnum(QuizLevel),
-    booksIds: zod_1.z.array(zod_1.z.string()),
+    booksIds: zod_1.z.array(zod_1.z.string()).min(1, "should have at least one bookId"),
     questions: zod_1.z.array(exports.addQuestionValidator),
 });
 exports.updateQuizValidator = exports.addQuizValidator.extend({

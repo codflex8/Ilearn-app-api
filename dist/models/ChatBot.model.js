@@ -34,7 +34,7 @@ let Chatbot = Chatbot_1 = class Chatbot extends BaseModel_1.BaseModel {
             .createQueryBuilder("chatbot")
             .leftJoin("chatbot.user", "user")
             .leftJoinAndSelect("chatbot.books", "book")
-            .leftJoinAndSelect("book.category", "category")
+            .leftJoin("book.category", "category")
             .where("user.id = :userId", { userId });
         if (name) {
             querable = querable.andWhere("LOWER(chatbot.name) LIKE :name", {

@@ -12,6 +12,7 @@ exports.dataSource = new typeorm_1.DataSource({
     database: db_config_1.default.DB,
     username: db_config_1.default.USER,
     password: db_config_1.default.PASSWORD,
+    port: Number(db_config_1.default.port),
     // pool: { ...dbConfig.pool },
     type: "mysql",
     synchronize: false,

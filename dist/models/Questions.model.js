@@ -17,6 +17,9 @@ const Answers_model_1 = require("./Answers.model");
 const QuizValidator_1 = require("../utils/validators/QuizValidator");
 const Bookmarks_model_1 = require("./Bookmarks.model");
 let Question = class Question extends BaseModel_1.BaseModel {
+    updateCoverPhotoLink() {
+        this.isBookmarked = !!this.bookmark;
+    }
 };
 exports.Question = Question;
 __decorate([
@@ -32,6 +35,18 @@ __decorate([
     __metadata("design:type", Quiz_model_1.Quiz)
 ], Question.prototype, "quiz", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: "int", nullable: true }),
+    __metadata("design:type", Number)
+], Question.prototype, "userAnswerIndex", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "int", nullable: true }),
+    __metadata("design:type", Number)
+], Question.prototype, "aiAnswerIndex", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "int", nullable: true }),
+    __metadata("design:type", Number)
+], Question.prototype, "correctAnswerIndex", void 0);
+__decorate([
     (0, typeorm_1.OneToMany)(() => Answers_model_1.Answer, (answer) => answer.question, {
         cascade: true,
         onDelete: "CASCADE",
@@ -45,6 +60,14 @@ __decorate([
     ,
     __metadata("design:type", Bookmarks_model_1.Bookmark)
 ], Question.prototype, "bookmark", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], Question.prototype, "updateCoverPhotoLink", null);
 exports.Question = Question = __decorate([
     (0, typeorm_1.Entity)()
 ], Question);

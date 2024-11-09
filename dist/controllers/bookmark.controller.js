@@ -11,16 +11,34 @@ const GenericResponse_1 = require("../utils/GenericResponse");
 const ChatBotMessages_model_1 = require("../models/ChatBotMessages.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const Questions_model_1 = require("../models/Questions.model");
+const typeorm_1 = require("typeorm");
 exports.getBookmarks = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
-    const { page, pageSize } = req.query;
+    const { page, pageSize, bookId, chatbotId } = req.query;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
-    const [bookmarks, count] = await Bookmarks_model_1.Bookmark.findAndCount({
-        where: {
-            user: {
-                id: user.id,
-            },
+    let conditions = {
+        user: {
+            id: user.id,
         },
+    };
+    if (bookId) {
+        conditions = Object.assign(Object.assign({}, conditions), { question: {
+                quiz: {
+                    books: {
+                        id: (0, typeorm_1.In)([bookId]),
+                    },
+                },
+            } });
+    }
+    if (chatbotId) {
+        conditions = Object.assign(Object.assign({}, conditions), { chatbotMessage: {
+                chatbot: {
+                    id: (0, typeorm_1.In)([chatbotId]),
+                },
+            } });
+    }
+    const [bookmarks, count] = await Bookmarks_model_1.Bookmark.findAndCount({
+        where: conditions,
         relations: {
             chatbotMessage: true,
             question: true,

@@ -16,6 +16,9 @@ const ChatBot_model_1 = require("./ChatBot.model");
 const ChatbotValidator_1 = require("../utils/validators/ChatbotValidator");
 const Bookmarks_model_1 = require("./Bookmarks.model");
 let ChatbotMessages = class ChatbotMessages extends BaseModel_1.BaseModel {
+    updateCoverPhotoLink() {
+        this.isBookmarked = !!this.bookmark;
+    }
 };
 exports.ChatbotMessages = ChatbotMessages;
 __decorate([
@@ -44,6 +47,14 @@ __decorate([
     ,
     __metadata("design:type", Bookmarks_model_1.Bookmark)
 ], ChatbotMessages.prototype, "bookmark", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ChatbotMessages.prototype, "updateCoverPhotoLink", null);
 exports.ChatbotMessages = ChatbotMessages = __decorate([
     (0, typeorm_1.Entity)()
 ], ChatbotMessages);

@@ -12,9 +12,8 @@ const GenericResponse_1 = require("../utils/GenericResponse");
 const getPaginationData_1 = require("../utils/getPaginationData");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 exports.getBooks = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const { categoryId, name } = req.query;
+    const { page, pageSize, categoryId, name, forArchive } = req.query;
     const user = req.user;
-    const { page, pageSize } = req.query;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
     let condition = {
         user: {
@@ -30,12 +29,21 @@ exports.getBooks = (0, express_async_handler_1.default)(async (req, res, next) =
             } });
     }
     const [books, count] = await Books_model_1.Book.findAndCount({
-        where: condition,
+        where: forArchive
+            ? [
+                Object.assign(Object.assign({}, condition), { quizes: {
+                        id: (0, typeorm_1.Not)((0, typeorm_1.IsNull)()),
+                    } }),
+                Object.assign(Object.assign({}, condition), { chatbots: {
+                        id: (0, typeorm_1.Not)((0, typeorm_1.IsNull)()),
+                    } }),
+            ]
+            : condition,
         skip,
         take,
-        relations: {
-            category: true,
-        },
+        // relations: {
+        //   category: true,
+        // },
         order: {
             createdAt: "DESC",
         },
@@ -60,6 +68,8 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
     }
     book.category = category;
     await book.save();
+    delete book.user;
+    delete book.category;
     res.status(201).json({ book });
 });
 exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next) => {
