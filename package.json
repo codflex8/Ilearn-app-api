@@ -8,7 +8,8 @@
     "start": "node dist/server.js",
     "start:dev": "nodemon src/server.ts",
     "typeorm:migrate": "npx typeorm-ts-node-commonjs migration:generate",
-    "apply:migrations": "npx typeorm-ts-node-commonjs migration:run -d ./src/models/dataSource.ts"
+    "apply:migrations": "npx typeorm-ts-node-commonjs migration:run -d ./src/models/dataSource.ts",
+    "seed-data": "ts-node src/seeders/seeder.ts"
   },
   "author": "",
   "license": "ISC",

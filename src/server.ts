@@ -17,9 +17,14 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
 });
 
 io.on("connection", (socket: Socket) => {
+  console.log("user connect");
   socket.emit("connect-success");
   chatbotEvents(socket);
   groupsChatEvents(socket);
+
+  socket.on("disconnect", () => {
+    console.log("user disconnect");
+  });
 });
 
 process.on("unhandledRejection", (err: Error) => {

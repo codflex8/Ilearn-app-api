@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z, ZodRawShape } from "zod";
 import { BaseQuery } from "./BaseQuery";
 
 export interface ChatbotsQuery extends BaseQuery {
@@ -22,6 +22,13 @@ export const chatBotValidator = z.object({
 export const addBooksToChatbotValidator = z.object({
   booksIds: z.array(z.string()).optional(),
 });
+
+export interface IChatbotMessage {
+  message: string;
+  // recordUrl: string;
+  // fileUrl: string;
+  from: MessageFrom;
+}
 
 const chatbotMessageValidator = z.object({
   message: z.string().optional(),
