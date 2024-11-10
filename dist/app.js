@@ -21,6 +21,10 @@ class AppServer {
         app.use((0, cors_1.default)());
         app.use(express_1.default.json());
         app.use(express_1.default.urlencoded({ extended: true }));
+        app.use((req, res, next) => {
+            console.log("body", req.body);
+            next();
+        });
         // app.use(morgan());
         app.use("/public", express_1.default.static(path_1.default.join(__dirname, "public")));
         app.get("/", (req, res, next) => {

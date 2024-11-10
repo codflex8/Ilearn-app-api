@@ -4,6 +4,8 @@ import Server from "./app";
 import { createServer } from "http";
 import Websocket from "./websocket/websocket";
 import { Socket } from "socket.io";
+import { chatbotEvents } from "./websocket/chatbots.websocket";
+import { groupsChatEvents } from "./websocket/groupsChat.socket";
 const app = express();
 
 new Server(app);
@@ -15,8 +17,9 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
 });
 
 io.on("connection", (socket: Socket) => {
-  console.log("user connection");
-  socket.emit("coonect-success");
+  socket.emit("connect-success");
+  chatbotEvents(socket);
+  groupsChatEvents(socket);
 });
 
 process.on("unhandledRejection", (err: Error) => {

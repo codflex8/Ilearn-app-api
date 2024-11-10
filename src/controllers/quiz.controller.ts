@@ -9,11 +9,24 @@ import ApiError from "../utils/ApiError";
 import { Question } from "../models/Questions.model";
 import { Answer } from "../models/Answers.model";
 import { Book } from "../models/Books.model";
+import { BaseQuery } from "../utils/validators/BaseQuery";
+
+interface QuizeQuery extends BaseQuery {
+  name: string;
+  questionsType: QuestionType;
+  quizLevel: QuizLevel;
+  booksIds: Array<string>;
+}
 
 export const getQuizes = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (
+    req: Request<{}, {}, {}, QuizeQuery>,
+    res: Response,
+    next: NextFunction
+  ) => {
     const user = req.user;
-    const { page, pageSize, name, questionsType, quizLevel } = req.query;
+    const { page, pageSize, name, questionsType, quizLevel, booksIds } =
+      req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
     let conditions: FindOptionsWhere<Quiz> = {
       user: {
@@ -31,6 +44,14 @@ export const getQuizes = asyncHandler(
         ...conditions,
         quizLevel: Equal(quizLevel as QuizLevel),
       };
+    if (booksIds && booksIds.length > 0) {
+      conditions = {
+        ...conditions,
+        books: {
+          id: In(booksIds),
+        },
+      };
+    }
     const [quizes, count] = await Quiz.findAndCount({
       where: conditions,
       skip,

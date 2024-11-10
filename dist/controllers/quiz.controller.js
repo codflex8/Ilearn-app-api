@@ -15,7 +15,7 @@ const Answers_model_1 = require("../models/Answers.model");
 const Books_model_1 = require("../models/Books.model");
 exports.getQuizes = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
-    const { page, pageSize, name, questionsType, quizLevel } = req.query;
+    const { page, pageSize, name, questionsType, quizLevel, booksIds } = req.query;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
     let conditions = {
         user: {
@@ -28,6 +28,11 @@ exports.getQuizes = (0, express_async_handler_1.default)(async (req, res, next) 
         conditions = Object.assign(Object.assign({}, conditions), { questionsType: (0, typeorm_1.Equal)(questionsType) });
     if (quizLevel)
         conditions = Object.assign(Object.assign({}, conditions), { quizLevel: (0, typeorm_1.Equal)(quizLevel) });
+    if (booksIds && booksIds.length > 0) {
+        conditions = Object.assign(Object.assign({}, conditions), { books: {
+                id: (0, typeorm_1.In)(booksIds),
+            } });
+    }
     const [quizes, count] = await Quiz_model_1.Quiz.findAndCount({
         where: conditions,
         skip,
