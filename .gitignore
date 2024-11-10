@@ -10,7 +10,7 @@ npm-shrinkwrap.json
 coverage
 
 /src/public/*
-dist/
+
 # Benchmarking
 benchmarks/graphs
 

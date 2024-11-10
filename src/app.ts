@@ -26,7 +26,7 @@ export default class AppServer {
     // app.use(morgan());
     app.use("/public", express.static(path.join(__dirname, "public")));
     app.get("/", (req: Request, res: Response, next: NextFunction) => {
-      return res.send("hello world");
+      return res.send("hello worldddd");
     });
 
     new Routes(app);
