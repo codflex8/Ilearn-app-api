@@ -25,9 +25,8 @@ export const addBooksToChatbotValidator = z.object({
 
 export interface IChatbotMessage {
   message: string;
-  // recordUrl: string;
-  // fileUrl: string;
   from: MessageFrom;
+  chatbotId: string;
 }
 
 const chatbotMessageValidator = z.object({

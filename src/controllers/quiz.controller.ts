@@ -10,6 +10,7 @@ import { Question } from "../models/Questions.model";
 import { Answer } from "../models/Answers.model";
 import { Book } from "../models/Books.model";
 import { BaseQuery } from "../utils/validators/BaseQuery";
+import { Bookmark } from "../models/Bookmarks.model";
 
 interface QuizeQuery extends BaseQuery {
   name: string;
@@ -237,6 +238,7 @@ const addQuestion = ({
         // isUserAnswer: answer.isUserAnswer,
       })
     ),
+    bookmark: isBookmarked ? Bookmark.create() : null,
   });
 
   return newQuestion;

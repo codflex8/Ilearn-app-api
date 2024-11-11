@@ -13,6 +13,7 @@ const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const Questions_model_1 = require("../models/Questions.model");
 const Answers_model_1 = require("../models/Answers.model");
 const Books_model_1 = require("../models/Books.model");
+const Bookmarks_model_1 = require("../models/Bookmarks.model");
 exports.getQuizes = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
     const { page, pageSize, name, questionsType, quizLevel, booksIds } = req.query;
@@ -174,6 +175,7 @@ const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, 
             // isCorrectAnswer: answer.isCorrectAnswer,
             // isUserAnswer: answer.isUserAnswer,
         })),
+        bookmark: isBookmarked ? Bookmarks_model_1.Bookmark.create() : null,
     });
     return newQuestion;
 };

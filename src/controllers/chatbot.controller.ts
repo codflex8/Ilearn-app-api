@@ -7,7 +7,21 @@ import { ChatbotMessages } from "../models/ChatBotMessages.model";
 import { getPaginationData } from "../utils/getPaginationData";
 import { GenericResponse } from "../utils/GenericResponse";
 import { Book } from "../models/Books.model";
-import { ChatbotsQuery } from "../utils/validators/ChatbotValidator";
+import {
+  ChatbotsQuery,
+  IChatbotMessage,
+  MessageFrom,
+} from "../utils/validators/ChatbotValidator";
+
+interface IAddMessage extends IChatbotMessage {
+  // message: string;
+  recordUrl: string;
+  fileUrl: string;
+  // from: MessageFrom;
+  // chatbotId: string;
+  userId: string;
+  errorHandler: (error: Error) => void;
+}
 
 export const getChatbots = asyncHandler(
   async (
@@ -151,30 +165,21 @@ export const getChatbotMessages = asyncHandler(
   }
 );
 
-export const addMessage = asyncHandler(
+export const addMessageHandler = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
     const { message, recordUrl, fileUrl, from } = req.body;
-    const chatbot = await Chatbot.findOne({
-      where: {
-        id: Equal(id),
-        user: {
-          id: user.id,
-        },
-      },
-    });
-    if (!chatbot) {
-      next(new ApiError("chatbot not found", 404));
-    }
-    const newMessage = ChatbotMessages.create({
+
+    const newMessage = await addMessage({
       message,
       recordUrl,
       fileUrl,
-      chatbot,
       from,
+      chatbotId: id,
+      userId: user.id,
+      errorHandler: next,
     });
-    await newMessage.save();
     res.status(201).json({ message: newMessage });
   }
 );
@@ -201,3 +206,34 @@ export const addBooksToChatbot = asyncHandler(
     res.status(200).json({ chatbot });
   }
 );
+
+export const addMessage = async ({
+  chatbotId,
+  message,
+  recordUrl,
+  fileUrl,
+  from,
+  userId,
+  errorHandler,
+}: IAddMessage) => {
+  const chatbot = await Chatbot.findOne({
+    where: {
+      id: Equal(chatbotId),
+      user: {
+        id: userId,
+      },
+    },
+  });
+  if (!chatbot) {
+    errorHandler(new ApiError("chatbot not found", 404));
+  }
+  const newMessage = ChatbotMessages.create({
+    message,
+    recordUrl,
+    fileUrl,
+    chatbot,
+    from,
+  });
+  await newMessage.save();
+  return newMessage;
+};

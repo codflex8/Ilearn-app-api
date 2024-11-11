@@ -3,6 +3,7 @@ import {
   addBooksToChatbot,
   addChatbots,
   addMessage,
+  addMessageHandler,
   deleteChatbot,
   getChatbotById,
   getChatbotMessages,
@@ -26,7 +27,7 @@ router.get("/:id/messages", getChatbotMessages);
 router.post(
   "/:id/messages",
   validateData(refineChatbotMessageValidator),
-  addMessage
+  addMessageHandler
 );
 router.post(
   "/:id/books",

@@ -10,6 +10,8 @@ const http_1 = require("http");
 const websocket_1 = __importDefault(require("./websocket/websocket"));
 const chatbots_websocket_1 = require("./websocket/chatbots.websocket");
 const groupsChat_socket_1 = require("./websocket/groupsChat.socket");
+const getUserFromToken_1 = require("./utils/getUserFromToken");
+const ApiError_1 = __importDefault(require("./utils/ApiError"));
 const app = (0, express_1.default)();
 new app_1.default(app);
 const httpServer = (0, http_1.createServer)(app);
@@ -17,7 +19,15 @@ const io = websocket_1.default.getInstance(httpServer);
 const server = httpServer.listen(process.env.PORT || 3000, () => {
     console.log(`listen on ${process.env.PORT || 3000} port`);
 });
-io.on("connection", (socket) => {
+io.use(async (socket, next) => {
+    const currentUser = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization);
+    console.log("curent userrr", currentUser);
+    if (!currentUser) {
+        next(new ApiError_1.default("unauthorized", 401));
+    }
+    next();
+});
+io.on("connection", async (socket) => {
     console.log("user connect");
     socket.emit("connect-success");
     (0, chatbots_websocket_1.chatbotEvents)(socket);

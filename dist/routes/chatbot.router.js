@@ -11,7 +11,7 @@ router.get("/:id", chatbot_controller_1.getChatbotById);
 router.put("/:id", (0, validationMiddleware_1.validateData)(ChatbotValidator_1.chatBotValidator), chatbot_controller_1.updateChatbot);
 router.delete("/:id", chatbot_controller_1.deleteChatbot);
 router.get("/:id/messages", chatbot_controller_1.getChatbotMessages);
-router.post("/:id/messages", (0, validationMiddleware_1.validateData)(ChatbotValidator_1.refineChatbotMessageValidator), chatbot_controller_1.addMessage);
+router.post("/:id/messages", (0, validationMiddleware_1.validateData)(ChatbotValidator_1.refineChatbotMessageValidator), chatbot_controller_1.addMessageHandler);
 router.post("/:id/books", (0, validationMiddleware_1.validateData)(ChatbotValidator_1.addBooksToChatbotValidator), chatbot_controller_1.addBooksToChatbot);
 exports.default = router;
 //# sourceMappingURL=chatbot.router.js.map

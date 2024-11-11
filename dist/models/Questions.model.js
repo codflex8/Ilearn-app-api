@@ -55,7 +55,11 @@ __decorate([
     __metadata("design:type", Array)
 ], Question.prototype, "answers", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => Bookmarks_model_1.Bookmark, (bookmark) => bookmark.question)
+    (0, typeorm_1.OneToOne)(() => Bookmarks_model_1.Bookmark, (bookmark) => bookmark.question, {
+        cascade: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    })
     // @JoinColumn()
     ,
     __metadata("design:type", Bookmarks_model_1.Bookmark)

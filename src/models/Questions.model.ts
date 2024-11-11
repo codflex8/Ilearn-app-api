@@ -43,7 +43,11 @@ export class Question extends BaseModel {
   })
   answers: Answer[];
 
-  @OneToOne(() => Bookmark, (bookmark) => bookmark.question)
+  @OneToOne(() => Bookmark, (bookmark) => bookmark.question, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   // @JoinColumn()
   bookmark: Bookmark;
 

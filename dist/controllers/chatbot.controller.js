@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addBooksToChatbot = exports.addMessage = exports.getChatbotMessages = exports.deleteChatbot = exports.updateChatbot = exports.addChatbots = exports.getChatbotById = exports.getChatbots = void 0;
+exports.addMessage = exports.addBooksToChatbot = exports.addMessageHandler = exports.getChatbotMessages = exports.deleteChatbot = exports.updateChatbot = exports.addChatbots = exports.getChatbotById = exports.getChatbots = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const ChatBot_model_1 = require("../models/ChatBot.model");
 const typeorm_1 = require("typeorm");
@@ -119,29 +119,19 @@ exports.getChatbotMessages = (0, express_async_handler_1.default)(async (req, re
         .status(200)
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, messages));
 });
-exports.addMessage = (0, express_async_handler_1.default)(async (req, res, next) => {
+exports.addMessageHandler = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
     const { message, recordUrl, fileUrl, from } = req.body;
-    const chatbot = await ChatBot_model_1.Chatbot.findOne({
-        where: {
-            id: (0, typeorm_1.Equal)(id),
-            user: {
-                id: user.id,
-            },
-        },
-    });
-    if (!chatbot) {
-        next(new ApiError_1.default("chatbot not found", 404));
-    }
-    const newMessage = ChatBotMessages_model_1.ChatbotMessages.create({
+    const newMessage = await (0, exports.addMessage)({
         message,
         recordUrl,
         fileUrl,
-        chatbot,
         from,
+        chatbotId: id,
+        userId: user.id,
+        errorHandler: next,
     });
-    await newMessage.save();
     res.status(201).json({ message: newMessage });
 });
 exports.addBooksToChatbot = (0, express_async_handler_1.default)(async (req, res, next) => {
@@ -164,4 +154,27 @@ exports.addBooksToChatbot = (0, express_async_handler_1.default)(async (req, res
     await chatbot.save();
     res.status(200).json({ chatbot });
 });
+const addMessage = async ({ chatbotId, message, recordUrl, fileUrl, from, userId, errorHandler, }) => {
+    const chatbot = await ChatBot_model_1.Chatbot.findOne({
+        where: {
+            id: (0, typeorm_1.Equal)(chatbotId),
+            user: {
+                id: userId,
+            },
+        },
+    });
+    if (!chatbot) {
+        errorHandler(new ApiError_1.default("chatbot not found", 404));
+    }
+    const newMessage = ChatBotMessages_model_1.ChatbotMessages.create({
+        message,
+        recordUrl,
+        fileUrl,
+        chatbot,
+        from,
+    });
+    await newMessage.save();
+    return newMessage;
+};
+exports.addMessage = addMessage;
 //# sourceMappingURL=chatbot.controller.js.map
