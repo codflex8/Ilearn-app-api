@@ -10,7 +10,7 @@ const getUserFromToken = async (token) => {
     const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
     // 3) Check if user exists
     const currentUser = await User_model_1.User.findOne({
-        where: { id: decoded.userId },
+        where: { id: decoded === null || decoded === void 0 ? void 0 : decoded.userId },
         select: [
             "id",
             "username",
@@ -21,7 +21,7 @@ const getUserFromToken = async (token) => {
             "imageUrl",
         ],
     });
-    return currentUser;
+    return { currentUser, decoded };
 };
 exports.getUserFromToken = getUserFromToken;
 //# sourceMappingURL=getUserFromToken.js.map

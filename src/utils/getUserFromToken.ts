@@ -9,7 +9,7 @@ export const getUserFromToken = async (token: string) => {
 
   // 3) Check if user exists
   const currentUser = await User.findOne({
-    where: { id: decoded.userId },
+    where: { id: decoded?.userId },
     select: [
       "id",
       "username",
@@ -21,5 +21,5 @@ export const getUserFromToken = async (token: string) => {
     ],
   });
 
-  return currentUser;
+  return { currentUser, decoded };
 };

@@ -75,6 +75,7 @@ exports.addQuize = (0, express_async_handler_1.default)(async (req, res, next) =
             aiAnswerIndex: question.aiAnswerIndex,
             correctAnswerIndex: question.correctAnswerIndex,
             isBookmarked: question.isBookmarked,
+            user,
         })),
     });
     await newQuiz.save();
@@ -107,6 +108,16 @@ exports.getQuizById = (0, express_async_handler_1.default)(async (req, res, next
     const { id } = req.params;
     const user = req.user;
     const quiz = await Quiz_model_1.Quiz.getUserQuizById(user.id, id);
+    // ToDo: optimize this block
+    if (quiz) {
+        const newQuizObj = Object.assign(Object.assign({}, quiz), { questions: quiz.questions.map((ques) => {
+                var _a;
+                const question = Object.assign(Object.assign({}, ques), { answers: (_a = ques.answers) === null || _a === void 0 ? void 0 : _a.map((ans) => ans.answer) });
+                return question;
+            }) });
+        res.status(200).json({ newQuizObj });
+        return;
+    }
     res.status(200).json({ quiz });
 });
 exports.deleteQuiz = (0, express_async_handler_1.default)(async (req, res, next) => {
@@ -163,7 +174,7 @@ exports.getQuizQuestionById = (0, express_async_handler_1.default)(async (req, r
     });
     res.status(200).json({ question });
 });
-const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, isBookmarked, }) => {
+const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, isBookmarked, user, }) => {
     const newQuestion = Questions_model_1.Question.create({
         question,
         type,
@@ -175,7 +186,11 @@ const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, 
             // isCorrectAnswer: answer.isCorrectAnswer,
             // isUserAnswer: answer.isUserAnswer,
         })),
-        bookmark: isBookmarked ? Bookmarks_model_1.Bookmark.create() : null,
+        bookmark: isBookmarked
+            ? Bookmarks_model_1.Bookmark.create({
+                user,
+            })
+            : null,
     });
     return newQuestion;
 };
@@ -201,6 +216,7 @@ exports.addQuestionHanlder = (0, express_async_handler_1.default)(async (req, re
         aiAnswerIndex,
         correctAnswerIndex,
         isBookmarked: question.isBookmarked,
+        user,
     });
     newQuestion.quiz = quiz;
     await newQuestion.save();

@@ -20,11 +20,12 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
     console.log(`listen on ${process.env.PORT || 3000} port`);
 });
 io.use(async (socket, next) => {
-    const currentUser = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization);
+    const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization);
     console.log("curent userrr", currentUser);
     if (!currentUser) {
         next(new ApiError_1.default("unauthorized", 401));
     }
+    // socket.
     next();
 });
 io.on("connection", async (socket) => {

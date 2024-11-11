@@ -12,7 +12,7 @@ import { FindOneOptions, FindOptions, FindOptionsWhere, In } from "typeorm";
 export const getBookmarks = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    const { page, pageSize, bookId, chatbotId } = req.query;
+    const { page, pageSize, bookId, chatbotId, quizId } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
     let conditions: FindOptionsWhere<Bookmark> = {
       user: {
@@ -41,6 +41,18 @@ export const getBookmarks = asyncHandler(
         },
       };
     }
+
+    if (quizId) {
+      conditions = {
+        ...conditions,
+        question: {
+          quiz: {
+            id: In([quizId]),
+          },
+        },
+      };
+    }
+
     const [bookmarks, count] = await Bookmark.findAndCount({
       where: conditions,
       relations: {

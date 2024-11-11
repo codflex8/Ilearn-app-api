@@ -11,6 +11,7 @@ import { Answer } from "../models/Answers.model";
 import { Book } from "../models/Books.model";
 import { BaseQuery } from "../utils/validators/BaseQuery";
 import { Bookmark } from "../models/Bookmarks.model";
+import { User } from "../models/User.model";
 
 interface QuizeQuery extends BaseQuery {
   name: string;
@@ -99,6 +100,7 @@ export const addQuize = asyncHandler(
           aiAnswerIndex: question.aiAnswerIndex,
           correctAnswerIndex: question.correctAnswerIndex,
           isBookmarked: question.isBookmarked,
+          user,
         })
       ),
     });
@@ -139,6 +141,22 @@ export const getQuizById = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const quiz = await Quiz.getUserQuizById(user.id, id);
+    // ToDo: optimize this block
+    if (quiz) {
+      const newQuizObj = {
+        ...quiz,
+        questions: quiz.questions.map((ques) => {
+          const question = {
+            ...ques,
+            answers: ques.answers?.map((ans) => ans.answer),
+          };
+          return question;
+        }),
+      };
+      res.status(200).json({ newQuizObj });
+      return;
+    }
+
     res.status(200).json({ quiz });
   }
 );
@@ -216,6 +234,7 @@ const addQuestion = ({
   aiAnswerIndex,
   correctAnswerIndex,
   isBookmarked,
+  user,
 }: {
   question: string;
   type: QuestionType;
@@ -224,6 +243,7 @@ const addQuestion = ({
   aiAnswerIndex: number;
   correctAnswerIndex: number;
   isBookmarked: boolean;
+  user: User;
 }) => {
   const newQuestion = Question.create({
     question,
@@ -238,7 +258,11 @@ const addQuestion = ({
         // isUserAnswer: answer.isUserAnswer,
       })
     ),
-    bookmark: isBookmarked ? Bookmark.create() : null,
+    bookmark: isBookmarked
+      ? Bookmark.create({
+          user,
+        })
+      : null,
   });
 
   return newQuestion;
@@ -273,6 +297,7 @@ export const addQuestionHanlder = asyncHandler(
       aiAnswerIndex,
       correctAnswerIndex,
       isBookmarked: question.isBookmarked,
+      user,
     });
     newQuestion.quiz = quiz;
     await newQuestion.save();

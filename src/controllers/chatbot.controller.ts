@@ -14,9 +14,8 @@ import {
 } from "../utils/validators/ChatbotValidator";
 
 interface IAddMessage extends IChatbotMessage {
-  // message: string;
-  recordUrl: string;
-  fileUrl: string;
+  recordUrl?: string;
+  fileUrl?: string;
   // from: MessageFrom;
   // chatbotId: string;
   userId: string;

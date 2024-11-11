@@ -32,11 +32,11 @@ const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const bcrypt = __importStar(require("bcryptjs"));
 const createToken_1 = __importDefault(require("../utils/createToken"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sendEmail_1 = __importDefault(require("../utils/sendEmail"));
 const bcryptPassword_1 = __importDefault(require("../utils/bcryptPassword"));
 const generateCode_1 = __importDefault(require("../utils/generateCode"));
 const typeorm_1 = require("typeorm");
+const getUserFromToken_1 = require("../utils/getUserFromToken");
 exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { username, email, password, imageUrl } = req.body;
     const isUserExist = await User_model_1.User.findOne({
@@ -84,20 +84,7 @@ exports.protect = (0, express_async_handler_1.default)(async (req, res, next) =>
         return next(new ApiError_1.default("You are not login, Please login to get access this route", 401));
     }
     // 2) Verify token (no change happens, expired token)
-    const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET_KEY);
-    // 3) Check if user exists
-    const currentUser = await User_model_1.User.findOne({
-        where: { id: decoded.userId },
-        select: [
-            "id",
-            "username",
-            "email",
-            "gender",
-            "phoneNumber",
-            "birthDate",
-            "imageUrl",
-        ],
-    });
+    const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(token);
     if (!currentUser) {
         return next(new ApiError_1.default("The user that belong to this token does no longer exist", 401));
     }

@@ -9,6 +9,7 @@ import sendEmail from "../utils/sendEmail";
 import bcryptPassword from "../utils/bcryptPassword";
 import generateRandomCode from "../utils/generateCode";
 import { Equal } from "typeorm";
+import { getUserFromToken } from "../utils/getUserFromToken";
 
 interface JwtPayload extends jwt.JwtPayload {
   userId: string;
@@ -81,24 +82,7 @@ export const protect = asyncHandler(
     }
 
     // 2) Verify token (no change happens, expired token)
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET_KEY as string
-    ) as JwtPayload;
-
-    // 3) Check if user exists
-    const currentUser = await User.findOne({
-      where: { id: decoded.userId },
-      select: [
-        "id",
-        "username",
-        "email",
-        "gender",
-        "phoneNumber",
-        "birthDate",
-        "imageUrl",
-      ],
-    });
+    const { currentUser, decoded } = await getUserFromToken(token);
     if (!currentUser) {
       return next(
         new ApiError(

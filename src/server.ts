@@ -6,7 +6,6 @@ import Websocket from "./websocket/websocket";
 import { Socket } from "socket.io";
 import { chatbotEvents } from "./websocket/chatbots.websocket";
 import { groupsChatEvents } from "./websocket/groupsChat.socket";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import { getUserFromToken } from "./utils/getUserFromToken";
 import ApiError from "./utils/ApiError";
 
@@ -21,13 +20,14 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
 });
 
 io.use(async (socket, next) => {
-  const currentUser = await getUserFromToken(
+  const { currentUser, decoded } = await getUserFromToken(
     socket.client.request.headers.authorization
   );
   console.log("curent userrr", currentUser);
   if (!currentUser) {
     next(new ApiError("unauthorized", 401));
   }
+  // socket.
   next();
 });
 
