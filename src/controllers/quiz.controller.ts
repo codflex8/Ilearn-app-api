@@ -100,6 +100,8 @@ export const addQuize = asyncHandler(
           aiAnswerIndex: question.aiAnswerIndex,
           correctAnswerIndex: question.correctAnswerIndex,
           isBookmarked: question.isBookmarked,
+          aiAnswer: question.aiAnswer,
+          userAnswer: question.userAnswer,
           user,
         })
       ),
@@ -235,6 +237,8 @@ const addQuestion = ({
   correctAnswerIndex,
   isBookmarked,
   user,
+  userAnswer,
+  aiAnswer,
 }: {
   question: string;
   type: QuestionType;
@@ -244,13 +248,16 @@ const addQuestion = ({
   correctAnswerIndex: number;
   isBookmarked: boolean;
   user: User;
+  aiAnswer: string;
+  userAnswer: string;
 }) => {
   const newQuestion = Question.create({
     question,
     type,
     userAnswerIndex,
-    aiAnswerIndex,
     correctAnswerIndex,
+    aiAnswer,
+    userAnswer,
     answers: answers.map((answer, index) =>
       Answer.create({
         answer,
@@ -298,6 +305,8 @@ export const addQuestionHanlder = asyncHandler(
       correctAnswerIndex,
       isBookmarked: question.isBookmarked,
       user,
+      aiAnswer: question.aiAnswer,
+      userAnswer: question.userAnswer,
     });
     newQuestion.quiz = quiz;
     await newQuestion.save();

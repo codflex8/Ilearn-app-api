@@ -39,9 +39,13 @@ __decorate([
     __metadata("design:type", Number)
 ], Question.prototype, "userAnswerIndex", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int", nullable: true }),
-    __metadata("design:type", Number)
-], Question.prototype, "aiAnswerIndex", void 0);
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Question.prototype, "aiAnswer", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Question.prototype, "userAnswer", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "int", nullable: true }),
     __metadata("design:type", Number)

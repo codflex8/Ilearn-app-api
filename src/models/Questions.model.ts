@@ -30,8 +30,11 @@ export class Question extends BaseModel {
   @Column({ type: "int", nullable: true })
   userAnswerIndex: number;
 
-  @Column({ type: "int", nullable: true })
-  aiAnswerIndex: number;
+  @Column()
+  aiAnswer: string;
+
+  @Column({ nullable: true })
+  userAnswer?: string;
 
   @Column({ type: "int", nullable: true })
   correctAnswerIndex: number;

@@ -33,42 +33,41 @@ const updateAnswerValidator = addAnswerValidator.extend({
 const questionValidatorWithRefine = (
   questionObject: typeof updateQuestionValidator
 ) =>
-  questionObject
-    .refine(
-      (data) => {
-        console.log("dataaaa", data);
-        if (
-          data.type === QuestionType.MultiChoic ||
-          data.type === QuestionType.TrueFalse
-        ) {
-          return data.answers.length > 1 && data.correctAnswerIndex != null;
-        }
-        return true;
-      },
-      {
-        path: ["question"],
-        message: "correctAnswerIndex required",
+  questionObject.refine(
+    (data) => {
+      if (
+        data.type === QuestionType.MultiChoic ||
+        data.type === QuestionType.TrueFalse
+      ) {
+        return data.answers.length > 1 && data.correctAnswerIndex != null;
       }
-    )
-    .refine(
-      (data) => {
-        if (data.type === QuestionType.Writing) {
-          return data.answers.length <= 2 && data.aiAnswerIndex;
-        }
-        return true;
-      },
-      {
-        path: ["question"],
-        message: "aiAnswerIndex required",
-      }
-    );
+      return true;
+    },
+    {
+      path: ["question"],
+      message: "correctAnswerIndex required",
+    }
+  );
+// .refine(
+//   (data) => {
+//     if (data.type === QuestionType.Writing) {
+//       return data.answers.length <= 2 && data.aiAnswerIndex;
+//     }
+//     return true;
+//   },
+//   {
+//     path: ["question"],
+//     message: "aiAnswerIndex required",
+//   }
+// );
 
 const addQuestionObject = z.object({
   question: z.string(),
   type: z.nativeEnum(QuestionType),
   userAnswerIndex: z.number().optional().nullable(),
-  aiAnswerIndex: z.number().optional().nullable(),
   correctAnswerIndex: z.number().optional().nullable(),
+  aiAnswer: z.string(),
+  userAnswer: z.string(),
   answers: z.array(z.string()),
   isBookmarked: z.boolean().optional().nullable(),
   // answers: z.array(addAnswerValidator),

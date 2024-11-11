@@ -75,6 +75,8 @@ exports.addQuize = (0, express_async_handler_1.default)(async (req, res, next) =
             aiAnswerIndex: question.aiAnswerIndex,
             correctAnswerIndex: question.correctAnswerIndex,
             isBookmarked: question.isBookmarked,
+            aiAnswer: question.aiAnswer,
+            userAnswer: question.userAnswer,
             user,
         })),
     });
@@ -174,13 +176,14 @@ exports.getQuizQuestionById = (0, express_async_handler_1.default)(async (req, r
     });
     res.status(200).json({ question });
 });
-const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, isBookmarked, user, }) => {
+const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, isBookmarked, user, userAnswer, aiAnswer, }) => {
     const newQuestion = Questions_model_1.Question.create({
         question,
         type,
         userAnswerIndex,
-        aiAnswerIndex,
         correctAnswerIndex,
+        aiAnswer,
+        userAnswer,
         answers: answers.map((answer, index) => Answers_model_1.Answer.create({
             answer,
             // isCorrectAnswer: answer.isCorrectAnswer,
@@ -217,6 +220,8 @@ exports.addQuestionHanlder = (0, express_async_handler_1.default)(async (req, re
         correctAnswerIndex,
         isBookmarked: question.isBookmarked,
         user,
+        aiAnswer: question.aiAnswer,
+        userAnswer: question.userAnswer,
     });
     newQuestion.quiz = quiz;
     await newQuestion.save();
