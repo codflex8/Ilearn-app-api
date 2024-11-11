@@ -153,7 +153,7 @@ export const getQuizById = asyncHandler(
           return question;
         }),
       };
-      res.status(200).json({ newQuizObj });
+      res.status(200).json({ quiz: newQuizObj });
       return;
     }
 

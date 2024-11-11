@@ -115,7 +115,7 @@ exports.getQuizById = (0, express_async_handler_1.default)(async (req, res, next
                 const question = Object.assign(Object.assign({}, ques), { answers: (_a = ques.answers) === null || _a === void 0 ? void 0 : _a.map((ans) => ans.answer) });
                 return question;
             }) });
-        res.status(200).json({ newQuizObj });
+        res.status(200).json({ quiz: newQuizObj });
         return;
     }
     res.status(200).json({ quiz });
