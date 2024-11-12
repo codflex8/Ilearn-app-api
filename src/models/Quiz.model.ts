@@ -58,6 +58,7 @@ export class Quiz extends BaseModel {
       .leftJoinAndSelect("quiz.books", "book")
       .where("quiz.id = :quizId", { quizId })
       .andWhere("quiz.userId = :userId", { userId })
+      .orderBy("answer.createdAt", "ASC")
       .getOne();
   }
 
