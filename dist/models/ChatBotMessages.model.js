@@ -32,7 +32,7 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], ChatbotMessages.prototype, "fileUrl", void 0);
+], ChatbotMessages.prototype, "imageUrl", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "enum", enum: ChatbotValidator_1.MessageFrom }),
     __metadata("design:type", String)

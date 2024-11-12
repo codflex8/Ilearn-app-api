@@ -16,12 +16,12 @@ exports.addBooksToChatbotValidator = zod_1.z.object({
 });
 const chatbotMessageValidator = zod_1.z.object({
     message: zod_1.z.string().optional(),
-    recordUrl: zod_1.z.string().optional(),
-    fileUrl: zod_1.z.string().optional(),
+    record: zod_1.z.string().optional(),
+    image: zod_1.z.string().optional(),
     from: zod_1.z.nativeEnum(MessageFrom),
 });
-exports.refineChatbotMessageValidator = chatbotMessageValidator.refine((data) => data.message || data.recordUrl || data.fileUrl, {
+exports.refineChatbotMessageValidator = chatbotMessageValidator.refine((data) => data.message || data.record || data.image, {
     message: "can not add empty message",
-    path: ["message || recordUrl || fileUrl"],
+    path: ["message || record || image"],
 });
 //# sourceMappingURL=ChatbotValidator.js.map

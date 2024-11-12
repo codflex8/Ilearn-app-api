@@ -15,7 +15,7 @@ import {
 
 interface IAddMessage extends IChatbotMessage {
   recordUrl?: string;
-  fileUrl?: string;
+  imageUrl?: string;
   // from: MessageFrom;
   // chatbotId: string;
   userId: string;
@@ -171,12 +171,12 @@ export const addMessageHandler = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const { message, recordUrl, fileUrl, from } = req.body;
+    const { message, record, image, from } = req.body;
 
     const newMessage = await addMessage({
       message,
-      recordUrl,
-      fileUrl,
+      recordUrl: record,
+      imageUrl: image,
       from,
       chatbotId: id,
       userId: user.id,
@@ -213,7 +213,7 @@ export const addMessage = async ({
   chatbotId,
   message,
   recordUrl,
-  fileUrl,
+  imageUrl,
   from,
   userId,
   errorHandler,
@@ -232,7 +232,7 @@ export const addMessage = async ({
   const newMessage = ChatbotMessages.create({
     message,
     recordUrl,
-    fileUrl,
+    imageUrl,
     chatbot,
     from,
   });

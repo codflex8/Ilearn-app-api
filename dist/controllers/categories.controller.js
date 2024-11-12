@@ -41,9 +41,9 @@ exports.getCategoryByID = (0, express_async_handler_1.default)(async (req, res, 
     res.status(200).json({ category });
 });
 exports.addCategory = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const { name, imageUrl } = req.body;
+    const { name, image } = req.body;
     const user = req.user;
-    const newCategory = Categories_model_1.Category.create({ name, imageUrl, user });
+    const newCategory = Categories_model_1.Category.create({ name, imageUrl: image, user });
     await newCategory.save();
     delete newCategory.user;
     res.status(201).json({ category: newCategory });

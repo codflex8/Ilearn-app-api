@@ -38,7 +38,7 @@ const generateCode_1 = __importDefault(require("../utils/generateCode"));
 const typeorm_1 = require("typeorm");
 const getUserFromToken_1 = require("../utils/getUserFromToken");
 exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const { username, email, password, imageUrl } = req.body;
+    const { username, email, password, image } = req.body;
     const isUserExist = await User_model_1.User.findOne({
         where: {
             email: (0, typeorm_1.Equal)(req.body.email),
@@ -53,7 +53,7 @@ exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => 
         username,
         email,
         password: cryptedPassword,
-        imageUrl,
+        imageUrl: image,
     });
     await user.save();
     delete user.password;

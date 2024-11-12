@@ -62,7 +62,7 @@ export const createGroupChat = asyncHandler(
     res: Response,
     next: NextFunction
   ) => {
-    const { name, usersIds, imageUrl } = req.body;
+    const { name, usersIds, image } = req.body;
     const user = req.user;
     const users = await User.find({
       where: {
@@ -71,7 +71,7 @@ export const createGroupChat = asyncHandler(
     });
     const newGroupChat = GroupsChat.create({
       name,
-      imageUrl,
+      imageUrl: image,
     });
     await newGroupChat.save();
     const usersGroupChat = users.map((currentUser) =>

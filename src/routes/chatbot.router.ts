@@ -16,6 +16,7 @@ import {
   chatBotValidator,
   addBooksToChatbotValidator,
 } from "../utils/validators/ChatbotValidator";
+import { upload } from "../middleware/uploadFiles";
 
 const router = Router();
 router.get("/", getChatbots);
@@ -26,6 +27,10 @@ router.delete("/:id", deleteChatbot);
 router.get("/:id/messages", getChatbotMessages);
 router.post(
   "/:id/messages",
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "record", maxCount: 1 },
+  ]),
   validateData(refineChatbotMessageValidator),
   addMessageHandler
 );

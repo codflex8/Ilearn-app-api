@@ -43,7 +43,7 @@ exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, ne
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, groupsChat));
 });
 exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const { name, usersIds, imageUrl } = req.body;
+    const { name, usersIds, image } = req.body;
     const user = req.user;
     const users = await User_model_1.User.find({
         where: {
@@ -52,7 +52,7 @@ exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, 
     });
     const newGroupChat = GroupsChat_model_1.GroupsChat.create({
         name,
-        imageUrl,
+        imageUrl: image,
     });
     await newGroupChat.save();
     const usersGroupChat = users.map((currentUser) => GroupsChatUsers_model_1.GroupsChatUsers.create({

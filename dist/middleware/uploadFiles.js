@@ -54,15 +54,21 @@ const storage = multer_1.default.diskStorage({
             return cb(new Error("Unsupported file type"), null);
         }
         createDirIfNotExist(uploadDirectory);
-        // Create the directory if it doesn't exist
-        if (!fs_1.default.existsSync(uploadDirectory)) {
-            fs_1.default.mkdirSync(uploadDirectory, { recursive: true });
-        }
         cb(null, uploadDirectory);
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + path_1.default.extname(file.originalname));
+        const filename = uniqueSuffix + path_1.default.extname(file.originalname);
+        // Determine the relative path for the file
+        const extension = path_1.default.extname(file.originalname).toLowerCase();
+        const isImage = imagesExtensions.includes(extension);
+        const isAudio = audioExtensions.includes(extension);
+        const relativePath = isImage
+            ? `/public/images/${filename}`
+            : `/public/audio/${filename}`;
+        // Add the path to req.body using the field name
+        req.body[file.fieldname] = relativePath;
+        cb(null, filename);
     },
 });
 // Updated file filter with additional file extensions

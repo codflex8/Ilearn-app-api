@@ -40,7 +40,6 @@ const storage = multer.diskStorage({
     const extension = path.extname(file.originalname);
     const isImage = imagesExtensions.includes(extension);
     const isAudio = audioExtensions.includes(extension);
-
     let uploadDirectory = "";
     if (isImage) {
       uploadDirectory = path.join(__dirname, "../public/images");
@@ -51,16 +50,24 @@ const storage = multer.diskStorage({
     }
     createDirIfNotExist(uploadDirectory);
 
-    // Create the directory if it doesn't exist
-    if (!fs.existsSync(uploadDirectory)) {
-      fs.mkdirSync(uploadDirectory, { recursive: true });
-    }
     cb(null, uploadDirectory);
   },
 
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    const filename = uniqueSuffix + path.extname(file.originalname);
+
+    // Determine the relative path for the file
+    const extension = path.extname(file.originalname).toLowerCase();
+    const isImage = imagesExtensions.includes(extension);
+    const isAudio = audioExtensions.includes(extension);
+    const relativePath = isImage
+      ? `/public/images/${filename}`
+      : `/public/audio/${filename}`;
+
+    // Add the path to req.body using the field name
+    req.body[file.fieldname] = relativePath;
+    cb(null, filename);
   },
 });
 

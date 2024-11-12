@@ -59,9 +59,16 @@ exports.getBookById = (0, express_async_handler_1.default)(async (req, res, next
     res.status(200).json({ book });
 });
 exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const { name, imageUrl, fileUrl, link, content, categoryId } = req.body;
+    const { name, image, fileUrl, link, content, categoryId } = req.body;
     const user = req.user;
-    const book = Books_model_1.Book.create({ name, imageUrl, fileUrl, link, content, user });
+    const book = Books_model_1.Book.create({
+        name,
+        imageUrl: image,
+        fileUrl,
+        link,
+        content,
+        user,
+    });
     const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
     if (!category) {
         return next(new ApiError_1.default("category not found", 400));
@@ -75,10 +82,10 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
 exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
-    const { name, imageUrl, fileUrl, link, content, categoryId } = req.body;
+    const { name, image, fileUrl, link, content, categoryId } = req.body;
     const book = await Books_model_1.Book.getUserBookById(user.id, id);
     book.name = name;
-    book.imageUrl = imageUrl;
+    book.imageUrl = image;
     book.fileUrl = fileUrl;
     book.link = link;
     book.content = content;

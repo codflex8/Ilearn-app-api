@@ -10,7 +10,7 @@ const typeorm_1 = require("typeorm");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
-    const { phoneNumber, email, username, birthDate, gender, imageUrl } = req.body;
+    const { phoneNumber, email, username, birthDate, gender, image } = req.body;
     const isEmailExist = await User_model_1.User.findOne({
         where: {
             email: (0, typeorm_1.Equal)(email),
@@ -34,7 +34,7 @@ exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res
     user.phoneNumber = phoneNumber;
     user.birthDate = birthDate;
     user.gender = gender;
-    user.imageUrl = imageUrl;
+    user.imageUrl = image;
     await user.save();
     res.status(200).json({ user });
 });

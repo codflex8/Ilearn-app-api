@@ -73,9 +73,16 @@ export const getBookById = asyncHandler(
 
 export const addBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, imageUrl, fileUrl, link, content, categoryId } = req.body;
+    const { name, image, fileUrl, link, content, categoryId } = req.body;
     const user = req.user;
-    const book = Book.create({ name, imageUrl, fileUrl, link, content, user });
+    const book = Book.create({
+      name,
+      imageUrl: image,
+      fileUrl,
+      link,
+      content,
+      user,
+    });
     const category = await Category.getUserCategoryById(user.id, categoryId);
     if (!category) {
       return next(new ApiError("category not found", 400));
@@ -92,10 +99,10 @@ export const updateBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const { name, imageUrl, fileUrl, link, content, categoryId } = req.body;
+    const { name, image, fileUrl, link, content, categoryId } = req.body;
     const book = await Book.getUserBookById(user.id, id);
     book.name = name;
-    book.imageUrl = imageUrl;
+    book.imageUrl = image;
     book.fileUrl = fileUrl;
     book.link = link;
     book.content = content;

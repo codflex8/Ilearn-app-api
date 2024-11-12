@@ -9,7 +9,6 @@ import {
   updateGroupChat,
 } from "../controllers/GroupsChat.controller";
 import { upload } from "../middleware/uploadFiles";
-import { setImageUrl } from "../middleware/setImageUrl";
 import { validateData } from "../middleware/validationMiddleware";
 import {
   addGroupChatValidator,
@@ -23,7 +22,6 @@ router.get("/", getGroupsChat);
 router.post(
   "/",
   upload.single("image"),
-  setImageUrl(),
   validateData(addGroupChatValidator),
   createGroupChat
 );
@@ -33,7 +31,6 @@ router.put(
     { name: "image", maxCount: 1 },
     { name: "backgroundCover", maxCount: 1 },
   ]),
-  setImageUrl(),
   validateData(updateGroupChatValidator),
   updateGroupChat
 );

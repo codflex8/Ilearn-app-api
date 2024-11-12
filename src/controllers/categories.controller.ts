@@ -48,9 +48,9 @@ export const getCategoryByID = asyncHandler(
 
 export const addCategory = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, imageUrl } = req.body;
+    const { name, image } = req.body;
     const user = req.user;
-    const newCategory = Category.create({ name, imageUrl, user });
+    const newCategory = Category.create({ name, imageUrl: image, user });
     await newCategory.save();
     delete newCategory.user;
     res.status(201).json({ category: newCategory });

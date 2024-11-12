@@ -17,7 +17,7 @@ interface JwtPayload extends jwt.JwtPayload {
 
 export const signup = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { username, email, password, imageUrl } = req.body;
+    const { username, email, password, image } = req.body;
     const isUserExist = await User.findOne({
       where: {
         email: Equal(req.body.email),
@@ -32,7 +32,7 @@ export const signup = asyncHandler(
       username,
       email,
       password: cryptedPassword,
-      imageUrl,
+      imageUrl: image,
     });
 
     await user.save();

@@ -15,14 +15,12 @@ import {
   verifyForgetPasswordValidator,
 } from "../utils/validators/AuthValidator";
 import { upload } from "../middleware/uploadFiles";
-import { setImageUrl } from "../middleware/setImageUrl";
 
 const router = Router();
 
 router.post(
   "/signup",
   upload.single("image"),
-  setImageUrl(),
   validateData(signUpValidator),
   signup
 );

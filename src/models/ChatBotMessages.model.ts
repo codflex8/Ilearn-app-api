@@ -22,7 +22,7 @@ export class ChatbotMessages extends BaseModel {
   recordUrl: string;
 
   @Column({ nullable: true })
-  fileUrl: string;
+  imageUrl: string;
 
   @Column({ type: "enum", enum: MessageFrom })
   from: MessageFrom;

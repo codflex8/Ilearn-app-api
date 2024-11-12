@@ -31,14 +31,14 @@ export interface IChatbotMessage {
 
 const chatbotMessageValidator = z.object({
   message: z.string().optional(),
-  recordUrl: z.string().optional(),
-  fileUrl: z.string().optional(),
+  record: z.string().optional(),
+  image: z.string().optional(),
   from: z.nativeEnum(MessageFrom),
 });
 export const refineChatbotMessageValidator = chatbotMessageValidator.refine(
-  (data) => data.message || data.recordUrl || data.fileUrl,
+  (data) => data.message || data.record || data.image,
   {
     message: "can not add empty message",
-    path: ["message || recordUrl || fileUrl"],
+    path: ["message || record || image"],
   }
 );

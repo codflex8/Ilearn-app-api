@@ -125,11 +125,11 @@ exports.getChatbotMessages = (0, express_async_handler_1.default)(async (req, re
 exports.addMessageHandler = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
-    const { message, recordUrl, fileUrl, from } = req.body;
+    const { message, record, image, from } = req.body;
     const newMessage = await (0, exports.addMessage)({
         message,
-        recordUrl,
-        fileUrl,
+        recordUrl: record,
+        imageUrl: image,
         from,
         chatbotId: id,
         userId: user.id,
@@ -157,7 +157,7 @@ exports.addBooksToChatbot = (0, express_async_handler_1.default)(async (req, res
     await chatbot.save();
     res.status(200).json({ chatbot });
 });
-const addMessage = async ({ chatbotId, message, recordUrl, fileUrl, from, userId, errorHandler, }) => {
+const addMessage = async ({ chatbotId, message, recordUrl, imageUrl, from, userId, errorHandler, }) => {
     const chatbot = await ChatBot_model_1.Chatbot.findOne({
         where: {
             id: (0, typeorm_1.Equal)(chatbotId),
@@ -172,7 +172,7 @@ const addMessage = async ({ chatbotId, message, recordUrl, fileUrl, from, userId
     const newMessage = ChatBotMessages_model_1.ChatbotMessages.create({
         message,
         recordUrl,
-        fileUrl,
+        imageUrl,
         chatbot,
         from,
     });
