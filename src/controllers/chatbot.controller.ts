@@ -149,6 +149,9 @@ export const getChatbotMessages = asyncHandler(
       relations: {
         bookmark: true,
       },
+      order: {
+        createdAt: "DESC",
+      },
     });
 
     res

@@ -114,6 +114,9 @@ exports.getChatbotMessages = (0, express_async_handler_1.default)(async (req, re
         relations: {
             bookmark: true,
         },
+        order: {
+            createdAt: "DESC",
+        },
     });
     res
         .status(200)

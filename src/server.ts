@@ -19,14 +19,14 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`listen on ${process.env.PORT || 3000} port`);
 });
 
-io.use(async (socket, next) => {
+io.use(async (socket: Socket, next) => {
   const { currentUser, decoded } = await getUserFromToken(
     socket.client.request.headers.authorization
   );
   if (!currentUser) {
     next(new ApiError("unauthorized", 401));
   }
-  // socket.
+  socket.user = currentUser;
   next();
 });
 

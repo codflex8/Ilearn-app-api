@@ -14,11 +14,35 @@ const createDirIfNotExist = (dir) => {
         fs_1.default.mkdirSync(dir, { recursive: true });
     }
 };
+const imagesExtensions = [
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".gif",
+    ".webp",
+    ".bmp",
+    ".tiff",
+    ".svg+xml",
+    ".svg",
+];
+const audioExtensions = [
+    ".mpeg",
+    ".wav",
+    ".ogg",
+    ".mp3",
+    ".webm",
+    ".x-m4a",
+    ".flac",
+    ".aac",
+    ".x-wav",
+    ".x-aiff",
+];
 // Define the storage configuration
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
-        const isImage = file.mimetype.startsWith("image/");
-        const isAudio = file.mimetype.startsWith("audio/");
+        const extension = path_1.default.extname(file.originalname);
+        const isImage = imagesExtensions.includes(extension);
+        const isAudio = audioExtensions.includes(extension);
         let uploadDirectory = "";
         if (isImage) {
             uploadDirectory = path_1.default.join(__dirname, "../public/images");
@@ -43,26 +67,7 @@ const storage = multer_1.default.diskStorage({
 });
 // Updated file filter with additional file extensions
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = [
-        ".jpeg",
-        ".jpg",
-        ".png",
-        ".gif",
-        ".webp",
-        ".bmp",
-        ".tiff",
-        ".svg+xml",
-        ".mpeg",
-        ".wav",
-        ".ogg",
-        ".mp3",
-        ".webm",
-        ".x-m4a",
-        ".flac",
-        ".aac",
-        ".x-wav",
-        ".x-aiff",
-    ];
+    const allowedTypes = [...imagesExtensions, ...audioExtensions];
     const extension = path_1.default.extname(file.originalname);
     console.log("fileeee", file, extension);
     if (allowedTypes.includes(extension)) {

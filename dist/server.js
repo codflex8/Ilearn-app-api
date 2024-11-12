@@ -24,7 +24,7 @@ io.use(async (socket, next) => {
     if (!currentUser) {
         next(new ApiError_1.default("unauthorized", 401));
     }
-    // socket.
+    socket.user = currentUser;
     next();
 });
 io.on("connection", async (socket) => {
