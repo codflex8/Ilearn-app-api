@@ -61,7 +61,7 @@ const fileFilter = (req, file, cb) => {
     "audio/x-wav",
     "audio/x-aiff",
   ];
-
+  console.log("fileeee", file);
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
