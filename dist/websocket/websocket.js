@@ -8,7 +8,9 @@ const WEBSOCKET_CORS = {
 class Websocket extends socket_io_1.Server {
     constructor(httpServer) {
         super(httpServer, {
-            cors: WEBSOCKET_CORS,
+            cors: {
+                origin: "*",
+            },
         });
     }
     static getInstance(httpServer) {

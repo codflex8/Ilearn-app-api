@@ -10,7 +10,9 @@ class Websocket extends Server {
 
   constructor(httpServer) {
     super(httpServer, {
-      cors: WEBSOCKET_CORS,
+      cors: {
+        origin: "*",
+      },
     });
   }
 
