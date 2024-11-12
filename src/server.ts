@@ -23,7 +23,6 @@ io.use(async (socket, next) => {
   const { currentUser, decoded } = await getUserFromToken(
     socket.client.request.headers.authorization
   );
-  console.log("curent userrr", currentUser);
   if (!currentUser) {
     next(new ApiError("unauthorized", 401));
   }

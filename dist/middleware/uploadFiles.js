@@ -44,27 +44,28 @@ const storage = multer_1.default.diskStorage({
 // Updated file filter with additional file extensions
 const fileFilter = (req, file, cb) => {
     const allowedTypes = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-        "image/bmp",
-        "image/tiff",
-        "image/svg+xml",
-        "audio/mpeg",
-        "audio/wav",
-        "audio/ogg",
-        "audio/mp3",
-        "audio/webm",
-        "audio/x-m4a",
-        "audio/flac",
-        "audio/aac",
-        "audio/x-wav",
-        "audio/x-aiff",
+        ".jpeg",
+        ".jpg",
+        ".png",
+        ".gif",
+        ".webp",
+        ".bmp",
+        ".tiff",
+        ".svg+xml",
+        ".mpeg",
+        ".wav",
+        ".ogg",
+        ".mp3",
+        ".webm",
+        ".x-m4a",
+        ".flac",
+        ".aac",
+        ".x-wav",
+        ".x-aiff",
     ];
-    console.log("fileeee", file);
-    if (allowedTypes.includes(file.mimetype)) {
+    const extension = path_1.default.extname(file.originalname);
+    console.log("fileeee", file, extension);
+    if (allowedTypes.includes(extension)) {
         cb(null, true);
     }
     else {

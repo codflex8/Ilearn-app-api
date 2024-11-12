@@ -21,7 +21,6 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
 });
 io.use(async (socket, next) => {
     const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization);
-    console.log("curent userrr", currentUser);
     if (!currentUser) {
         next(new ApiError_1.default("unauthorized", 401));
     }

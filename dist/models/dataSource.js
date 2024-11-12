@@ -19,6 +19,6 @@ exports.dataSource = new typeorm_1.DataSource({
     entities: [path_1.default.join(__dirname, "/**/*.model.{js,ts}")],
     migrations: [path_1.default.join(__dirname, "../migrations/**/*.{js,ts}")],
     subscribers: [path_1.default.join(__dirname, "../subscribers/**/*.{js,ts}")],
-    logging: true,
+    logging: process.env.NODE_ENV === "production" ? false : true,
 });
 //# sourceMappingURL=dataSource.js.map
