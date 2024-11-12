@@ -12,7 +12,10 @@ class Websocket extends Server {
     super(httpServer, {
       cors: {
         origin: "*",
+        credentials: true,
       },
+      transports: ["websocket", "polling"],
+      allowEIO3: true,
     });
   }
 

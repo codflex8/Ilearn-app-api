@@ -10,7 +10,10 @@ class Websocket extends socket_io_1.Server {
         super(httpServer, {
             cors: {
                 origin: "*",
+                credentials: true,
             },
+            transports: ["websocket", "polling"],
+            allowEIO3: true,
         });
     }
     static getInstance(httpServer) {
