@@ -4,7 +4,7 @@ import { Question } from "./Questions.model";
 
 @Entity()
 export class Answer extends BaseModel {
-  @Column()
+  @Column({ type: "longtext" })
   answer: string;
 
   // @Column({ type: "boolean", default: false })

@@ -23,7 +23,7 @@ let Question = class Question extends BaseModel_1.BaseModel {
 };
 exports.Question = Question;
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ type: "longtext" }),
     __metadata("design:type", String)
 ], Question.prototype, "question", void 0);
 __decorate([
@@ -39,11 +39,11 @@ __decorate([
     __metadata("design:type", Number)
 ], Question.prototype, "userAnswerIndex", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ type: "longtext" }),
     __metadata("design:type", String)
 ], Question.prototype, "aiAnswer", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ type: "longtext", nullable: true }),
     __metadata("design:type", String)
 ], Question.prototype, "userAnswer", void 0);
 __decorate([

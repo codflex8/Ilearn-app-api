@@ -1,12 +1,14 @@
 import { Server } from "socket.io";
+import { User } from "../models/User.model";
 
 const WEBSOCKET_CORS = {
   origin: "*",
-  methods: ["GET", "POST"],
+  // methods: ["GET", "POST"],
 };
 
 class Websocket extends Server {
   private static io: Websocket;
+  private static users: User[] = [];
 
   constructor(httpServer) {
     super(httpServer, {
@@ -25,6 +27,16 @@ class Websocket extends Server {
     }
 
     return this.io;
+  }
+
+  public static getUsers(): User[] {
+    return this.users;
+  }
+
+  public static addUser(user: User) {
+    if (!this.users.find((u) => u.id == user?.id)) {
+      this.users = [...this.users, user];
+    }
   }
 }
 

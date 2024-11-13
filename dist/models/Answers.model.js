@@ -17,7 +17,7 @@ let Answer = class Answer extends BaseModel_1.BaseModel {
 };
 exports.Answer = Answer;
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ type: "longtext" }),
     __metadata("design:type", String)
 ], Answer.prototype, "answer", void 0);
 __decorate([

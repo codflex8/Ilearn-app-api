@@ -18,7 +18,7 @@ import { Bookmark } from "./Bookmarks.model";
 
 @Entity()
 export class Question extends BaseModel {
-  @Column()
+  @Column({ type: "longtext" })
   question: string;
 
   @Column({ type: "enum", enum: QuestionType })
@@ -30,10 +30,10 @@ export class Question extends BaseModel {
   @Column({ type: "int", nullable: true })
   userAnswerIndex: number;
 
-  @Column()
+  @Column({ type: "longtext" })
   aiAnswer: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "longtext", nullable: true })
   userAnswer?: string;
 
   @Column({ type: "int", nullable: true })

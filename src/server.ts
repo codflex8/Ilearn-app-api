@@ -26,6 +26,8 @@ io.use(async (socket: Socket, next) => {
   if (!currentUser) {
     next(new ApiError("unauthorized", 401));
   }
+  Websocket.addUser(currentUser);
+  console.log("userss: ", Websocket.getUsers());
   socket.user = currentUser;
   next();
 });
