@@ -11,7 +11,7 @@ export const dataSource = new DataSource({
   // pool: { ...dbConfig.pool },
   type: "mysql",
   synchronize: false,
-  entities: [path.join(__dirname, "/**/*.model.{js,ts}")],
+  entities: [path.join(__dirname, "./*.model.{js,ts}")],
   migrations: [path.join(__dirname, "../migrations/**/*.{js,ts}")],
   subscribers: [path.join(__dirname, "../subscribers/**/*.{js,ts}")],
   logging: process.env.NODE_ENV === "production" ? false : true,

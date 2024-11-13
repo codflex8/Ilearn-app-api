@@ -9,6 +9,7 @@
     "start:dev": "nodemon src/server.ts",
     "typeorm:migrate": "npx typeorm-ts-node-commonjs migration:generate",
     "apply:migrations": "npx typeorm-ts-node-commonjs migration:run -d ./src/models/dataSource.ts",
+    "prod:apply:migrations":"typeorm migration:run -d ./dist/models/dataSource.js",
     "seed-data": "ts-node src/seeders/seeder.ts"
   },
   "author": "",

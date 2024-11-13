@@ -16,7 +16,7 @@ exports.dataSource = new typeorm_1.DataSource({
     // pool: { ...dbConfig.pool },
     type: "mysql",
     synchronize: false,
-    entities: [path_1.default.join(__dirname, "/**/*.model.{js,ts}")],
+    entities: [path_1.default.join(__dirname, "./*.model.{js,ts}")],
     migrations: [path_1.default.join(__dirname, "../migrations/**/*.{js,ts}")],
     subscribers: [path_1.default.join(__dirname, "../subscribers/**/*.{js,ts}")],
     logging: process.env.NODE_ENV === "production" ? false : true,
