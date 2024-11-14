@@ -20,13 +20,13 @@ const chatbotEvents = (socket) => {
                 userId: user.id,
                 errorHandler: (error) => {
                     if (callback)
-                        callback({ error: error.message });
+                        callback({ message: error.message });
                 },
             });
         }
         catch (error) {
             if (callback)
-                callback(error.message);
+                callback({ message: error.message });
         }
     });
 };
