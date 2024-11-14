@@ -15,25 +15,13 @@ const BaseModel_1 = require("./BaseModel");
 const GroupsChatMessages_model_1 = require("./GroupsChatMessages.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
-    // @ManyToMany(() => User, (user) => user.groupsChat)
-    // @JoinTable({
-    //   name: "groups_chat_users",
-    //   inverseJoinColumn: {
-    //     name: "userId",
-    //     referencedColumnName: "id",
-    //   },
-    //   joinColumn: {
-    //     name: "groupChatId",
-    //     referencedColumnName: "id",
-    //   },
-    // })
-    // users: User[];
     static getUserGroupChatById(userId, id) {
         return (this.getRepository()
             .createQueryBuilder("chat")
             .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
-            .leftJoinAndSelect("userGroupsChats.user", "user")
+            .leftJoinAndSelect("userGroupsChats.user", "user", "user.id = :userId", { userId })
             .where("chat.id = :id", { id })
+            // ToDo: filter based on userId but return all users
             // .andWhere("userGroupsChats.userId = :userId", { userId })
             .select("chat")
             .addSelect("userGroupsChats")

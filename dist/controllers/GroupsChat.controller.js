@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatById = exports.createGroupChat = exports.getGroupsChat = void 0;
+exports.addNewMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.getGroupsChat = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const GroupsChat_model_1 = require("../models/GroupsChat.model");
 const getPaginationData_1 = require("../utils/getPaginationData");
@@ -13,6 +13,7 @@ const User_model_1 = require("../models/User.model");
 const typeorm_1 = require("typeorm");
 const GroupsChatUsers_model_1 = require("../models/GroupsChatUsers.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
+const GroupsChatMessages_model_1 = require("../models/GroupsChatMessages.model");
 exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
     const { page, pageSize, name } = req.query;
@@ -70,6 +71,31 @@ exports.getGroupChatById = (0, express_async_handler_1.default)(async (req, res,
     const user = req.user;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
     res.status(200).json({ groupChat });
+});
+exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const { id } = req.params;
+    const user = req.user;
+    const { page, pageSize } = req.query;
+    const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
+    const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+        return next(new ApiError_1.default("groupchat not found", 400));
+    }
+    const [messages, count] = await GroupsChatMessages_model_1.GroupsChatMessages.findAndCount({
+        where: {
+            group: {
+                id: id,
+            },
+        },
+        skip,
+        take,
+        order: {
+            createdAt: "desc",
+        },
+    });
+    res
+        .status(200)
+        .json(new GenericResponse_1.GenericResponse(Number(page), take, count, messages));
 });
 exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
@@ -163,4 +189,27 @@ const isUserGroupAdmin = (user, userGroupsChat) => {
     const userGroupChat = userGroupsChat.find((chat) => { var _a; return ((_a = chat.user) === null || _a === void 0 ? void 0 : _a.id) === user.id; });
     return (userGroupChat === null || userGroupChat === void 0 ? void 0 : userGroupChat.role) === GroupsChatValidator_1.GroupChatRoles.Admin;
 };
+const addNewMessage = async ({ message, groupChatId, user, }) => {
+    const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
+        where: {
+            id: groupChatId,
+            userGroupsChats: {
+                user: {
+                    id: user.id,
+                },
+            },
+        },
+    });
+    if (!groupChat) {
+        throw new Error("groupchat not found");
+    }
+    const newMessage = GroupsChatMessages_model_1.GroupsChatMessages.create({
+        from: user,
+        message,
+        group: groupChat,
+    });
+    await newMessage.save();
+    return newMessage;
+};
+exports.addNewMessage = addNewMessage;
 //# sourceMappingURL=GroupsChat.controller.js.map

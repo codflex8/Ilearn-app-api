@@ -27,27 +27,19 @@ export class GroupsChat extends BaseModel {
   )
   userGroupsChats: GroupsChatUsers[];
 
-  // @ManyToMany(() => User, (user) => user.groupsChat)
-  // @JoinTable({
-  //   name: "groups_chat_users",
-  //   inverseJoinColumn: {
-  //     name: "userId",
-  //     referencedColumnName: "id",
-  //   },
-  //   joinColumn: {
-  //     name: "groupChatId",
-  //     referencedColumnName: "id",
-  //   },
-  // })
-  // users: User[];
-
   static getUserGroupChatById(userId: string, id: string) {
     return (
       this.getRepository()
         .createQueryBuilder("chat")
         .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
-        .leftJoinAndSelect("userGroupsChats.user", "user")
+        .leftJoinAndSelect(
+          "userGroupsChats.user",
+          "user",
+          "user.id = :userId",
+          { userId }
+        )
         .where("chat.id = :id", { id })
+        // ToDo: filter based on userId but return all users
         // .andWhere("userGroupsChats.userId = :userId", { userId })
         .select("chat")
         .addSelect("userGroupsChats")

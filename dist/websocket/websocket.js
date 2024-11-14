@@ -22,6 +22,22 @@ class Websocket extends socket_io_1.Server {
         }
         return this.io;
     }
+    static getroomUsers(roomId) {
+        var _a;
+        return (_a = this.roomUsers[roomId]) !== null && _a !== void 0 ? _a : [];
+    }
+    static addUserToRoom(roomId, user) {
+        var _a, _b;
+        if (!((_a = this.roomUsers[roomId]) === null || _a === void 0 ? void 0 : _a.find((u) => u.id == (user === null || user === void 0 ? void 0 : user.id))) ||
+            !this.roomUsers[roomId]) {
+            const newRoomUsers = [...((_b = this.roomUsers[roomId]) !== null && _b !== void 0 ? _b : []), user];
+            this.roomUsers = Object.assign(Object.assign({}, this.roomUsers), { [roomId]: newRoomUsers });
+        }
+    }
+    static removeUserFromRoom(roomId, user) {
+        const newRoomUsers = this.roomUsers[roomId].filter((u) => u.id !== user.id);
+        this.roomUsers = Object.assign(Object.assign({}, this.roomUsers), { [roomId]: newRoomUsers });
+    }
     static getUsers() {
         return this.users;
     }
@@ -30,7 +46,12 @@ class Websocket extends socket_io_1.Server {
             this.users = [...this.users, user];
         }
     }
+    static removeUser(user) {
+        var _a;
+        this.users = (_a = this.users) === null || _a === void 0 ? void 0 : _a.filter((u) => u.id !== user.id);
+    }
 }
 Websocket.users = [];
+Websocket.roomUsers = {};
 exports.default = Websocket;
 //# sourceMappingURL=websocket.js.map

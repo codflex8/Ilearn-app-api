@@ -26,11 +26,11 @@ __decorate([
     __metadata("design:type", String)
 ], GroupsChatMessages.prototype, "imageUrl", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], GroupsChatMessages.prototype, "link", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], GroupsChatMessages.prototype, "fileUrl", void 0);
 __decorate([

@@ -20,14 +20,19 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
     console.log(`listen on ${process.env.PORT || 3000} port`);
 });
 io.use(async (socket, next) => {
-    const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization);
-    if (!currentUser) {
+    if (socket.client.request.headers.authorization) {
+        const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization.split(" ")[1]);
+        if (!currentUser) {
+            next(new ApiError_1.default("unauthorized", 401));
+        }
+        websocket_1.default.addUser(currentUser);
+        console.log("userss: ", websocket_1.default.getUsers());
+        socket.user = currentUser;
+        next();
+    }
+    else {
         next(new ApiError_1.default("unauthorized", 401));
     }
-    websocket_1.default.addUser(currentUser);
-    console.log("userss: ", websocket_1.default.getUsers());
-    socket.user = currentUser;
-    next();
 });
 io.on("connection", async (socket) => {
     console.log("user connect");
@@ -36,6 +41,7 @@ io.on("connection", async (socket) => {
     (0, groupsChat_socket_1.groupsChatEvents)(socket);
     socket.on("disconnect", () => {
         console.log("user disconnect");
+        websocket_1.default.removeUser(socket.user);
     });
 });
 process.on("unhandledRejection", (err) => {

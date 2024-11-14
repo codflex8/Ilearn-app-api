@@ -20,16 +20,20 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
 });
 
 io.use(async (socket: Socket, next) => {
-  const { currentUser, decoded } = await getUserFromToken(
-    socket.client.request.headers.authorization
-  );
-  if (!currentUser) {
+  if (socket.client.request.headers.authorization) {
+    const { currentUser, decoded } = await getUserFromToken(
+      socket.client.request.headers.authorization.split(" ")[1]
+    );
+    if (!currentUser) {
+      next(new ApiError("unauthorized", 401));
+    }
+    Websocket.addUser(currentUser);
+    console.log("userss: ", Websocket.getUsers());
+    socket.user = currentUser;
+    next();
+  } else {
     next(new ApiError("unauthorized", 401));
   }
-  Websocket.addUser(currentUser);
-  console.log("userss: ", Websocket.getUsers());
-  socket.user = currentUser;
-  next();
 });
 
 io.on("connection", async (socket: Socket) => {
@@ -40,6 +44,7 @@ io.on("connection", async (socket: Socket) => {
 
   socket.on("disconnect", () => {
     console.log("user disconnect");
+    Websocket.removeUser(socket.user);
   });
 });
 

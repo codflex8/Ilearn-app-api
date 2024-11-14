@@ -9,6 +9,7 @@ const WEBSOCKET_CORS = {
 class Websocket extends Server {
   private static io: Websocket;
   private static users: User[] = [];
+  private static roomUsers: Record<string, Array<User>> = {};
 
   constructor(httpServer) {
     super(httpServer, {
@@ -29,6 +30,25 @@ class Websocket extends Server {
     return this.io;
   }
 
+  public static getroomUsers(roomId: string): User[] {
+    return this.roomUsers[roomId] ?? [];
+  }
+
+  public static addUserToRoom(roomId: string, user: User) {
+    if (
+      !this.roomUsers[roomId]?.find((u) => u.id == user?.id) ||
+      !this.roomUsers[roomId]
+    ) {
+      const newRoomUsers = [...(this.roomUsers[roomId] ?? []), user];
+      this.roomUsers = { ...this.roomUsers, [roomId]: newRoomUsers };
+    }
+  }
+
+  public static removeUserFromRoom(roomId: string, user: User) {
+    const newRoomUsers = this.roomUsers[roomId].filter((u) => u.id !== user.id);
+    this.roomUsers = { ...this.roomUsers, [roomId]: newRoomUsers };
+  }
+
   public static getUsers(): User[] {
     return this.users;
   }
@@ -37,6 +57,10 @@ class Websocket extends Server {
     if (!this.users.find((u) => u.id == user?.id)) {
       this.users = [...this.users, user];
     }
+  }
+
+  public static removeUser(user: User) {
+    this.users = this.users?.filter((u) => u.id !== user.id);
   }
 }
 

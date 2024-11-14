@@ -3,6 +3,7 @@ import {
   addUsersToGroupChat,
   createGroupChat,
   getGroupChatById,
+  getGroupChatMessages,
   getGroupsChat,
   leaveGroupChat,
   removeUsersfromGroupChat,
@@ -35,6 +36,8 @@ router.put(
   updateGroupChat
 );
 router.get("/:id", getGroupChatById);
+router.get("/:id/messages", getGroupChatMessages);
+
 router.post(
   "/:id/users",
   validateData(groupsChatUsersValidator),

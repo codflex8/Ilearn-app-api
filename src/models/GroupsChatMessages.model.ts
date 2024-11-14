@@ -11,10 +11,10 @@ export class GroupsChatMessages extends BaseModel {
   @Column({ nullable: true })
   imageUrl: string;
 
-  @Column()
+  @Column({ nullable: true })
   link: string;
 
-  @Column()
+  @Column({ nullable: true })
   fileUrl: string;
 
   @ManyToOne(() => GroupsChat)

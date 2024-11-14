@@ -12,6 +12,7 @@ import { User } from "../models/User.model";
 import { FindOptionsWhere, ILike, In } from "typeorm";
 import { GroupsChatUsers } from "../models/GroupsChatUsers.model";
 import ApiError from "../utils/ApiError";
+import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
 
 interface GroupsChatQuery extends BaseQuery {
   name?: string;
@@ -96,6 +97,45 @@ export const getGroupChatById = asyncHandler(
     const user = req.user;
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
     res.status(200).json({ groupChat });
+  }
+);
+
+export const getGroupChatMessages = asyncHandler(
+  async (
+    req: Request<{ id: string }, {}, {}, BaseQuery>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { id } = req.params;
+    const user = req.user;
+    const { page, pageSize } = req.query;
+    const { take, skip } = getPaginationData({ page, pageSize });
+    const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+      return next(new ApiError("groupchat not found", 400));
+    }
+    const [messages, count] = await GroupsChatMessages.findAndCount({
+      where: {
+        group: {
+          id: id,
+        },
+      },
+      skip,
+      take,
+      order: {
+        createdAt: "desc",
+      },
+    });
+    res
+      .status(200)
+      .json(
+        new GenericResponse<GroupsChatMessages>(
+          Number(page),
+          take,
+          count,
+          messages
+        )
+      );
   }
 );
 
@@ -225,4 +265,35 @@ const isUserGroupAdmin = (user: User, userGroupsChat: GroupsChatUsers[]) => {
     (chat) => chat.user?.id === user.id
   );
   return userGroupChat?.role === GroupChatRoles.Admin;
+};
+
+export const addNewMessage = async ({
+  message,
+  groupChatId,
+  user,
+}: {
+  message: string;
+  groupChatId: string;
+  user: User;
+}) => {
+  const groupChat = await GroupsChat.findOne({
+    where: {
+      id: groupChatId,
+      userGroupsChats: {
+        user: {
+          id: user.id,
+        },
+      },
+    },
+  });
+  if (!groupChat) {
+    throw new Error("groupchat not found");
+  }
+  const newMessage = GroupsChatMessages.create({
+    from: user,
+    message,
+    group: groupChat,
+  });
+  await newMessage.save();
+  return newMessage;
 };
