@@ -22,6 +22,7 @@ class AppServer {
         app.use(express_1.default.json());
         app.use(express_1.default.urlencoded({ extended: true }));
         app.use((req, res, next) => {
+            console.log("path", req.path, req.originalUrl);
             console.log("body", req.body);
             next();
         });

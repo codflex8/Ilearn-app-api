@@ -20,6 +20,7 @@ export default class AppServer {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use((req: Request, res: Response, next: NextFunction) => {
+      console.log("path", req.path, req.originalUrl);
       console.log("body", req.body);
       next();
     });
