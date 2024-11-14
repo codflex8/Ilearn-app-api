@@ -19,20 +19,20 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`listen on ${process.env.PORT || 3000} port`);
 });
 
-io.use(async (socket: Socket, next) => {
+io.use(async (socket: Socket, callback) => {
   if (socket.client.request.headers.authorization) {
     const { currentUser, decoded } = await getUserFromToken(
       socket.client.request.headers.authorization.split(" ")[1]
     );
     if (!currentUser) {
-      next(new ApiError("unauthorized", 401));
+      callback(new ApiError("unauthorized", 401));
     }
     Websocket.addUser(currentUser);
     console.log("userss: ", Websocket.getUsers());
     socket.user = currentUser;
-    next();
+    callback();
   } else {
-    next(new ApiError("unauthorized", 401));
+    callback(new ApiError("unauthorized", 401));
   }
 });
 
@@ -50,10 +50,10 @@ io.on("connection", async (socket: Socket) => {
 
 process.on("unhandledRejection", (err: Error) => {
   console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
-  server.close(() => {
-    console.error(`Shutting down....`);
-    process.exit(1);
-  });
+  // server.close(() => {
+  //   console.error(`Shutting down....`);
+  //   process.exit(1);
+  // });
 });
 
 // /usr/local/mysql/data/mysqld.local.pid

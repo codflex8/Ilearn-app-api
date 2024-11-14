@@ -3,7 +3,7 @@ import { User } from "../models/User.model";
 
 export const getUserFromToken = async (token: string) => {
   const decoded = jwt.verify(
-    token,
+    token ?? "",
     process.env.JWT_SECRET_KEY as string
   ) as JwtPayload;
 

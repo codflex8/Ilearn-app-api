@@ -19,19 +19,19 @@ const io = websocket_1.default.getInstance(httpServer);
 const server = httpServer.listen(process.env.PORT || 3000, () => {
     console.log(`listen on ${process.env.PORT || 3000} port`);
 });
-io.use(async (socket, next) => {
+io.use(async (socket, callback) => {
     if (socket.client.request.headers.authorization) {
         const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization.split(" ")[1]);
         if (!currentUser) {
-            next(new ApiError_1.default("unauthorized", 401));
+            callback(new ApiError_1.default("unauthorized", 401));
         }
         websocket_1.default.addUser(currentUser);
         console.log("userss: ", websocket_1.default.getUsers());
         socket.user = currentUser;
-        next();
+        callback();
     }
     else {
-        next(new ApiError_1.default("unauthorized", 401));
+        callback(new ApiError_1.default("unauthorized", 401));
     }
 });
 io.on("connection", async (socket) => {
@@ -46,10 +46,10 @@ io.on("connection", async (socket) => {
 });
 process.on("unhandledRejection", (err) => {
     console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
-    server.close(() => {
-        console.error(`Shutting down....`);
-        process.exit(1);
-    });
+    // server.close(() => {
+    //   console.error(`Shutting down....`);
+    //   process.exit(1);
+    // });
 });
 // /usr/local/mysql/data/mysqld.local.pid
 //# sourceMappingURL=server.js.map
