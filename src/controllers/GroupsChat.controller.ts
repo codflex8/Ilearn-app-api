@@ -125,6 +125,10 @@ export const getGroupChatMessages = asyncHandler(
       order: {
         createdAt: "desc",
       },
+      relations: {
+        from: true,
+      },
+      // select: {},
     });
     res
       .status(200)
@@ -319,6 +323,14 @@ export const readMessages = async ({
         },
       },
     },
-    { readbyIds: () => `CONCAT(readbyIds, ',', '${userId}')` }
+    {
+      readbyIds: () => `
+      CASE 
+        WHEN readbyIds IS NULL OR readbyIds = '' THEN '${userId}'
+        WHEN FIND_IN_SET('${userId}', readbyIds) = 0 THEN CONCAT(readbyIds, ',', '${userId}')
+        ELSE readbyIds
+      END
+    `,
+    }
   );
 };

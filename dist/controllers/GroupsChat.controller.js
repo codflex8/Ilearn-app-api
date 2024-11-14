@@ -92,6 +92,10 @@ exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, 
         order: {
             createdAt: "desc",
         },
+        relations: {
+            from: true,
+        },
+        // select: {},
     });
     res
         .status(200)
@@ -223,7 +227,15 @@ const readMessages = async ({ messagesIds, userId, chatId, }) => {
                 },
             },
         },
-    }, { readbyIds: () => `CONCAT(readbyIds, ',', '${userId}')` });
+    }, {
+        readbyIds: () => `
+      CASE 
+        WHEN readbyIds IS NULL OR readbyIds = '' THEN '${userId}'
+        WHEN FIND_IN_SET('${userId}', readbyIds) = 0 THEN CONCAT(readbyIds, ',', '${userId}')
+        ELSE readbyIds
+      END
+    `,
+    });
 };
 exports.readMessages = readMessages;
 //# sourceMappingURL=GroupsChat.controller.js.map

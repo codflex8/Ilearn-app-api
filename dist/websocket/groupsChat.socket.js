@@ -50,8 +50,14 @@ const groupsChatEvents = (socket) => {
         }
     });
     socket.on("read-messages", ({ messagesIds, chatId }, callback) => {
-        const user = socket.user;
-        (0, GroupsChat_controller_1.readMessages)({ chatId, messagesIds, userId: user.id });
+        try {
+            const user = socket.user;
+            (0, GroupsChat_controller_1.readMessages)({ chatId, messagesIds, userId: user.id });
+        }
+        catch (error) {
+            if (callback)
+                callback(error.message);
+        }
     });
 };
 exports.groupsChatEvents = groupsChatEvents;

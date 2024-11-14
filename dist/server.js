@@ -20,7 +20,8 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
     console.log(`listen on ${process.env.PORT || 3000} port`);
 });
 io.use(async (socket, callback) => {
-    if (socket.client.request.headers.authorization) {
+    if (socket.client.request.headers.authorization &&
+        socket.client.request.headers.authorization.split(" ")[1]) {
         const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization.split(" ")[1]);
         if (!currentUser) {
             callback(new ApiError_1.default("unauthorized", 401));

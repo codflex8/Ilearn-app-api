@@ -67,8 +67,12 @@ export const groupsChatEvents = (socket: Socket) => {
       { messagesIds, chatId }: { messagesIds: string[]; chatId: string },
       callback
     ) => {
-      const user = socket.user;
-      readMessages({ chatId, messagesIds, userId: user.id });
+      try {
+        const user = socket.user;
+        readMessages({ chatId, messagesIds, userId: user.id });
+      } catch (error: any) {
+        if (callback) callback(error.message);
+      }
     }
   );
 };

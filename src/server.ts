@@ -20,7 +20,10 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
 });
 
 io.use(async (socket: Socket, callback) => {
-  if (socket.client.request.headers.authorization) {
+  if (
+    socket.client.request.headers.authorization &&
+    socket.client.request.headers.authorization.split(" ")[1]
+  ) {
     const { currentUser, decoded } = await getUserFromToken(
       socket.client.request.headers.authorization.split(" ")[1]
     );
