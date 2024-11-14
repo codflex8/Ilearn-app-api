@@ -1,7 +1,10 @@
 import { Socket } from "socket.io";
 import { GroupsChat } from "../models/GroupsChat.model";
 import Websocket from "./websocket";
-import { addNewMessage } from "../controllers/GroupsChat.controller";
+import {
+  addNewMessage,
+  readMessages,
+} from "../controllers/GroupsChat.controller";
 
 export const groupsChatEvents = (socket: Socket) => {
   socket.on(
@@ -55,6 +58,17 @@ export const groupsChatEvents = (socket: Socket) => {
       } catch (error: any) {
         callback({ message: error.message });
       }
+    }
+  );
+
+  socket.on(
+    "read-messages",
+    (
+      { messagesIds, chatId }: { messagesIds: string[]; chatId: string },
+      callback
+    ) => {
+      const user = socket.user;
+      readMessages({ chatId, messagesIds, userId: user.id });
     }
   );
 };

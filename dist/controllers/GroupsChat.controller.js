@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addNewMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.getGroupsChat = void 0;
+exports.readMessages = exports.addNewMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.getGroupsChat = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const GroupsChat_model_1 = require("../models/GroupsChat.model");
 const getPaginationData_1 = require("../utils/getPaginationData");
@@ -212,4 +212,18 @@ const addNewMessage = async ({ message, groupChatId, user, }) => {
     return newMessage;
 };
 exports.addNewMessage = addNewMessage;
+const readMessages = async ({ messagesIds, userId, chatId, }) => {
+    const updateMessages = await GroupsChatMessages_model_1.GroupsChatMessages.update({
+        id: (0, typeorm_1.In)(messagesIds),
+        group: {
+            id: chatId,
+            userGroupsChats: {
+                user: {
+                    id: userId,
+                },
+            },
+        },
+    }, { readbyIds: () => `CONCAT(readbyIds, ',', '${userId}')` });
+};
+exports.readMessages = readMessages;
 //# sourceMappingURL=GroupsChat.controller.js.map

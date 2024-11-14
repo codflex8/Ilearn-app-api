@@ -8,7 +8,7 @@ const ChatbotValidator_1 = require("../utils/validators/ChatbotValidator");
 const chatbot_controller_1 = require("../controllers/chatbot.controller");
 const schemaValidator_1 = __importDefault(require("../utils/schemaValidator"));
 const chatbotEvents = (socket) => {
-    socket.on("chatbot-new-message", async (data, next) => {
+    socket.on("chatbot-new-message", async (data, callback) => {
         const user = socket.user;
         console.log("chatbot-new-message", data);
         try {
@@ -18,11 +18,15 @@ const chatbotEvents = (socket) => {
                 message: data.message,
                 from: data.from,
                 userId: user.id,
-                errorHandler: (error) => next({ error: error.message }),
+                errorHandler: (error) => {
+                    if (callback)
+                        callback({ error: error.message });
+                },
             });
         }
         catch (error) {
-            next(error.message);
+            if (callback)
+                callback(error.message);
         }
     });
 };

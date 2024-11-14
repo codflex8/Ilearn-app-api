@@ -297,3 +297,28 @@ export const addNewMessage = async ({
   await newMessage.save();
   return newMessage;
 };
+
+export const readMessages = async ({
+  messagesIds,
+  userId,
+  chatId,
+}: {
+  messagesIds: string[];
+  userId: string;
+  chatId: string;
+}) => {
+  const updateMessages = await GroupsChatMessages.update(
+    {
+      id: In(messagesIds),
+      group: {
+        id: chatId,
+        userGroupsChats: {
+          user: {
+            id: userId,
+          },
+        },
+      },
+    },
+    { readbyIds: () => `CONCAT(readbyIds, ',', '${userId}')` }
+  );
+};

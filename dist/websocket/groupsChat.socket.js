@@ -49,6 +49,10 @@ const groupsChatEvents = (socket) => {
             callback({ message: error.message });
         }
     });
+    socket.on("read-messages", ({ messagesIds, chatId }, callback) => {
+        const user = socket.user;
+        (0, GroupsChat_controller_1.readMessages)({ chatId, messagesIds, userId: user.id });
+    });
 };
 exports.groupsChatEvents = groupsChatEvents;
 //# sourceMappingURL=groupsChat.socket.js.map

@@ -41,6 +41,10 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => User_model_1.User),
     __metadata("design:type", User_model_1.User)
 ], GroupsChatMessages.prototype, "from", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "simple-array" }),
+    __metadata("design:type", Array)
+], GroupsChatMessages.prototype, "readbyIds", void 0);
 exports.GroupsChatMessages = GroupsChatMessages = __decorate([
     (0, typeorm_1.Entity)()
 ], GroupsChatMessages);

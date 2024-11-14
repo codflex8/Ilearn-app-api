@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { BaseModel } from "./BaseModel";
 import { User } from "./User.model";
 import { GroupsChat } from "./GroupsChat.model";
@@ -22,4 +22,7 @@ export class GroupsChatMessages extends BaseModel {
 
   @ManyToOne(() => User)
   from: User;
+
+  @Column({ type: "simple-array" })
+  readbyIds: string[];
 }
