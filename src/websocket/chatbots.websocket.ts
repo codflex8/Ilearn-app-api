@@ -22,7 +22,7 @@ export const chatbotEvents = (socket: Socket) => {
         },
       });
     } catch (error: any) {
-      if (callback) callback(error.message);
+      if (callback) callback({ message: error.message });
     }
   });
 };
