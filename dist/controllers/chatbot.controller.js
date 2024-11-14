@@ -47,6 +47,9 @@ exports.addChatbots = (0, express_async_handler_1.default)(async (req, res, next
             id: (0, typeorm_1.In)(booksIds),
         },
     });
+    if (books.length !== booksIds.length) {
+        return next(new ApiError_1.default("Not all books are found", 400));
+    }
     const chatbot = await ChatBot_model_1.Chatbot.create({
         name,
         user,

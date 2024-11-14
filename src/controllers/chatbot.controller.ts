@@ -71,6 +71,9 @@ export const addChatbots = asyncHandler(
         id: In(booksIds),
       },
     });
+    if (books.length !== booksIds.length) {
+      return next(new ApiError("Not all books are found", 400));
+    }
     const chatbot = await Chatbot.create({
       name,
       user,
