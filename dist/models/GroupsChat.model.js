@@ -20,7 +20,8 @@ let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
             .createQueryBuilder("chat")
             .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
             .leftJoinAndSelect("userGroupsChats.user", "user")
-            .where((qb) => {
+            .where("chat.id = :id", { id })
+            .andWhere((qb) => {
             const subQuery = qb
                 .subQuery()
                 .select("ugc.groupChat.id")

@@ -159,6 +159,9 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
     const user = req.user;
     const { usersIds } = req.body;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+        return next(new ApiError_1.default("groupchat not found", 400));
+    }
     const isAdmin = isUserGroupAdmin(user, groupChat === null || groupChat === void 0 ? void 0 : groupChat.userGroupsChats);
     if (!isAdmin)
         return next(new ApiError_1.default("you are not group admin", 400));
@@ -181,6 +184,9 @@ exports.removeUsersfromGroupChat = (0, express_async_handler_1.default)(async (r
     const { usersIds } = req.body;
     const user = req.user;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+        return next(new ApiError_1.default("groupchat not found", 400));
+    }
     const deletedRows = await GroupsChatUsers_model_1.GroupsChatUsers.find({
         where: {
             groupChat: { id },
@@ -199,6 +205,10 @@ exports.removeUsersfromGroupChat = (0, express_async_handler_1.default)(async (r
 exports.leaveGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
+    const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+        return next(new ApiError_1.default("groupchat not found", 400));
+    }
     const deletedRows = await GroupsChatUsers_model_1.GroupsChatUsers.find({
         where: {
             groupChat: { id },
@@ -217,6 +227,10 @@ exports.newGroupChatMessage = (0, express_async_handler_1.default)(async (req, r
     const { id } = req.params;
     const user = req.user;
     const { message, file, image, record } = req.body;
+    const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+        return next(new ApiError_1.default("groupchat not found", 400));
+    }
     const newMessage = await (0, exports.addNewMessage)({
         message,
         groupChatId: id,
@@ -228,7 +242,7 @@ exports.newGroupChatMessage = (0, express_async_handler_1.default)(async (req, r
     res.status(201).json({ message: "messages added successfuly", newMessage });
 });
 const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, recordUrl, }) => {
-    const groupChat = await checkGroupCahtExist(groupChatId, user.id);
+    const groupChat = await checkGroupChatExist(groupChatId, user.id);
     const isLink = (0, extractLing_1.containsLink)(message);
     const newMessage = GroupsChatMessages_model_1.GroupsChatMessages.create({
         from: user,
@@ -265,7 +279,7 @@ const readMessages = async ({ messagesIds, userId, chatId, }) => {
     });
 };
 exports.readMessages = readMessages;
-const checkGroupCahtExist = async (groupChatId, userId) => {
+const checkGroupChatExist = async (groupChatId, userId) => {
     const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
         where: {
             id: groupChatId,

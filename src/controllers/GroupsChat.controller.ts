@@ -218,6 +218,9 @@ export const addUsersToGroupChat = asyncHandler(
     const user = req.user;
     const { usersIds } = req.body;
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+      return next(new ApiError("groupchat not found", 400));
+    }
     const isAdmin = isUserGroupAdmin(user, groupChat?.userGroupsChats);
     if (!isAdmin) return next(new ApiError("you are not group admin", 400));
     const filterdUserIds = usersIds.filter(
@@ -254,6 +257,9 @@ export const removeUsersfromGroupChat = asyncHandler(
     const { usersIds } = req.body;
     const user = req.user;
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+      return next(new ApiError("groupchat not found", 400));
+    }
     const deletedRows = await GroupsChatUsers.find({
       where: {
         groupChat: { id },
@@ -279,6 +285,10 @@ export const leaveGroupChat = asyncHandler(
   ) => {
     const { id } = req.params;
     const user = req.user;
+    const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+      return next(new ApiError("groupchat not found", 400));
+    }
     const deletedRows = await GroupsChatUsers.find({
       where: {
         groupChat: { id },
@@ -304,6 +314,10 @@ export const newGroupChatMessage = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const { message, file, image, record } = req.body;
+    const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
+    if (!groupChat) {
+      return next(new ApiError("groupchat not found", 400));
+    }
     const newMessage = await addNewMessage({
       message,
       groupChatId: id,
@@ -331,7 +345,7 @@ export const addNewMessage = async ({
   recordUrl?: string;
   fileUrl?: string;
 }) => {
-  const groupChat = await checkGroupCahtExist(groupChatId, user.id);
+  const groupChat = await checkGroupChatExist(groupChatId, user.id);
   const isLink = containsLink(message);
 
   const newMessage = GroupsChatMessages.create({
@@ -380,7 +394,7 @@ export const readMessages = async ({
   );
 };
 
-const checkGroupCahtExist = async (groupChatId: string, userId: string) => {
+const checkGroupChatExist = async (groupChatId: string, userId: string) => {
   const groupChat = await GroupsChat.findOne({
     where: {
       id: groupChatId,
