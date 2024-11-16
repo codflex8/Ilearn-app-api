@@ -31,9 +31,9 @@ exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res
     }
     user.email = email;
     user.username = username;
-    user.phoneNumber = phoneNumber;
-    user.birthDate = birthDate;
-    user.gender = gender;
+    user.phoneNumber = phoneNumber !== null && phoneNumber !== void 0 ? phoneNumber : null;
+    user.birthDate = birthDate !== null && birthDate !== void 0 ? birthDate : null;
+    user.gender = gender !== null && gender !== void 0 ? gender : null;
     user.imageUrl = image;
     await user.save();
     res.status(200).json({ user });

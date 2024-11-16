@@ -6,6 +6,7 @@ import {
   getGroupChatMessages,
   getGroupsChat,
   leaveGroupChat,
+  newGroupChatMessage,
   removeUsersfromGroupChat,
   updateGroupChat,
 } from "../controllers/GroupsChat.controller";
@@ -14,6 +15,7 @@ import { validateData } from "../middleware/validationMiddleware";
 import {
   addGroupChatValidator,
   groupsChatUsersValidator,
+  newGroupChatMessageValidator,
   updateGroupChatValidator,
 } from "../utils/validators/GroupsChatValidator";
 
@@ -37,7 +39,15 @@ router.put(
 );
 router.get("/:id", getGroupChatById);
 router.get("/:id/messages", getGroupChatMessages);
-
+router.post(
+  "/:id/messages",
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "record", maxCount: 1 },
+  ]),
+  validateData(newGroupChatMessageValidator),
+  newGroupChatMessage
+);
 router.post(
   "/:id/users",
   validateData(groupsChatUsersValidator),

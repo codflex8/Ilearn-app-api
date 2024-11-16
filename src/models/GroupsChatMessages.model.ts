@@ -1,4 +1,12 @@
-import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import {
+  AfterInsert,
+  AfterLoad,
+  AfterUpdate,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
 import { BaseModel } from "./BaseModel";
 import { User } from "./User.model";
 import { GroupsChat } from "./GroupsChat.model";
@@ -12,7 +20,10 @@ export class GroupsChatMessages extends BaseModel {
   imageUrl: string;
 
   @Column({ nullable: true })
-  link: string;
+  recordUrl: string;
+
+  @Column({ type: "boolean", default: false })
+  isLink: boolean;
 
   @Column({ nullable: true })
   fileUrl: string;
@@ -23,6 +34,16 @@ export class GroupsChatMessages extends BaseModel {
   @ManyToOne(() => User)
   from: User;
 
-  @Column({ type: "simple-array" })
+  @Column({ type: "simple-array", nullable: true })
   readbyIds: string[];
+
+  seen: boolean;
+
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  isMessageSeen() {
+    // console.log("this.readbyIds", this.readbyIds, this.id);
+    this.seen = !!this.readbyIds?.find((id) => id === this.id);
+  }
 }

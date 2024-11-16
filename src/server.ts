@@ -20,22 +20,26 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
 });
 
 io.use(async (socket: Socket, callback) => {
-  if (
-    socket.client.request.headers.authorization &&
-    socket.client.request.headers.authorization.split(" ")[1]
-  ) {
-    const { currentUser, decoded } = await getUserFromToken(
+  try {
+    if (
+      socket.client.request.headers.authorization &&
       socket.client.request.headers.authorization.split(" ")[1]
-    );
-    if (!currentUser) {
+    ) {
+      const { currentUser, decoded } = await getUserFromToken(
+        socket.client.request.headers.authorization.split(" ")[1]
+      );
+      if (!currentUser) {
+        callback(new ApiError("unauthorized", 401));
+      }
+      Websocket.addUser(currentUser);
+      console.log("userss: ", Websocket.getUsers());
+      socket.user = currentUser;
+      callback();
+    } else {
       callback(new ApiError("unauthorized", 401));
     }
-    Websocket.addUser(currentUser);
-    console.log("userss: ", Websocket.getUsers());
-    socket.user = currentUser;
-    callback();
-  } else {
-    callback(new ApiError("unauthorized", 401));
+  } catch (error: any) {
+    callback(new ApiError(error.message, 401));
   }
 });
 
@@ -44,6 +48,10 @@ io.on("connection", async (socket: Socket) => {
   socket.emit("connect-success");
   chatbotEvents(socket);
   groupsChatEvents(socket);
+
+  socket.on("error", (err) => {
+    console.error(`Socket error from ${socket.id}:`, err.message);
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnect");

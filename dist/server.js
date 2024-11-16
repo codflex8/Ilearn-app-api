@@ -20,19 +20,24 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
     console.log(`listen on ${process.env.PORT || 3000} port`);
 });
 io.use(async (socket, callback) => {
-    if (socket.client.request.headers.authorization &&
-        socket.client.request.headers.authorization.split(" ")[1]) {
-        const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization.split(" ")[1]);
-        if (!currentUser) {
+    try {
+        if (socket.client.request.headers.authorization &&
+            socket.client.request.headers.authorization.split(" ")[1]) {
+            const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization.split(" ")[1]);
+            if (!currentUser) {
+                callback(new ApiError_1.default("unauthorized", 401));
+            }
+            websocket_1.default.addUser(currentUser);
+            console.log("userss: ", websocket_1.default.getUsers());
+            socket.user = currentUser;
+            callback();
+        }
+        else {
             callback(new ApiError_1.default("unauthorized", 401));
         }
-        websocket_1.default.addUser(currentUser);
-        console.log("userss: ", websocket_1.default.getUsers());
-        socket.user = currentUser;
-        callback();
     }
-    else {
-        callback(new ApiError_1.default("unauthorized", 401));
+    catch (error) {
+        callback(new ApiError_1.default(error.message, 401));
     }
 });
 io.on("connection", async (socket) => {
@@ -40,6 +45,9 @@ io.on("connection", async (socket) => {
     socket.emit("connect-success");
     (0, chatbots_websocket_1.chatbotEvents)(socket);
     (0, groupsChat_socket_1.groupsChatEvents)(socket);
+    socket.on("error", (err) => {
+        console.error(`Socket error from ${socket.id}:`, err.message);
+    });
     socket.on("disconnect", () => {
         console.log("user disconnect");
         websocket_1.default.removeUser(socket.user);

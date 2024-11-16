@@ -16,13 +16,19 @@ const GroupsChatMessages_model_1 = require("./GroupsChatMessages.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
     static getUserGroupChatById(userId, id) {
-        return (this.getRepository()
+        return this.getRepository()
             .createQueryBuilder("chat")
             .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
-            .leftJoinAndSelect("userGroupsChats.user", "user", "user.id = :userId", { userId })
-            .where("chat.id = :id", { id })
-            // ToDo: filter based on userId but return all users
-            // .andWhere("userGroupsChats.userId = :userId", { userId })
+            .leftJoinAndSelect("userGroupsChats.user", "user")
+            .where((qb) => {
+            const subQuery = qb
+                .subQuery()
+                .select("ugc.groupChat.id")
+                .from(GroupsChatUsers_model_1.GroupsChatUsers, "ugc")
+                .where("ugc.user.id = :userId", { userId })
+                .getQuery();
+            return `chat.id IN ${subQuery}`;
+        })
             .select("chat")
             .addSelect("userGroupsChats")
             .addSelect([
@@ -32,10 +38,9 @@ let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
             "user.username",
             "user.gender",
             "user.imageUrl",
-            "user.gender",
             "user.birthDate",
         ])
-            .getOne());
+            .getOne();
     }
 };
 exports.GroupsChat = GroupsChat;

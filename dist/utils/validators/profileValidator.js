@@ -6,8 +6,8 @@ const AuthValidator_1 = require("./AuthValidator");
 exports.updateProfileValidator = zod_1.z.object({
     username: zod_1.z.string(),
     email: zod_1.z.string().email(),
-    phoneNumber: zod_1.z.string(),
-    birthDate: zod_1.z.string().date(),
-    gender: zod_1.z.nativeEnum(AuthValidator_1.GenderEnum),
+    phoneNumber: zod_1.z.string().optional().nullable(),
+    birthDate: zod_1.z.string().optional().nullable(),
+    gender: zod_1.z.nativeEnum(AuthValidator_1.GenderEnum).optional().nullable(),
 });
 //# sourceMappingURL=profileValidator.js.map

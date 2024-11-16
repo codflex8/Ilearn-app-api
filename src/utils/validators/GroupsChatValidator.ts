@@ -10,9 +10,24 @@ export const addGroupChatValidator = z.object({
 });
 
 export const updateGroupChatValidator = addGroupChatValidator.extend({
-  muteNotification: z.string().default("false"),
+  muteNotification: z
+    .string()
+    .transform((val) => val === "true")
+    .default("false"),
   backgroundColor: z.string().optional().nullable(),
 });
+
+export const newGroupChatMessageValidator = z
+  .object({
+    message: z.string().optional().nullable(),
+    image: z.string().optional().nullable(),
+    record: z.string().optional().nullable(),
+    file: z.string().optional().nullable(),
+  })
+  .refine((data) => data.message || data.record || data.image || data.file, {
+    message: "can not add empty message",
+    path: ["message || record || image || file"],
+  });
 
 export enum GroupChatRoles {
   Admin = "admin",

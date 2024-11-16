@@ -3,16 +3,28 @@ import { GroupsChat } from "../models/GroupsChat.model";
 import Websocket from "./websocket";
 import {
   addNewMessage,
+  getUserRooms,
   readMessages,
 } from "../controllers/GroupsChat.controller";
+import { newGroupChatMessageValidator } from "../utils/validators/GroupsChatValidator";
+import schemaValidator from "../utils/schemaValidator";
 
 export const groupsChatEvents = (socket: Socket) => {
+  socket.on("active-rooms", async () => {
+    const user = socket.user;
+    const activeRoomsIds = Websocket.getActiveRoomsIds();
+    const rooms = await getUserRooms(activeRoomsIds, user.id);
+    socket.emit("active-rooms", { rooms });
+  });
+
   socket.on(
     "join-room",
     async ({ groupChatId }: { groupChatId: string }, callback) => {
       const user = socket.user;
       if (!groupChatId) {
-        return callback({ success: false, error: "groupcaht id  is required" });
+        if (callback)
+          callback({ success: false, error: "groupcaht id  is required" });
+        return;
       }
       const groupChat = await GroupsChat.findOne({
         where: {
@@ -25,9 +37,11 @@ export const groupsChatEvents = (socket: Socket) => {
         },
       });
       if (!groupChat) {
-        return callback({
-          message: `there is not groupchat with this groupchatId ${groupChatId}`,
-        });
+        if (callback)
+          callback({
+            message: `there is not groupchat with this groupchatId ${groupChatId}`,
+          });
+        return;
       }
       socket.join(groupChatId);
       Websocket.addUserToRoom(groupChatId, user);
@@ -35,28 +49,31 @@ export const groupsChatEvents = (socket: Socket) => {
         `${socket.user?.username} joined room: ${groupChatId} ${groupChat.name}`
       );
       console.log(Websocket.getroomUsers(groupChatId));
-      callback({ success: true, message: `Joined room: ${groupChatId}` });
+      if (callback)
+        callback({ success: true, message: `Joined room: ${groupChatId}` });
     }
   );
 
   socket.on(
     "new-message",
-    async (
-      { groupChatId, message }: { groupChatId: string; message: string },
-      callback
-    ) => {
-      const user = socket.user;
-      const isUserInGroupChat = Websocket.getroomUsers(groupChatId).find(
-        (u) => u.id === user.id
-      );
-      if (!isUserInGroupChat) {
-        return callback({ message: "the user did not joined in room " });
-      }
+    async (data: { groupChatId: string; message: string }, callback) => {
       try {
+        schemaValidator(newGroupChatMessageValidator, data);
+        const { groupChatId, message } = data;
+        const user = socket.user;
+        const isUserInGroupChat = Websocket.getroomUsers(groupChatId).find(
+          (u) => u.id === user.id
+        );
+        // if (!isUserInGroupChat) {
+        //   if (callback)
+        //     callback({ message: "the user did not joined in room " });
+        //   return;
+        // }
+
         await addNewMessage({ message, groupChatId, user });
         socket.to(groupChatId).emit("new-message", { message });
       } catch (error: any) {
-        callback({ message: error.message });
+        if (callback) callback({ message: error.message });
       }
     }
   );

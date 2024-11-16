@@ -26,12 +26,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.verifyPassResetCode = exports.forgotPassword = exports.protect = exports.signIn = exports.signup = void 0;
+exports.resetPassword = exports.verifyPassResetCode = exports.forgotPassword = exports.protect = exports.refreshToken = exports.signIn = exports.signup = void 0;
 const User_model_1 = require("../models/User.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const bcrypt = __importStar(require("bcryptjs"));
-const createToken_1 = __importDefault(require("../utils/createToken"));
+const createToken_1 = require("../utils/createToken");
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sendEmail_1 = __importDefault(require("../utils/sendEmail"));
 const bcryptPassword_1 = __importDefault(require("../utils/bcryptPassword"));
 const generateCode_1 = __importDefault(require("../utils/generateCode"));
@@ -62,7 +63,7 @@ exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => 
     delete user.passwordResetExpires;
     delete user.passwordResetVerified;
     // 2- Generate token
-    const token = (0, createToken_1.default)(user.id);
+    const token = (0, createToken_1.createToken)(user.id);
     res.status(201).json({ data: user, token });
 });
 exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => {
@@ -70,10 +71,24 @@ exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => 
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
         return next(new ApiError_1.default("Incorrect email or password", 401));
     }
-    const token = (0, createToken_1.default)(user.id);
+    const token = (0, createToken_1.createToken)(user.id);
+    const refreshToken = (0, createToken_1.createRefreshToken)(user.id);
     delete user.password;
-    res.status(200).json({ user, token });
+    res.status(200).json({ user, token, refreshToken });
 });
+const refreshToken = (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    // if (!refreshToken || !refreshTokens.includes(refreshToken)) {
+    //   return res.status(403).json({ message: 'Refresh token not found' });
+    // }
+    jsonwebtoken_1.default.verify(refreshToken, process.env.JWT_Refresh_SECRET_KEY, (err, user) => {
+        if (err)
+            return res.status(403).json({ message: "Invalid refresh token" });
+        const newAccessToken = (0, createToken_1.createToken)(user.userId);
+        res.json({ token: newAccessToken });
+    });
+};
+exports.refreshToken = refreshToken;
 exports.protect = (0, express_async_handler_1.default)(async (req, res, next) => {
     let token;
     if (req.headers.authorization &&
@@ -176,7 +191,7 @@ exports.resetPassword = (0, express_async_handler_1.default)(async (req, res, ne
     user.passwordResetVerified = false;
     await user.save();
     // 3) if everything is ok, generate token
-    const token = (0, createToken_1.default)(user.id);
+    const token = (0, createToken_1.createToken)(user.id);
     res.status(200).json({ token });
 });
 //# sourceMappingURL=authentication.controller.js.map

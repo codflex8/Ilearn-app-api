@@ -9,7 +9,7 @@ const WEBSOCKET_CORS = {
 class Websocket extends Server {
   private static io: Websocket;
   private static users: User[] = [];
-  private static roomUsers: Record<string, Array<User>> = {};
+  private static rooms: Record<string, Array<User>> = {};
 
   constructor(httpServer) {
     super(httpServer, {
@@ -30,23 +30,29 @@ class Websocket extends Server {
     return this.io;
   }
 
+  public static getActiveRoomsIds() {
+    return Object.entries(this.rooms)
+      .filter(([roomId, users]) => users.length)
+      .map(([roomId, users]) => roomId);
+  }
+
   public static getroomUsers(roomId: string): User[] {
-    return this.roomUsers[roomId] ?? [];
+    return this.rooms[roomId] ?? [];
   }
 
   public static addUserToRoom(roomId: string, user: User) {
     if (
-      !this.roomUsers[roomId]?.find((u) => u.id == user?.id) ||
-      !this.roomUsers[roomId]
+      !this.rooms[roomId]?.find((u) => u.id == user?.id) ||
+      !this.rooms[roomId]
     ) {
-      const newRoomUsers = [...(this.roomUsers[roomId] ?? []), user];
-      this.roomUsers = { ...this.roomUsers, [roomId]: newRoomUsers };
+      const newRoomUsers = [...(this.rooms[roomId] ?? []), user];
+      this.rooms = { ...this.rooms, [roomId]: newRoomUsers };
     }
   }
 
   public static removeUserFromRoom(roomId: string, user: User) {
-    const newRoomUsers = this.roomUsers[roomId].filter((u) => u.id !== user.id);
-    this.roomUsers = { ...this.roomUsers, [roomId]: newRoomUsers };
+    const newRoomUsers = this.rooms[roomId].filter((u) => u.id !== user.id);
+    this.rooms = { ...this.rooms, [roomId]: newRoomUsers };
   }
 
   public static getUsers(): User[] {

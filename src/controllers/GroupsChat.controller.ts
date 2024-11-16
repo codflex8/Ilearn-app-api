@@ -13,9 +13,22 @@ import { FindOptionsWhere, ILike, In } from "typeorm";
 import { GroupsChatUsers } from "../models/GroupsChatUsers.model";
 import ApiError from "../utils/ApiError";
 import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
+import { containsLink } from "../utils/extractLing";
+
+enum MessageType {
+  messages = "messages",
+  images = "images",
+  records = "records",
+  files = "files",
+  links = "links",
+}
 
 interface GroupsChatQuery extends BaseQuery {
   name?: string;
+}
+
+interface GroupsChatMessagesQuery extends BaseQuery {
+  messageType: MessageType;
 }
 
 export const getGroupsChat = asyncHandler(
@@ -102,34 +115,48 @@ export const getGroupChatById = asyncHandler(
 
 export const getGroupChatMessages = asyncHandler(
   async (
-    req: Request<{ id: string }, {}, {}, BaseQuery>,
+    req: Request<{ id: string }, {}, {}, GroupsChatMessagesQuery>,
     res: Response,
     next: NextFunction
   ) => {
     const { id } = req.params;
     const user = req.user;
-    const { page, pageSize } = req.query;
+    const { page, pageSize, messageType } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
     if (!groupChat) {
       return next(new ApiError("groupchat not found", 400));
     }
-    const [messages, count] = await GroupsChatMessages.findAndCount({
-      where: {
-        group: {
-          id: id,
-        },
-      },
-      skip,
-      take,
-      order: {
-        createdAt: "desc",
-      },
-      relations: {
-        from: true,
-      },
-      // select: {},
-    });
+    let querable = GroupsChatMessages.getRepository()
+      .createQueryBuilder("messages")
+      .leftJoin("messages.group", "chat")
+      .where("chat.id = :chatId", { chatId: id });
+
+    if (messageType) {
+      if (messageType === MessageType.images) {
+        querable = querable.andWhere("messages.imageUrl Is Not Null");
+      }
+      if (messageType === MessageType.records) {
+        querable = querable.andWhere("messages.recordUrl Is Not Null");
+      }
+      if (messageType === MessageType.files) {
+        querable = querable.andWhere("messages.fileUrl Is Not Null");
+      }
+      if (messageType === MessageType.links) {
+        querable = querable.andWhere("messages.isLink = 1");
+      }
+    }
+
+    const count = await querable.getCount();
+    const messages = await querable
+      .leftJoinAndSelect("messages.from", "user")
+      .orderBy("messages.createdAt", "DESC")
+      .skip(skip)
+      .take(take)
+      .select("messages")
+      .addSelect(["user.id", "user.username", "user.email", "user.imageUrl"])
+      .getMany();
+
     res
       .status(200)
       .json(
@@ -166,13 +193,14 @@ export const updateGroupChat = asyncHandler(
     if (image) groupChat.imageUrl = image;
     groupChat.backgroundColor = backgroundColor;
     if (backgroundCover) groupChat.backgroundCoverUrl = backgroundCover;
-    if (muteNotification) {
+
+    if (muteNotification !== null && muteNotification !== undefined) {
       const userGroupsChatIndex = groupChat.userGroupsChats.findIndex(
         (groupchat) => groupchat.user.id === user.id
       );
       const userGroupsChat = groupChat.userGroupsChats[userGroupsChatIndex];
-      userGroupsChat.muteNotification = Boolean(muteNotification);
-      groupChat.userGroupsChats.splice(userGroupsChatIndex, 1, userGroupsChat);
+      userGroupsChat.muteNotification = muteNotification === "true";
+      groupChat.userGroupsChats[userGroupsChatIndex] = userGroupsChat;
     }
     await groupChat.save();
     await GroupsChatUsers.save(groupChat.userGroupsChats);
@@ -271,32 +299,49 @@ const isUserGroupAdmin = (user: User, userGroupsChat: GroupsChatUsers[]) => {
   return userGroupChat?.role === GroupChatRoles.Admin;
 };
 
+export const newGroupChatMessage = asyncHandler(
+  async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const user = req.user;
+    const { message, file, image, record } = req.body;
+    const newMessage = await addNewMessage({
+      message,
+      groupChatId: id,
+      user,
+      fileUrl: file,
+      imageUrl: image,
+      recordUrl: record,
+    });
+    res.status(201).json({ message: "messages added successfuly", newMessage });
+  }
+);
+
 export const addNewMessage = async ({
   message,
   groupChatId,
   user,
+  fileUrl,
+  imageUrl,
+  recordUrl,
 }: {
-  message: string;
+  message?: string;
   groupChatId: string;
   user: User;
+  imageUrl?: string;
+  recordUrl?: string;
+  fileUrl?: string;
 }) => {
-  const groupChat = await GroupsChat.findOne({
-    where: {
-      id: groupChatId,
-      userGroupsChats: {
-        user: {
-          id: user.id,
-        },
-      },
-    },
-  });
-  if (!groupChat) {
-    throw new Error("groupchat not found");
-  }
+  const groupChat = await checkGroupCahtExist(groupChatId, user.id);
+  const isLink = containsLink(message);
+
   const newMessage = GroupsChatMessages.create({
     from: user,
     message,
     group: groupChat,
+    fileUrl,
+    imageUrl,
+    isLink,
+    recordUrl,
   });
   await newMessage.save();
   return newMessage;
@@ -333,4 +378,34 @@ export const readMessages = async ({
     `,
     }
   );
+};
+
+const checkGroupCahtExist = async (groupChatId: string, userId: string) => {
+  const groupChat = await GroupsChat.findOne({
+    where: {
+      id: groupChatId,
+      userGroupsChats: {
+        user: {
+          id: userId,
+        },
+      },
+    },
+  });
+  if (!groupChat) {
+    throw new ApiError("groupchat not found", 400);
+  }
+  return groupChat;
+};
+
+export const getUserRooms = async (roomsIds: string[], userId: string) => {
+  return await GroupsChat.find({
+    where: {
+      id: In(roomsIds),
+      userGroupsChats: {
+        user: {
+          id: userId,
+        },
+      },
+    },
+  });
 };

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { User } from "../models/User.model";
 import ApiError from "../utils/ApiError";
 import * as bcrypt from "bcryptjs";
-import createToken from "../utils/createToken";
+import { createRefreshToken, createToken } from "../utils/createToken";
 import asyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken";
 import sendEmail from "../utils/sendEmail";
@@ -56,12 +56,27 @@ export const signIn = asyncHandler(
       return next(new ApiError("Incorrect email or password", 401));
     }
     const token = createToken(user.id);
-
+    const refreshToken = createRefreshToken(user.id);
     delete user.password;
 
-    res.status(200).json({ user, token });
+    res.status(200).json({ user, token, refreshToken });
   }
 );
+
+export const refreshToken = (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  // if (!refreshToken || !refreshTokens.includes(refreshToken)) {
+  //   return res.status(403).json({ message: 'Refresh token not found' });
+  // }
+
+  jwt.verify(refreshToken, process.env.JWT_Refresh_SECRET_KEY!, (err, user) => {
+    if (err) return res.status(403).json({ message: "Invalid refresh token" });
+
+    const newAccessToken = createToken((user as any).userId);
+    res.json({ token: newAccessToken });
+  });
+};
 
 export const protect = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {

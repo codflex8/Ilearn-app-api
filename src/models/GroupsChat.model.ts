@@ -28,32 +28,30 @@ export class GroupsChat extends BaseModel {
   userGroupsChats: GroupsChatUsers[];
 
   static getUserGroupChatById(userId: string, id: string) {
-    return (
-      this.getRepository()
-        .createQueryBuilder("chat")
-        .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
-        .leftJoinAndSelect(
-          "userGroupsChats.user",
-          "user",
-          "user.id = :userId",
-          { userId }
-        )
-        .where("chat.id = :id", { id })
-        // ToDo: filter based on userId but return all users
-        // .andWhere("userGroupsChats.userId = :userId", { userId })
-        .select("chat")
-        .addSelect("userGroupsChats")
-        .addSelect([
-          "user.id",
-          "user.email",
-          "user.phoneNumber",
-          "user.username",
-          "user.gender",
-          "user.imageUrl",
-          "user.gender",
-          "user.birthDate",
-        ])
-        .getOne()
-    );
+    return this.getRepository()
+      .createQueryBuilder("chat")
+      .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
+      .leftJoinAndSelect("userGroupsChats.user", "user")
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select("ugc.groupChat.id")
+          .from(GroupsChatUsers, "ugc")
+          .where("ugc.user.id = :userId", { userId })
+          .getQuery();
+        return `chat.id IN ${subQuery}`;
+      })
+      .select("chat")
+      .addSelect("userGroupsChats")
+      .addSelect([
+        "user.id",
+        "user.email",
+        "user.phoneNumber",
+        "user.username",
+        "user.gender",
+        "user.imageUrl",
+        "user.birthDate",
+      ])
+      .getOne();
   }
 }

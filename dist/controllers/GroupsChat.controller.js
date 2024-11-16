@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.readMessages = exports.addNewMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.getGroupsChat = void 0;
+exports.getUserRooms = exports.readMessages = exports.addNewMessage = exports.newGroupChatMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.getGroupsChat = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const GroupsChat_model_1 = require("../models/GroupsChat.model");
 const getPaginationData_1 = require("../utils/getPaginationData");
@@ -14,6 +14,15 @@ const typeorm_1 = require("typeorm");
 const GroupsChatUsers_model_1 = require("../models/GroupsChatUsers.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const GroupsChatMessages_model_1 = require("../models/GroupsChatMessages.model");
+const extractLing_1 = require("../utils/extractLing");
+var MessageType;
+(function (MessageType) {
+    MessageType["messages"] = "messages";
+    MessageType["images"] = "images";
+    MessageType["records"] = "records";
+    MessageType["files"] = "files";
+    MessageType["links"] = "links";
+})(MessageType || (MessageType = {}));
 exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
     const { page, pageSize, name } = req.query;
@@ -75,28 +84,39 @@ exports.getGroupChatById = (0, express_async_handler_1.default)(async (req, res,
 exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
-    const { page, pageSize } = req.query;
+    const { page, pageSize, messageType } = req.query;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
     if (!groupChat) {
         return next(new ApiError_1.default("groupchat not found", 400));
     }
-    const [messages, count] = await GroupsChatMessages_model_1.GroupsChatMessages.findAndCount({
-        where: {
-            group: {
-                id: id,
-            },
-        },
-        skip,
-        take,
-        order: {
-            createdAt: "desc",
-        },
-        relations: {
-            from: true,
-        },
-        // select: {},
-    });
+    let querable = GroupsChatMessages_model_1.GroupsChatMessages.getRepository()
+        .createQueryBuilder("messages")
+        .leftJoin("messages.group", "chat")
+        .where("chat.id = :chatId", { chatId: id });
+    if (messageType) {
+        if (messageType === MessageType.images) {
+            querable = querable.andWhere("messages.imageUrl Is Not Null");
+        }
+        if (messageType === MessageType.records) {
+            querable = querable.andWhere("messages.recordUrl Is Not Null");
+        }
+        if (messageType === MessageType.files) {
+            querable = querable.andWhere("messages.fileUrl Is Not Null");
+        }
+        if (messageType === MessageType.links) {
+            querable = querable.andWhere("messages.isLink = 1");
+        }
+    }
+    const count = await querable.getCount();
+    const messages = await querable
+        .leftJoinAndSelect("messages.from", "user")
+        .orderBy("messages.createdAt", "DESC")
+        .skip(skip)
+        .take(take)
+        .select("messages")
+        .addSelect(["user.id", "user.username", "user.email", "user.imageUrl"])
+        .getMany();
     res
         .status(200)
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, messages));
@@ -124,11 +144,11 @@ exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, 
     groupChat.backgroundColor = backgroundColor;
     if (backgroundCover)
         groupChat.backgroundCoverUrl = backgroundCover;
-    if (muteNotification) {
+    if (muteNotification !== null && muteNotification !== undefined) {
         const userGroupsChatIndex = groupChat.userGroupsChats.findIndex((groupchat) => groupchat.user.id === user.id);
         const userGroupsChat = groupChat.userGroupsChats[userGroupsChatIndex];
-        userGroupsChat.muteNotification = Boolean(muteNotification);
-        groupChat.userGroupsChats.splice(userGroupsChatIndex, 1, userGroupsChat);
+        userGroupsChat.muteNotification = muteNotification === "true";
+        groupChat.userGroupsChats[userGroupsChatIndex] = userGroupsChat;
     }
     await groupChat.save();
     await GroupsChatUsers_model_1.GroupsChatUsers.save(groupChat.userGroupsChats);
@@ -193,24 +213,31 @@ const isUserGroupAdmin = (user, userGroupsChat) => {
     const userGroupChat = userGroupsChat.find((chat) => { var _a; return ((_a = chat.user) === null || _a === void 0 ? void 0 : _a.id) === user.id; });
     return (userGroupChat === null || userGroupChat === void 0 ? void 0 : userGroupChat.role) === GroupsChatValidator_1.GroupChatRoles.Admin;
 };
-const addNewMessage = async ({ message, groupChatId, user, }) => {
-    const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
-        where: {
-            id: groupChatId,
-            userGroupsChats: {
-                user: {
-                    id: user.id,
-                },
-            },
-        },
+exports.newGroupChatMessage = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const { id } = req.params;
+    const user = req.user;
+    const { message, file, image, record } = req.body;
+    const newMessage = await (0, exports.addNewMessage)({
+        message,
+        groupChatId: id,
+        user,
+        fileUrl: file,
+        imageUrl: image,
+        recordUrl: record,
     });
-    if (!groupChat) {
-        throw new Error("groupchat not found");
-    }
+    res.status(201).json({ message: "messages added successfuly", newMessage });
+});
+const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, recordUrl, }) => {
+    const groupChat = await checkGroupCahtExist(groupChatId, user.id);
+    const isLink = (0, extractLing_1.containsLink)(message);
     const newMessage = GroupsChatMessages_model_1.GroupsChatMessages.create({
         from: user,
         message,
         group: groupChat,
+        fileUrl,
+        imageUrl,
+        isLink,
+        recordUrl,
     });
     await newMessage.save();
     return newMessage;
@@ -238,4 +265,33 @@ const readMessages = async ({ messagesIds, userId, chatId, }) => {
     });
 };
 exports.readMessages = readMessages;
+const checkGroupCahtExist = async (groupChatId, userId) => {
+    const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
+        where: {
+            id: groupChatId,
+            userGroupsChats: {
+                user: {
+                    id: userId,
+                },
+            },
+        },
+    });
+    if (!groupChat) {
+        throw new ApiError_1.default("groupchat not found", 400);
+    }
+    return groupChat;
+};
+const getUserRooms = async (roomsIds, userId) => {
+    return await GroupsChat_model_1.GroupsChat.find({
+        where: {
+            id: (0, typeorm_1.In)(roomsIds),
+            userGroupsChats: {
+                user: {
+                    id: userId,
+                },
+            },
+        },
+    });
+};
+exports.getUserRooms = getUserRooms;
 //# sourceMappingURL=GroupsChat.controller.js.map

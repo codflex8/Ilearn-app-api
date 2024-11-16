@@ -15,6 +15,11 @@ const BaseModel_1 = require("./BaseModel");
 const User_model_1 = require("./User.model");
 const GroupsChat_model_1 = require("./GroupsChat.model");
 let GroupsChatMessages = class GroupsChatMessages extends BaseModel_1.BaseModel {
+    isMessageSeen() {
+        var _a;
+        // console.log("this.readbyIds", this.readbyIds, this.id);
+        this.seen = !!((_a = this.readbyIds) === null || _a === void 0 ? void 0 : _a.find((id) => id === this.id));
+    }
 };
 exports.GroupsChatMessages = GroupsChatMessages;
 __decorate([
@@ -28,7 +33,11 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], GroupsChatMessages.prototype, "link", void 0);
+], GroupsChatMessages.prototype, "recordUrl", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "boolean", default: false }),
+    __metadata("design:type", Boolean)
+], GroupsChatMessages.prototype, "isLink", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
@@ -42,9 +51,17 @@ __decorate([
     __metadata("design:type", User_model_1.User)
 ], GroupsChatMessages.prototype, "from", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "simple-array" }),
+    (0, typeorm_1.Column)({ type: "simple-array", nullable: true }),
     __metadata("design:type", Array)
 ], GroupsChatMessages.prototype, "readbyIds", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], GroupsChatMessages.prototype, "isMessageSeen", null);
 exports.GroupsChatMessages = GroupsChatMessages = __decorate([
     (0, typeorm_1.Entity)()
 ], GroupsChatMessages);

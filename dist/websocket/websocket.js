@@ -22,21 +22,26 @@ class Websocket extends socket_io_1.Server {
         }
         return this.io;
     }
+    static getActiveRoomsIds() {
+        return Object.entries(this.rooms)
+            .filter(([roomId, users]) => users.length)
+            .map(([roomId, users]) => roomId);
+    }
     static getroomUsers(roomId) {
         var _a;
-        return (_a = this.roomUsers[roomId]) !== null && _a !== void 0 ? _a : [];
+        return (_a = this.rooms[roomId]) !== null && _a !== void 0 ? _a : [];
     }
     static addUserToRoom(roomId, user) {
         var _a, _b;
-        if (!((_a = this.roomUsers[roomId]) === null || _a === void 0 ? void 0 : _a.find((u) => u.id == (user === null || user === void 0 ? void 0 : user.id))) ||
-            !this.roomUsers[roomId]) {
-            const newRoomUsers = [...((_b = this.roomUsers[roomId]) !== null && _b !== void 0 ? _b : []), user];
-            this.roomUsers = Object.assign(Object.assign({}, this.roomUsers), { [roomId]: newRoomUsers });
+        if (!((_a = this.rooms[roomId]) === null || _a === void 0 ? void 0 : _a.find((u) => u.id == (user === null || user === void 0 ? void 0 : user.id))) ||
+            !this.rooms[roomId]) {
+            const newRoomUsers = [...((_b = this.rooms[roomId]) !== null && _b !== void 0 ? _b : []), user];
+            this.rooms = Object.assign(Object.assign({}, this.rooms), { [roomId]: newRoomUsers });
         }
     }
     static removeUserFromRoom(roomId, user) {
-        const newRoomUsers = this.roomUsers[roomId].filter((u) => u.id !== user.id);
-        this.roomUsers = Object.assign(Object.assign({}, this.roomUsers), { [roomId]: newRoomUsers });
+        const newRoomUsers = this.rooms[roomId].filter((u) => u.id !== user.id);
+        this.rooms = Object.assign(Object.assign({}, this.rooms), { [roomId]: newRoomUsers });
     }
     static getUsers() {
         return this.users;
@@ -52,6 +57,6 @@ class Websocket extends socket_io_1.Server {
     }
 }
 Websocket.users = [];
-Websocket.roomUsers = {};
+Websocket.rooms = {};
 exports.default = Websocket;
 //# sourceMappingURL=websocket.js.map
