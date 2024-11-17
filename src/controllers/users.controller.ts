@@ -19,6 +19,7 @@ export const getUsers = asyncHandler(
         id: true,
         username: true,
         phoneNumber: true,
+        imageUrl: true,
       },
       take,
       skip,

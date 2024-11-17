@@ -22,6 +22,7 @@ exports.getUsers = (0, express_async_handler_1.default)(async (req, res, next) =
             id: true,
             username: true,
             phoneNumber: true,
+            imageUrl: true,
         },
         take,
         skip,
