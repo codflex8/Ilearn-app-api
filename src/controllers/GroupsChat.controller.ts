@@ -244,7 +244,25 @@ export const addUsersToGroupChat = asyncHandler(
 
     await GroupsChatUsers.save(usersGroupChat);
 
-    res.status(200).json({ message: "add users to groupchat succes" });
+    const groupChatUsers = await User.find({
+      where: {
+        userGroupsChats: {
+          groupChat: {
+            id,
+          },
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        imageUrl: true,
+        phoneNumber: true,
+        birthDate: true,
+        gender: true,
+      },
+    });
+    res.status(200).json({ users: groupChatUsers });
   }
 );
 

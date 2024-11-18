@@ -179,7 +179,25 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
         role: GroupsChatValidator_1.GroupChatRoles.Member,
     }));
     await GroupsChatUsers_model_1.GroupsChatUsers.save(usersGroupChat);
-    res.status(200).json({ message: "add users to groupchat succes" });
+    const groupChatUsers = await User_model_1.User.find({
+        where: {
+            userGroupsChats: {
+                groupChat: {
+                    id,
+                },
+            },
+        },
+        select: {
+            id: true,
+            username: true,
+            email: true,
+            imageUrl: true,
+            phoneNumber: true,
+            birthDate: true,
+            gender: true,
+        },
+    });
+    res.status(200).json({ users: groupChatUsers });
 });
 exports.removeUsersfromGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
