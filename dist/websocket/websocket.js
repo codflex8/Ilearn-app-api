@@ -31,6 +31,9 @@ class Websocket extends socket_io_1.Server {
         var _a;
         return (_a = this.rooms[roomId]) !== null && _a !== void 0 ? _a : [];
     }
+    static getroomById(roomId) {
+        return this.rooms[roomId];
+    }
     static addUserToRoom(roomId, user) {
         var _a, _b;
         if (!((_a = this.rooms[roomId]) === null || _a === void 0 ? void 0 : _a.find((u) => u.id == (user === null || user === void 0 ? void 0 : user.id))) ||

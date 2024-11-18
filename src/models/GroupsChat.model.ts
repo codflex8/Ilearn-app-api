@@ -27,6 +27,14 @@ export class GroupsChat extends BaseModel {
   )
   userGroupsChats: GroupsChatUsers[];
 
+  static isGroupChatExist(id: string) {
+    return this.getRepository().exists({
+      where: {
+        id,
+      },
+    });
+  }
+
   static getUserGroupChatById(userId: string, id: string) {
     return this.getRepository()
       .createQueryBuilder("chat")

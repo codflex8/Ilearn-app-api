@@ -16,6 +16,28 @@ const groupsChatEvents = (socket) => {
         const rooms = await (0, GroupsChat_controller_1.getUserRooms)(activeRoomsIds, user.id);
         socket.emit("active-rooms", { rooms });
     });
+    socket.on("user-typing", async ({ groupChatId }, callback) => {
+        const user = socket.user;
+        if (!groupChatId) {
+            if (callback)
+                callback({ success: false, error: "groupcaht id  is required" });
+        }
+        const isGroupChatExit = await GroupsChat_model_1.GroupsChat.isGroupChatExist(groupChatId);
+        if (!isGroupChatExit) {
+            if (callback)
+                callback({
+                    message: `there is not groupchat with this groupchatId ${groupChatId}`,
+                });
+            return;
+        }
+        socket.to(groupChatId).emit("user-typing", {
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+            },
+        });
+    });
     socket.on("join-room", async ({ groupChatId }, callback) => {
         var _a;
         const user = socket.user;
@@ -42,6 +64,13 @@ const groupsChatEvents = (socket) => {
             return;
         }
         socket.join(groupChatId);
+        socket.to(groupChatId).emit("user-join-room", {
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+            },
+        });
         websocket_1.default.addUserToRoom(groupChatId, user);
         console.log(`${(_a = socket.user) === null || _a === void 0 ? void 0 : _a.username} joined room: ${groupChatId} ${groupChat.name}`);
         console.log(websocket_1.default.getroomUsers(groupChatId));

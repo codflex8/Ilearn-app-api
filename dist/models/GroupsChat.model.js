@@ -15,6 +15,13 @@ const BaseModel_1 = require("./BaseModel");
 const GroupsChatMessages_model_1 = require("./GroupsChatMessages.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
+    static isGroupChatExist(id) {
+        return this.getRepository().exists({
+            where: {
+                id,
+            },
+        });
+    }
     static getUserGroupChatById(userId, id) {
         return this.getRepository()
             .createQueryBuilder("chat")

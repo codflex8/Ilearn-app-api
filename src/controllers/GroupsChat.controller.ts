@@ -189,6 +189,7 @@ export const updateGroupChat = asyncHandler(
         userGroupsChats: { user: true },
       },
     });
+    if (!groupChat) return next(new ApiError("groupcaht not found", 400));
     groupChat.name = name;
     if (image) groupChat.imageUrl = image;
     groupChat.backgroundColor = backgroundColor;

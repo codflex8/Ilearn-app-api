@@ -63,19 +63,41 @@ export const signIn = asyncHandler(
   }
 );
 
-export const refreshToken = (req: Request, res: Response) => {
-  const refreshToken = req.cookies.refreshToken;
+export const refreshToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const refreshToken = req.body.refreshToken;
 
   // if (!refreshToken || !refreshTokens.includes(refreshToken)) {
   //   return res.status(403).json({ message: 'Refresh token not found' });
   // }
 
-  jwt.verify(refreshToken, process.env.JWT_Refresh_SECRET_KEY!, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid refresh token" });
+  jwt.verify(
+    refreshToken,
+    process.env.JWT_Refresh_SECRET_KEY!,
+    async (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: "Invalid refresh token" });
+      }
+      const currentUser = await User.findOne({
+        where: {
+          id: decoded?.userId,
+        },
+      });
+      if (!currentUser)
+        return res.status(401).json({ message: "Invalid refresh token" });
 
-    const newAccessToken = createToken((user as any).userId);
-    res.json({ token: newAccessToken });
-  });
+      try {
+        verifyUserChangePassword(currentUser, decoded);
+      } catch (error: any) {
+        return next(error);
+      }
+      const newAccessToken = createToken((decoded as any).userId);
+      res.json({ token: newAccessToken });
+    }
+  );
 };
 
 export const protect = asyncHandler(
@@ -106,26 +128,35 @@ export const protect = asyncHandler(
         )
       );
     }
-
-    // 4) Check if user change his password after token created
-    if (currentUser.passwordChangedAt) {
-      const passChangedTimestamp =
-        currentUser.passwordChangedAt.getTime() / 1000;
-      // Password changed after token created (Error)
-      if (decoded.iat && passChangedTimestamp > decoded.iat) {
-        return next(
-          new ApiError(
-            "User recently changed his password. please login again..",
-            401
-          )
-        );
-      }
+    try {
+      verifyUserChangePassword(currentUser, decoded);
+    } catch (error: any) {
+      return next(error);
     }
-    // ToDo: set user
+    delete currentUser.password;
+    delete currentUser.passwordChangedAt;
+    delete currentUser.passwordResetCode;
+    delete currentUser.passwordResetExpires;
+    delete currentUser.passwordResetVerified;
+
     req.user = currentUser;
     next();
   }
 );
+
+const verifyUserChangePassword = (currentUser: User, decoded) => {
+  // 4) Check if user change his password after token created
+  if (currentUser.passwordChangedAt) {
+    const passChangedTimestamp = currentUser.passwordChangedAt.getTime() / 1000;
+    // Password changed after token created (Error)
+    if (decoded.iat && passChangedTimestamp > decoded.iat) {
+      throw new ApiError(
+        "User recently changed his password. please login again..",
+        401
+      );
+    }
+  }
+};
 
 export const forgotPassword = asyncHandler(async (req, res, next) => {
   // 1) Get user by email

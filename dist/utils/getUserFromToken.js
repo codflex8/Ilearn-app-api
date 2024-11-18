@@ -13,15 +13,15 @@ const getUserFromToken = async (token) => {
         // 3) Check if user exists
         const currentUser = await User_model_1.User.findOne({
             where: { id: decoded === null || decoded === void 0 ? void 0 : decoded.userId },
-            select: [
-                "id",
-                "username",
-                "email",
-                "gender",
-                "phoneNumber",
-                "birthDate",
-                "imageUrl",
-            ],
+            // select: [
+            //   "id",
+            //   "username",
+            //   "email",
+            //   "gender",
+            //   "phoneNumber",
+            //   "birthDate",
+            //   "imageUrl",
+            // ],
         });
         return { currentUser, decoded };
     }

@@ -138,6 +138,8 @@ exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, 
             userGroupsChats: { user: true },
         },
     });
+    if (!groupChat)
+        return next(new ApiError_1.default("groupcaht not found", 400));
     groupChat.name = name;
     if (image)
         groupChat.imageUrl = image;

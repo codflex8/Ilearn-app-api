@@ -76,15 +76,29 @@ exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => 
     delete user.password;
     res.status(200).json({ user, token, refreshToken });
 });
-const refreshToken = (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
+const refreshToken = (req, res, next) => {
+    const refreshToken = req.body.refreshToken;
     // if (!refreshToken || !refreshTokens.includes(refreshToken)) {
     //   return res.status(403).json({ message: 'Refresh token not found' });
     // }
-    jsonwebtoken_1.default.verify(refreshToken, process.env.JWT_Refresh_SECRET_KEY, (err, user) => {
-        if (err)
+    jsonwebtoken_1.default.verify(refreshToken, process.env.JWT_Refresh_SECRET_KEY, async (err, decoded) => {
+        if (err) {
             return res.status(403).json({ message: "Invalid refresh token" });
-        const newAccessToken = (0, createToken_1.createToken)(user.userId);
+        }
+        const currentUser = await User_model_1.User.findOne({
+            where: {
+                id: decoded === null || decoded === void 0 ? void 0 : decoded.userId,
+            },
+        });
+        if (!currentUser)
+            return res.status(401).json({ message: "Invalid refresh token" });
+        try {
+            verifyUserChangePassword(currentUser, decoded);
+        }
+        catch (error) {
+            return next(error);
+        }
+        const newAccessToken = (0, createToken_1.createToken)(decoded.userId);
         res.json({ token: newAccessToken });
     });
 };
@@ -103,18 +117,30 @@ exports.protect = (0, express_async_handler_1.default)(async (req, res, next) =>
     if (!currentUser) {
         return next(new ApiError_1.default("The user that belong to this token does no longer exist", 401));
     }
+    try {
+        verifyUserChangePassword(currentUser, decoded);
+    }
+    catch (error) {
+        return next(error);
+    }
+    delete currentUser.password;
+    delete currentUser.passwordChangedAt;
+    delete currentUser.passwordResetCode;
+    delete currentUser.passwordResetExpires;
+    delete currentUser.passwordResetVerified;
+    req.user = currentUser;
+    next();
+});
+const verifyUserChangePassword = (currentUser, decoded) => {
     // 4) Check if user change his password after token created
     if (currentUser.passwordChangedAt) {
         const passChangedTimestamp = currentUser.passwordChangedAt.getTime() / 1000;
         // Password changed after token created (Error)
         if (decoded.iat && passChangedTimestamp > decoded.iat) {
-            return next(new ApiError_1.default("User recently changed his password. please login again..", 401));
+            throw new ApiError_1.default("User recently changed his password. please login again..", 401);
         }
     }
-    // ToDo: set user
-    req.user = currentUser;
-    next();
-});
+};
 exports.forgotPassword = (0, express_async_handler_1.default)(async (req, res, next) => {
     // 1) Get user by email
     const user = await User_model_1.User.findOne({ where: { email: (0, typeorm_1.Equal)(req.body.email) } });

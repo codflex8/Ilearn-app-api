@@ -40,6 +40,10 @@ class Websocket extends Server {
     return this.rooms[roomId] ?? [];
   }
 
+  public static getroomById(roomId: string): User[] {
+    return this.rooms[roomId];
+  }
+
   public static addUserToRoom(roomId: string, user: User) {
     if (
       !this.rooms[roomId]?.find((u) => u.id == user?.id) ||

@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import {
   forgotPassword,
+  refreshToken,
   resetPassword,
   signIn,
   signup,
@@ -25,6 +26,7 @@ router.post(
   signup
 );
 router.post("/signin", validateData(signInValidator), signIn);
+router.post("/refreshToken", refreshToken);
 router.post(
   "/forgotPassword",
   validateData(forgetPasswordValidator),
