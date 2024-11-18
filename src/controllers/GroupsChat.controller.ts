@@ -205,7 +205,7 @@ export const updateGroupChat = asyncHandler(
     }
     await groupChat.save();
     await GroupsChatUsers.save(groupChat.userGroupsChats);
-    res.status(201).json({ groupChat });
+    res.status(200).json({ groupChat });
   }
 );
 

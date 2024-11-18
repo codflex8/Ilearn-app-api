@@ -154,7 +154,7 @@ exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, 
     }
     await groupChat.save();
     await GroupsChatUsers_model_1.GroupsChatUsers.save(groupChat.userGroupsChats);
-    res.status(201).json({ groupChat });
+    res.status(200).json({ groupChat });
 });
 exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
