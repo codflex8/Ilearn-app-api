@@ -40,27 +40,19 @@ export const getGroupsChat = asyncHandler(
     const user = req.user;
     const { page, pageSize, name } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
-    let condition: FindOptionsWhere<GroupsChat> = {
-      userGroupsChats: {
-        user: {
-          id: user.id,
-        },
-      },
-    };
+    let querable = GroupsChat.getRepository()
+      .createQueryBuilder("chat")
+      .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
+      .leftJoin("userGroupsChats.user", "user")
+      .where("user.id = :userId", { userId: user.id });
+
     if (name) {
-      condition = { ...condition, name: ILike(`%${name}%`) };
+      querable = querable.andWhere("LOWER(chat.name) LIKE :name", {
+        name: `%${name}%`,
+      });
     }
-    const [groupsChat, count] = await GroupsChat.findAndCount({
-      where: condition,
-      relations: {
-        userGroupsChats: true,
-      },
-      order: {
-        createdAt: "desc",
-      },
-      take,
-      skip,
-    });
+    const count = await querable.getCount();
+    const groupsChat = await querable.skip(skip).take(take).getMany();
 
     res
       .status(200)

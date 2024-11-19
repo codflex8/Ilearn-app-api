@@ -27,27 +27,18 @@ exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, ne
     const user = req.user;
     const { page, pageSize, name } = req.query;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
-    let condition = {
-        userGroupsChats: {
-            user: {
-                id: user.id,
-            },
-        },
-    };
+    let querable = GroupsChat_model_1.GroupsChat.getRepository()
+        .createQueryBuilder("chat")
+        .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
+        .leftJoin("userGroupsChats.user", "user")
+        .where("user.id = :userId", { userId: user.id });
     if (name) {
-        condition = Object.assign(Object.assign({}, condition), { name: (0, typeorm_1.ILike)(`%${name}%`) });
+        querable = querable.andWhere("LOWER(chat.name) LIKE :name", {
+            name: `%${name}%`,
+        });
     }
-    const [groupsChat, count] = await GroupsChat_model_1.GroupsChat.findAndCount({
-        where: condition,
-        relations: {
-            userGroupsChats: true,
-        },
-        order: {
-            createdAt: "desc",
-        },
-        take,
-        skip,
-    });
+    const count = await querable.getCount();
+    const groupsChat = await querable.skip(skip).take(take).getMany();
     res
         .status(200)
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, groupsChat));

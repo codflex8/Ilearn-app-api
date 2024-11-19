@@ -24,7 +24,9 @@ const imagesExtensions = [
 const audioExtensions = [
   ".mpeg",
   ".wav",
+  ".aiff",
   ".ogg",
+  ".amr",
   ".mp3",
   ".webm",
   ".x-m4a",
@@ -32,6 +34,9 @@ const audioExtensions = [
   ".aac",
   ".x-wav",
   ".x-aiff",
+  ".m4a",
+  ".caf",
+  ".opus",
 ];
 
 // Define the storage configuration
