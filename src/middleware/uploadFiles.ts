@@ -20,6 +20,8 @@ const imagesExtensions = [
   ".tiff",
   ".svg+xml",
   ".svg",
+  ".heic",
+  ".heif",
 ];
 const audioExtensions = [
   ".mpeg",
