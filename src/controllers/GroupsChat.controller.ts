@@ -40,6 +40,7 @@ export const getGroupsChat = asyncHandler(
     const user = req.user;
     const { page, pageSize, name } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
+
     let querable = GroupsChat.getRepository()
       .createQueryBuilder("chat")
       .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")

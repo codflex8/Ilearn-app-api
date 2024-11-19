@@ -17,8 +17,8 @@ export default class AppServer {
   private config(app: Application) {
     dotenv.config();
     app.use(cors());
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json({ limit: "100mb" }));
+    app.use(express.urlencoded({ limit: "100mb", extended: true }));
     app.use((req: Request, res: Response, next: NextFunction) => {
       console.log("path", req.path, req.originalUrl);
       console.log("body", req.body);
