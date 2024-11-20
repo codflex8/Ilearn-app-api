@@ -9,7 +9,7 @@ import {
   GroupChatRoles,
 } from "../utils/validators/GroupsChatValidator";
 import { User } from "../models/User.model";
-import { FindOptionsWhere, ILike, In } from "typeorm";
+import { In } from "typeorm";
 import { GroupsChatUsers } from "../models/GroupsChatUsers.model";
 import ApiError from "../utils/ApiError";
 import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
@@ -54,12 +54,34 @@ export const getGroupsChat = asyncHandler(
     }
     const count = await querable.getCount();
     const groupsChat = await querable.skip(skip).take(take).getMany();
+    const getGroupsChatWithMessages = groupsChat.map(async (chat) => {
+      const messages = await GroupsChatMessages.find({
+        where: {
+          group: {
+            id: chat.id,
+          },
+        },
+        order: {
+          createdAt: "DESC",
+        },
+        take: 10,
+      });
+      const unreadMessagesCount =
+        await GroupsChatMessages.countChatUreadMessages(chat.id, user.id);
+      chat.messages = messages.map((msg) => {
+        msg.isSeenMessage(user.id);
+        return msg;
+      });
+      chat.unreadMessagesCount = unreadMessagesCount;
+
+      return chat;
+    });
+
+    const chats = await Promise.all(getGroupsChatWithMessages);
 
     res
       .status(200)
-      .json(
-        new GenericResponse<GroupsChat>(Number(page), take, count, groupsChat)
-      );
+      .json(new GenericResponse<GroupsChat>(Number(page), take, count, chats));
   }
 );
 
@@ -149,7 +171,10 @@ export const getGroupChatMessages = asyncHandler(
       .select("messages")
       .addSelect(["user.id", "user.username", "user.email", "user.imageUrl"])
       .getMany();
-
+    const checkIsSeenMessages = messages.map((msg) => {
+      msg.isSeenMessage(user.id);
+      return msg;
+    });
     res
       .status(200)
       .json(
@@ -157,7 +182,7 @@ export const getGroupChatMessages = asyncHandler(
           Number(page),
           take,
           count,
-          messages
+          checkIsSeenMessages
         )
       );
   }
@@ -368,6 +393,7 @@ export const addNewMessage = async ({
     imageUrl,
     isLink,
     recordUrl,
+    readbyIds: [user.id],
   });
   await newMessage.save();
   return newMessage;
@@ -389,14 +415,14 @@ export const readMessages = async ({
         id: chatId,
         userGroupsChats: {
           user: {
-            id: userId,
+            id: In([userId]),
           },
         },
       },
     },
     {
       readbyIds: () => `
-      CASE 
+      CASE
         WHEN readbyIds IS NULL OR readbyIds = '' THEN '${userId}'
         WHEN FIND_IN_SET('${userId}', readbyIds) = 0 THEN CONCAT(readbyIds, ',', '${userId}')
         ELSE readbyIds

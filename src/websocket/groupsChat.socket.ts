@@ -8,6 +8,8 @@ import {
 } from "../controllers/GroupsChat.controller";
 import { newGroupChatMessageValidator } from "../utils/validators/GroupsChatValidator";
 import schemaValidator from "../utils/schemaValidator";
+import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
+import ApiError from "../utils/ApiError";
 
 export const groupsChatEvents = (socket: Socket) => {
   socket.on("active-rooms", async () => {
@@ -25,7 +27,10 @@ export const groupsChatEvents = (socket: Socket) => {
         if (callback)
           callback({ success: false, error: "groupcaht id  is required" });
       }
-      const isGroupChatExit = await GroupsChat.isGroupChatExist(groupChatId);
+      const isGroupChatExit = await GroupsChat.isGroupChatExist(
+        groupChatId,
+        user.id
+      );
       if (!isGroupChatExit) {
         if (callback)
           callback({
@@ -113,14 +118,45 @@ export const groupsChatEvents = (socket: Socket) => {
   );
 
   socket.on(
-    "read-messages",
-    (
-      { messagesIds, chatId }: { messagesIds: string[]; chatId: string },
+    "new-media-message",
+    async (
+      data: { groupChatId: string; message: GroupsChatMessages },
       callback
     ) => {
       try {
+        const { groupChatId, message } = data;
         const user = socket.user;
-        readMessages({ chatId, messagesIds, userId: user.id });
+        const isGroupchatExist = await GroupsChat.isGroupChatExist(
+          groupChatId,
+          user.id
+        );
+        if (!isGroupchatExist) {
+          throw new ApiError("groupchat not found", 400);
+        }
+        socket.to(groupChatId).emit("new-media-message", { message });
+      } catch (error: any) {
+        if (callback) callback({ message: error.message });
+      }
+    }
+  );
+
+  socket.on(
+    "read-messages",
+    async (
+      {
+        messagesIds,
+        groupChatId,
+      }: { messagesIds: string[]; groupChatId: string },
+      callback
+    ) => {
+      try {
+        if (!groupChatId) {
+          throw new ApiError("groupchat Id required", 400);
+        }
+        const user = socket.user;
+        const isExist = await GroupsChat.isGroupChatExist(groupChatId, user.id);
+        if (!isExist) throw new ApiError("groupchat not found", 400);
+        readMessages({ chatId: groupChatId, messagesIds, userId: user.id });
       } catch (error: any) {
         if (callback) callback(error.message);
       }

@@ -27,10 +27,17 @@ export class GroupsChat extends BaseModel {
   )
   userGroupsChats: GroupsChatUsers[];
 
-  static isGroupChatExist(id: string) {
+  unreadMessagesCount: number;
+
+  static isGroupChatExist(id: string, userId: string) {
     return this.getRepository().exists({
       where: {
         id,
+        userGroupsChats: {
+          user: {
+            id: userId,
+          },
+        },
       },
     });
   }

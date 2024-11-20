@@ -39,9 +39,30 @@ exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, ne
     }
     const count = await querable.getCount();
     const groupsChat = await querable.skip(skip).take(take).getMany();
+    const getGroupsChatWithMessages = groupsChat.map(async (chat) => {
+        const messages = await GroupsChatMessages_model_1.GroupsChatMessages.find({
+            where: {
+                group: {
+                    id: chat.id,
+                },
+            },
+            order: {
+                createdAt: "DESC",
+            },
+            take: 10,
+        });
+        const unreadMessagesCount = await GroupsChatMessages_model_1.GroupsChatMessages.countChatUreadMessages(chat.id, user.id);
+        chat.messages = messages.map((msg) => {
+            msg.isSeenMessage(user.id);
+            return msg;
+        });
+        chat.unreadMessagesCount = unreadMessagesCount;
+        return chat;
+    });
+    const chats = await Promise.all(getGroupsChatWithMessages);
     res
         .status(200)
-        .json(new GenericResponse_1.GenericResponse(Number(page), take, count, groupsChat));
+        .json(new GenericResponse_1.GenericResponse(Number(page), take, count, chats));
 });
 exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { name, usersIds, image } = req.body;
@@ -108,9 +129,13 @@ exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, 
         .select("messages")
         .addSelect(["user.id", "user.username", "user.email", "user.imageUrl"])
         .getMany();
+    const checkIsSeenMessages = messages.map((msg) => {
+        msg.isSeenMessage(user.id);
+        return msg;
+    });
     res
         .status(200)
-        .json(new GenericResponse_1.GenericResponse(Number(page), take, count, messages));
+        .json(new GenericResponse_1.GenericResponse(Number(page), take, count, checkIsSeenMessages));
 });
 exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
@@ -263,6 +288,7 @@ const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, re
         imageUrl,
         isLink,
         recordUrl,
+        readbyIds: [user.id],
     });
     await newMessage.save();
     return newMessage;
@@ -275,13 +301,13 @@ const readMessages = async ({ messagesIds, userId, chatId, }) => {
             id: chatId,
             userGroupsChats: {
                 user: {
-                    id: userId,
+                    id: (0, typeorm_1.In)([userId]),
                 },
             },
         },
     }, {
         readbyIds: () => `
-      CASE 
+      CASE
         WHEN readbyIds IS NULL OR readbyIds = '' THEN '${userId}'
         WHEN FIND_IN_SET('${userId}', readbyIds) = 0 THEN CONCAT(readbyIds, ',', '${userId}')
         ELSE readbyIds

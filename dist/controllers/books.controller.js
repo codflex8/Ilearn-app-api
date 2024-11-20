@@ -63,7 +63,7 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
     const user = req.user;
     const book = Books_model_1.Book.create({
         name,
-        imageUrl: image,
+        imageUrl: image !== null && image !== void 0 ? image : null,
         fileUrl,
         link,
         content,
@@ -85,9 +85,12 @@ exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next)
     const { name, image, fileUrl, link, content, categoryId } = req.body;
     const book = await Books_model_1.Book.getUserBookById(user.id, id);
     book.name = name;
-    book.imageUrl = image;
-    book.fileUrl = fileUrl;
-    book.link = link;
+    if (image)
+        book.imageUrl = image;
+    if (fileUrl)
+        book.fileUrl = fileUrl;
+    if (link)
+        book.link = link;
     book.content = content;
     const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
     if (!category) {

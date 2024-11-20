@@ -61,6 +61,7 @@ io.on("connection", async (socket: Socket) => {
 
 process.on("unhandledRejection", (err: Error) => {
   console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
+  console.log(err.stack);
   // server.close(() => {
   //   console.error(`Shutting down....`);
   //   process.exit(1);

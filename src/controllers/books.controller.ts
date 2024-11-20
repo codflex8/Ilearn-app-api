@@ -77,7 +77,7 @@ export const addBook = asyncHandler(
     const user = req.user;
     const book = Book.create({
       name,
-      imageUrl: image,
+      imageUrl: image ?? null,
       fileUrl,
       link,
       content,
@@ -102,9 +102,9 @@ export const updateBook = asyncHandler(
     const { name, image, fileUrl, link, content, categoryId } = req.body;
     const book = await Book.getUserBookById(user.id, id);
     book.name = name;
-    book.imageUrl = image;
-    book.fileUrl = fileUrl;
-    book.link = link;
+    if (image) book.imageUrl = image;
+    if (fileUrl) book.fileUrl = fileUrl;
+    if (link) book.link = link;
     book.content = content;
     const category = await Category.getUserCategoryById(user.id, categoryId);
     if (!category) {

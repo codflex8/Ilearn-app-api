@@ -2,6 +2,7 @@ import {
   AfterInsert,
   AfterLoad,
   AfterUpdate,
+  Brackets,
   Column,
   Entity,
   ManyToOne,
@@ -39,11 +40,45 @@ export class GroupsChatMessages extends BaseModel {
 
   seen: boolean;
 
-  @AfterLoad()
-  @AfterInsert()
-  @AfterUpdate()
-  isMessageSeen() {
-    // console.log("this.readbyIds", this.readbyIds, this.id);
-    this.seen = !!this.readbyIds?.find((id) => id === this.id);
+  // @AfterLoad()
+  // @AfterInsert()
+  // @AfterUpdate()
+  // isMessageSeen() {
+  //   // console.log("this.readbyIds", this.readbyIds, this.id);
+  //   this.seen = !!this.readbyIds?.find((id) => id === this.id);
+  // }
+
+  isSeenMessage(userId: string) {
+    this.seen = !!this.readbyIds?.find((id) => id === userId);
+  }
+
+  static countChatUreadMessages(chatId: string, userId: string) {
+    return GroupsChatMessages.getRepository()
+      .createQueryBuilder("message")
+      .leftJoin("message.group", "group")
+      .where("group.id = :groupId", { groupId: chatId })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("message.readbyIds IS NULL") // Include messages with no readbyIds
+            .orWhere(
+              new Brackets((innerQb) => {
+                innerQb
+                  .where("message.readbyIds NOT LIKE :middleUserId", {
+                    middleUserId: `%,${userId},%`,
+                  })
+                  .andWhere("message.readbyIds NOT LIKE :startUserId", {
+                    startUserId: `${userId},%`,
+                  })
+                  .andWhere("message.readbyIds NOT LIKE :endUserId", {
+                    endUserId: `%,${userId}`,
+                  })
+                  .andWhere("message.readbyIds != :exactUserId", {
+                    exactUserId: userId,
+                  });
+              })
+            );
+        })
+      )
+      .getCount();
   }
 }
