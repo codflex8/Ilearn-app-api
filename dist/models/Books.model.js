@@ -17,6 +17,11 @@ const BaseModel_1 = require("./BaseModel");
 const ChatBot_model_1 = require("./ChatBot.model");
 const Quiz_model_1 = require("./Quiz.model");
 let Book = class Book extends BaseModel_1.BaseModel {
+    chekBookImage() {
+        if (!this.imageUrl) {
+            this.imageUrl = "/public/default/book.jpg";
+        }
+    }
     static getUserBookById(userId, bookId) {
         return this.findOne({
             where: {
@@ -92,6 +97,14 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], Book.prototype, "quizes", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], Book.prototype, "chekBookImage", null);
 exports.Book = Book = __decorate([
     (0, typeorm_1.Entity)()
 ], Book);

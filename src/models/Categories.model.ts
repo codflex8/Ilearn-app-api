@@ -1,4 +1,7 @@
 import {
+  AfterInsert,
+  AfterLoad,
+  AfterUpdate,
   Column,
   Entity,
   FindOptionsWhere,
@@ -33,6 +36,15 @@ export class Category extends BaseModel {
     name: "userId",
   })
   user: User;
+
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  chekCategoryImage() {
+    if (!this.imageUrl) {
+      this.imageUrl = "/public/default/category.jpg";
+    }
+  }
 
   static getUserCategoryById(userId: string, categoryId: string) {
     return this.findOne({

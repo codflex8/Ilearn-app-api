@@ -15,6 +15,11 @@ const Books_model_1 = require("./Books.model");
 const User_model_1 = require("./User.model");
 const BaseModel_1 = require("./BaseModel");
 let Category = class Category extends BaseModel_1.BaseModel {
+    chekCategoryImage() {
+        if (!this.imageUrl) {
+            this.imageUrl = "/public/default/category.jpg";
+        }
+    }
     static getUserCategoryById(userId, categoryId) {
         return this.findOne({
             where: {
@@ -51,6 +56,14 @@ __decorate([
     }),
     __metadata("design:type", User_model_1.User)
 ], Category.prototype, "user", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], Category.prototype, "chekCategoryImage", null);
 exports.Category = Category = __decorate([
     (0, typeorm_1.Entity)()
 ], Category);

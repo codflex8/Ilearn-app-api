@@ -1,4 +1,7 @@
 import {
+  AfterInsert,
+  AfterLoad,
+  AfterUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -66,6 +69,15 @@ export class Book extends BaseModel {
     },
   })
   quizes: Quiz[];
+
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  chekBookImage() {
+    if (!this.imageUrl) {
+      this.imageUrl = "/public/default/book.jpg";
+    }
+  }
 
   static getUserBookById(userId: string, bookId: string) {
     return this.findOne({
