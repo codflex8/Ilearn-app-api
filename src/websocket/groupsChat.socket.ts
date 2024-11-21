@@ -95,10 +95,22 @@ export const groupsChatEvents = (socket: Socket) => {
 
   socket.on(
     "leave-room",
-    ({ groupChatId }: { groupChatId: string }, callback) => {
-      socket.leave(groupChatId);
-      if (callback)
-        callback({ success: true, message: `leave room: ${groupChatId}` });
+    async ({ groupChatId }: { groupChatId: string }, callback) => {
+      try {
+        const user = socket.user;
+        const groupchatExist = await GroupsChat.isGroupChatExist(
+          groupChatId,
+          user.id
+        );
+        if (!groupchatExist) {
+          throw new ApiError("group chat not found", 400);
+        }
+        socket.leave(groupChatId);
+        if (callback)
+          callback({ success: true, message: `leave room: ${groupChatId}` });
+      } catch (error: any) {
+        if (callback) callback({ message: error.message });
+      }
     }
   );
 

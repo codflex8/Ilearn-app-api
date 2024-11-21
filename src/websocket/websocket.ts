@@ -70,7 +70,7 @@ class Websocket extends Server {
   }
 
   public static removeUser(user: User) {
-    this.users = this.users?.filter((u) => u.id !== user.id);
+    if (user) this.users = (this.users ?? [])?.filter((u) => u.id !== user?.id);
   }
 }
 
