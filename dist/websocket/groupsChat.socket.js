@@ -78,6 +78,11 @@ const groupsChatEvents = (socket) => {
         if (callback)
             callback({ success: true, message: `Joined room: ${groupChatId}` });
     });
+    socket.on("leave-room", ({ groupChatId }, callback) => {
+        socket.leave(groupChatId);
+        if (callback)
+            callback({ success: true, message: `leave room: ${groupChatId}` });
+    });
     socket.on("new-message", async (data, callback) => {
         try {
             (0, schemaValidator_1.default)(GroupsChatValidator_1.newGroupChatMessageValidator, data);

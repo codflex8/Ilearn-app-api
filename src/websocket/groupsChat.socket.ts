@@ -94,6 +94,15 @@ export const groupsChatEvents = (socket: Socket) => {
   );
 
   socket.on(
+    "leave-room",
+    ({ groupChatId }: { groupChatId: string }, callback) => {
+      socket.leave(groupChatId);
+      if (callback)
+        callback({ success: true, message: `leave room: ${groupChatId}` });
+    }
+  );
+
+  socket.on(
     "new-message",
     async (data: { groupChatId: string; message: string }, callback) => {
       try {
