@@ -47,9 +47,9 @@ class Websocket extends socket_io_1.Server {
         }
     }
     static removeUserFromRoom(roomId, user) {
-        var _a;
+        var _a, _b;
         const newRoomUsers = (_a = this.rooms[roomId]) === null || _a === void 0 ? void 0 : _a.users.filter((u) => u.id !== user.id);
-        this.rooms = Object.assign(Object.assign({}, this.rooms), { [roomId]: { group: this.rooms[roomId].group, users: newRoomUsers } });
+        this.rooms = Object.assign(Object.assign({}, this.rooms), { [roomId]: { group: (_b = this.rooms[roomId]) === null || _b === void 0 ? void 0 : _b.group, users: newRoomUsers } });
     }
     static getUsers() {
         return this.users;
@@ -80,7 +80,10 @@ class Websocket extends socket_io_1.Server {
             const userActiveGroups = Object.entries(this.rooms)
                 .filter(([roomId, { users, group }]) => users.length > 0)
                 .map(([roomId, { users, group }]) => group)
-                .filter((activeGroup) => !!user.userGroupsChats.find((userChat) => userChat.groupChat.id === activeGroup.id));
+                .filter((activeGroup) => {
+                var _a;
+                return !!((_a = user.userGroupsChats) === null || _a === void 0 ? void 0 : _a.find((userChat) => { var _a; return ((_a = userChat === null || userChat === void 0 ? void 0 : userChat.groupChat) === null || _a === void 0 ? void 0 : _a.id) === activeGroup.id; }));
+            });
             const userSocketId = this.usersSockets[user.id];
             this.io
                 .to(userSocketId)

@@ -115,7 +115,7 @@ export const groupsChatEvents = (socket: Socket) => {
         const user = socket.user;
         const groupchatExist = await GroupsChat.isGroupChatExist(
           groupChatId,
-          user.id
+          user?.id
         );
         if (!groupchatExist) {
           throw new ApiError("group chat not found", 400);

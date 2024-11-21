@@ -96,7 +96,7 @@ const groupsChatEvents = (socket) => {
     socket.on("leave-room", async ({ groupChatId }, callback) => {
         try {
             const user = socket.user;
-            const groupchatExist = await GroupsChat_model_1.GroupsChat.isGroupChatExist(groupChatId, user.id);
+            const groupchatExist = await GroupsChat_model_1.GroupsChat.isGroupChatExist(groupChatId, user === null || user === void 0 ? void 0 : user.id);
             if (!groupchatExist) {
                 throw new ApiError_1.default("group chat not found", 400);
             }

@@ -77,7 +77,7 @@ class Websocket extends Server {
     );
     this.rooms = {
       ...this.rooms,
-      [roomId]: { group: this.rooms[roomId].group, users: newRoomUsers },
+      [roomId]: { group: this.rooms[roomId]?.group, users: newRoomUsers },
     };
   }
 
@@ -114,8 +114,8 @@ class Websocket extends Server {
         .map(([roomId, { users, group }]) => group)
         .filter(
           (activeGroup) =>
-            !!user.userGroupsChats.find(
-              (userChat) => userChat.groupChat.id === activeGroup.id
+            !!user.userGroupsChats?.find(
+              (userChat) => userChat?.groupChat?.id === activeGroup.id
             )
         );
       const userSocketId = this.usersSockets[user.id];
