@@ -26,13 +26,13 @@ io.use(async (socket: Socket, callback) => {
       socket.client.request.headers.authorization.split(" ")[1]
     ) {
       const { currentUser, decoded } = await getUserFromToken(
-        socket.client.request.headers.authorization.split(" ")[1]
+        socket.client.request.headers.authorization.split(" ")[1],
+        true
       );
       if (!currentUser) {
         callback(new ApiError("unauthorized", 401));
       }
-      Websocket.addUser(currentUser);
-      console.log("userss: ", Websocket.getUsers());
+      Websocket.addUser(currentUser, socket.id);
       socket.user = currentUser;
       callback();
     } else {

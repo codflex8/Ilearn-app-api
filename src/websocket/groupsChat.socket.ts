@@ -10,6 +10,7 @@ import { newGroupChatMessageValidator } from "../utils/validators/GroupsChatVali
 import schemaValidator from "../utils/schemaValidator";
 import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
 import ApiError from "../utils/ApiError";
+import { User } from "../models/User.model";
 
 export const groupsChatEvents = (socket: Socket) => {
   socket.on("active-rooms", async () => {
@@ -83,11 +84,25 @@ export const groupsChatEvents = (socket: Socket) => {
           email: user.email,
         },
       });
-      Websocket.addUserToRoom(groupChatId, user);
+      Websocket.addUserToRoom(groupChat, user);
+      const groupChatUsers = await User.find({
+        where: {
+          userGroupsChats: {
+            groupChat: {
+              id: groupChatId,
+            },
+          },
+        },
+        select: { id: true },
+      });
+      const groupChatUsersIds = groupChatUsers.map((user) => user.id);
+      const socketsIds = Websocket.getUsersSocketIds(groupChatUsersIds);
+      // socketsIds.map()
+      Websocket.sendActiveRoomsToUsers();
+      console.log("groupChatUsersssss", groupChatUsers, socketsIds);
       console.log(
         `${socket.user?.username} joined room: ${groupChatId} ${groupChat.name}`
       );
-      console.log(Websocket.getroomUsers(groupChatId));
       if (callback)
         callback({ success: true, message: `Joined room: ${groupChatId}` });
     }
