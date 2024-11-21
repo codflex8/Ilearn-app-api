@@ -90,7 +90,7 @@ const groupsChatEvents = (socket) => {
             //   return;
             // }
             await (0, GroupsChat_controller_1.addNewMessage)({ message, groupChatId, user });
-            socket.to(groupChatId).emit("new-message", { message });
+            socket.to(groupChatId).emit("new-message", { message, groupChatId });
         }
         catch (error) {
             if (callback)

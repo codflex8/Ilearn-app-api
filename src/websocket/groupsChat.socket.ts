@@ -110,7 +110,7 @@ export const groupsChatEvents = (socket: Socket) => {
         // }
 
         await addNewMessage({ message, groupChatId, user });
-        socket.to(groupChatId).emit("new-message", { message });
+        socket.to(groupChatId).emit("new-message", { message, groupChatId });
       } catch (error: any) {
         if (callback) callback({ message: error.message });
       }
