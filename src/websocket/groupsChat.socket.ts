@@ -133,7 +133,9 @@ export const groupsChatEvents = (socket: Socket) => {
         if (!isGroupchatExist) {
           throw new ApiError("groupchat not found", 400);
         }
-        socket.to(groupChatId).emit("new-media-message", { message });
+        socket
+          .to(groupChatId)
+          .emit("new-media-message", { message, groupChatId });
       } catch (error: any) {
         if (callback) callback({ message: error.message });
       }
