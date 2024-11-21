@@ -10,6 +10,7 @@ const GroupsChat_controller_1 = require("../controllers/GroupsChat.controller");
 const GroupsChatValidator_1 = require("../utils/validators/GroupsChatValidator");
 const schemaValidator_1 = __importDefault(require("../utils/schemaValidator"));
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
+const User_model_1 = require("../models/User.model");
 const groupsChatEvents = (socket) => {
     socket.on("active-rooms", async () => {
         const user = socket.user;
@@ -72,11 +73,25 @@ const groupsChatEvents = (socket) => {
                 email: user.email,
             },
         });
-        websocket_1.default.addUserToRoom(groupChatId, user);
-        console.log(`${(_a = socket.user) === null || _a === void 0 ? void 0 : _a.username} joined room: ${groupChatId} ${groupChat.name}`);
-        console.log(websocket_1.default.getroomUsers(groupChatId));
+        websocket_1.default.addUserToRoom(groupChat, user);
+        const groupChatUsers = await User_model_1.User.find({
+            where: {
+                userGroupsChats: {
+                    groupChat: {
+                        id: groupChatId,
+                    },
+                },
+            },
+            select: { id: true },
+        });
+        const groupChatUsersIds = groupChatUsers.map((user) => user.id);
+        const socketsIds = websocket_1.default.getUsersSocketIds(groupChatUsersIds);
+        // socketsIds.map()
         if (callback)
             callback({ success: true, message: `Joined room: ${groupChatId}` });
+        websocket_1.default.sendActiveRoomsToUsers();
+        console.log("groupChatUsersssss", groupChatUsers, socketsIds);
+        console.log(`${(_a = socket.user) === null || _a === void 0 ? void 0 : _a.username} joined room: ${groupChatId} ${groupChat.name}`);
     });
     socket.on("leave-room", async ({ groupChatId }, callback) => {
         try {
@@ -86,6 +101,8 @@ const groupsChatEvents = (socket) => {
                 throw new ApiError_1.default("group chat not found", 400);
             }
             socket.leave(groupChatId);
+            websocket_1.default.removeUserFromRoom(groupChatId, user);
+            websocket_1.default.sendActiveRoomsToUsers();
             if (callback)
                 callback({ success: true, message: `leave room: ${groupChatId}` });
         }

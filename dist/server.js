@@ -23,12 +23,11 @@ io.use(async (socket, callback) => {
     try {
         if (socket.client.request.headers.authorization &&
             socket.client.request.headers.authorization.split(" ")[1]) {
-            const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization.split(" ")[1]);
+            const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization.split(" ")[1], true);
             if (!currentUser) {
                 callback(new ApiError_1.default("unauthorized", 401));
             }
-            websocket_1.default.addUser(currentUser);
-            console.log("userss: ", websocket_1.default.getUsers());
+            websocket_1.default.addUser(currentUser, socket.id);
             socket.user = currentUser;
             callback();
         }
