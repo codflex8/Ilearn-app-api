@@ -147,8 +147,12 @@ export const groupsChatEvents = (socket: Socket) => {
         //   return;
         // }
         const groupchatUsers = Websocket.getroomUsers(groupChatId);
+        const groupchatUsersSockets = Websocket.getUsersSocketIds(
+          groupchatUsers.map((user) => user.id)
+        );
+
         console.log(`new message from ${user.username}, message: ${message},`);
-        console.log(`groupcahtUsers: `, groupchatUsers);
+        console.log(`groupcahtUsers: `, groupchatUsers, groupchatUsersSockets);
         const newMessage = await addNewMessage({ message, groupChatId, user });
         socket
           .to(groupChatId)
