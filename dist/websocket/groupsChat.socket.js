@@ -123,6 +123,7 @@ const groupsChatEvents = (socket) => {
             //     callback({ message: "the user did not joined in room " });
             //   return;
             // }
+            console.log(`new message from ${user.username}, message: ${message}`);
             const newMessage = await (0, GroupsChat_controller_1.addNewMessage)({ message, groupChatId, user });
             socket
                 .to(groupChatId)
