@@ -9,6 +9,7 @@ const websocket_1 = __importDefault(require("./websocket"));
 const GroupsChat_controller_1 = require("../controllers/GroupsChat.controller");
 const GroupsChatValidator_1 = require("../utils/validators/GroupsChatValidator");
 const schemaValidator_1 = __importDefault(require("../utils/schemaValidator"));
+const GroupsChatMessages_model_1 = require("../models/GroupsChatMessages.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const User_model_1 = require("../models/User.model");
 const groupsChatEvents = (socket) => {
@@ -122,8 +123,10 @@ const groupsChatEvents = (socket) => {
             //     callback({ message: "the user did not joined in room " });
             //   return;
             // }
-            await (0, GroupsChat_controller_1.addNewMessage)({ message, groupChatId, user });
-            socket.to(groupChatId).emit("new-message", { message, groupChatId });
+            const newMessage = await (0, GroupsChat_controller_1.addNewMessage)({ message, groupChatId, user });
+            socket
+                .to(groupChatId)
+                .emit("new-message", { message: newMessage, groupChatId });
         }
         catch (error) {
             if (callback)
@@ -137,6 +140,17 @@ const groupsChatEvents = (socket) => {
             const isGroupchatExist = await GroupsChat_model_1.GroupsChat.isGroupChatExist(groupChatId, user.id);
             if (!isGroupchatExist) {
                 throw new ApiError_1.default("groupchat not found", 400);
+            }
+            const isMessageExist = await GroupsChatMessages_model_1.GroupsChatMessages.findOne({
+                where: {
+                    id: message.id,
+                    from: {
+                        id: user.id,
+                    },
+                },
+            });
+            if (!isMessageExist) {
+                throw new ApiError_1.default("message not found", 400);
             }
             socket
                 .to(groupChatId)

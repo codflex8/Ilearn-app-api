@@ -395,6 +395,13 @@ export const addNewMessage = async ({
     recordUrl,
     readbyIds: [user.id],
   });
+  delete newMessage.from.userGroupsChats;
+  delete newMessage.from.password;
+  delete newMessage.from.passwordChangedAt;
+  delete newMessage.from.passwordResetCode;
+  delete newMessage.from.passwordResetExpires;
+  delete newMessage.from.passwordResetVerified;
+
   await newMessage.save();
   return newMessage;
 };

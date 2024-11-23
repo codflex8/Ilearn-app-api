@@ -147,8 +147,10 @@ export const groupsChatEvents = (socket: Socket) => {
         //   return;
         // }
 
-        await addNewMessage({ message, groupChatId, user });
-        socket.to(groupChatId).emit("new-message", { message, groupChatId });
+        const newMessage = await addNewMessage({ message, groupChatId, user });
+        socket
+          .to(groupChatId)
+          .emit("new-message", { message: newMessage, groupChatId });
       } catch (error: any) {
         if (callback) callback({ message: error.message });
       }
@@ -170,6 +172,17 @@ export const groupsChatEvents = (socket: Socket) => {
         );
         if (!isGroupchatExist) {
           throw new ApiError("groupchat not found", 400);
+        }
+        const isMessageExist = await GroupsChatMessages.findOne({
+          where: {
+            id: message.id,
+            from: {
+              id: user.id,
+            },
+          },
+        });
+        if (!isMessageExist) {
+          throw new ApiError("message not found", 400);
         }
         socket
           .to(groupChatId)
