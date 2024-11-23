@@ -146,7 +146,10 @@ export const groupsChatEvents = (socket: Socket) => {
         //     callback({ message: "the user did not joined in room " });
         //   return;
         // }
-        console.log(`new message from ${user.username}, message: ${message}`);
+        const groupchatUsers = Websocket.getroomUsers(groupChatId);
+        console.log(
+          `new message from ${user.username}, message: ${message}, ${groupchatUsers}`
+        );
         const newMessage = await addNewMessage({ message, groupChatId, user });
         socket
           .to(groupChatId)
