@@ -14,7 +14,7 @@ import { GroupsChat } from "./GroupsChat.model";
 
 @Entity()
 export class GroupsChatMessages extends BaseModel {
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "longtext" })
   message: string;
 
   @Column({ nullable: true })

@@ -55,7 +55,7 @@ let GroupsChatMessages = GroupsChatMessages_1 = class GroupsChatMessages extends
 };
 exports.GroupsChatMessages = GroupsChatMessages;
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true, type: "longtext" }),
     __metadata("design:type", String)
 ], GroupsChatMessages.prototype, "message", void 0);
 __decorate([
