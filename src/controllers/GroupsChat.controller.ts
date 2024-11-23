@@ -14,6 +14,7 @@ import { GroupsChatUsers } from "../models/GroupsChatUsers.model";
 import ApiError from "../utils/ApiError";
 import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
 import { containsLink } from "../utils/extractLing";
+import Websocket from "../websocket/websocket";
 
 enum MessageType {
   messages = "messages",
@@ -223,6 +224,7 @@ export const updateGroupChat = asyncHandler(
     }
     await groupChat.save();
     await GroupsChatUsers.save(groupChat.userGroupsChats);
+    Websocket.sendNewGroupUpdate(groupChat);
     res.status(200).json({ groupChat });
   }
 );
@@ -280,6 +282,7 @@ export const addUsersToGroupChat = asyncHandler(
         gender: true,
       },
     });
+    Websocket.sendNewGroupUpdate(groupChat);
     res.status(200).json({ users: groupChatUsers });
   }
 );
@@ -309,7 +312,7 @@ export const removeUsersfromGroupChat = asyncHandler(
     const isAdmin = isUserGroupAdmin(user, groupChat.userGroupsChats);
     if (!isAdmin) return next(new ApiError("you are not group admin", 400));
     await GroupsChatUsers.remove(deletedRows);
-
+    Websocket.sendNewGroupUpdate(groupChat);
     res.status(200).json({ message: "removed users to groupchat succes" });
   }
 );
@@ -333,7 +336,7 @@ export const leaveGroupChat = asyncHandler(
       },
     });
     await GroupsChatUsers.remove(deletedRows);
-
+    Websocket.sendNewGroupUpdate(groupChat);
     res.status(200).json({ message: "user leaved groupchat succes" });
   }
 );

@@ -124,6 +124,15 @@ class Websocket extends Server {
         .emit("active-rooms", { activegGroupsChat: userActiveGroups });
     });
   }
+
+  public static async sendNewGroupUpdate(group: GroupsChat) {
+    const room = this.rooms[group.id];
+    if (room) {
+      room.group = group;
+    }
+    this.rooms = { ...this.rooms, [group.id]: room };
+    this.sendActiveRoomsToUsers();
+  }
 }
 
 export default Websocket;

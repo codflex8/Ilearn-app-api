@@ -118,11 +118,6 @@ const groupsChatEvents = (socket) => {
             const { groupChatId, message } = data;
             const user = socket.user;
             const isUserInGroupChat = websocket_1.default.getroomUsers(groupChatId).find((u) => u.id === user.id);
-            // if (!isUserInGroupChat) {
-            //   if (callback)
-            //     callback({ message: "the user did not joined in room " });
-            //   return;
-            // }
             const groupchatUsers = websocket_1.default.getroomUsers(groupChatId);
             const groupchatUsersSockets = websocket_1.default.getUsersSocketIds(groupchatUsers.map((user) => user.id));
             console.log(`new message from ${user.username}, message: ${message},`);
@@ -139,26 +134,26 @@ const groupsChatEvents = (socket) => {
     });
     socket.on("new-media-message", async (data, callback) => {
         try {
-            const { groupChatId, message } = data;
+            const { groupChatId, messageId } = data;
             const user = socket.user;
             const isGroupchatExist = await GroupsChat_model_1.GroupsChat.isGroupChatExist(groupChatId, user.id);
             if (!isGroupchatExist) {
                 throw new ApiError_1.default("groupchat not found", 400);
             }
-            const isMessageExist = await GroupsChatMessages_model_1.GroupsChatMessages.findOne({
+            const getMessage = await GroupsChatMessages_model_1.GroupsChatMessages.findOne({
                 where: {
-                    id: message.id,
+                    id: messageId,
                     from: {
                         id: user.id,
                     },
                 },
             });
-            if (!isMessageExist) {
+            if (!getMessage) {
                 throw new ApiError_1.default("message not found", 400);
             }
             socket
                 .to(groupChatId)
-                .emit("new-media-message", { message, groupChatId });
+                .emit("new-media-message", { message: getMessage, groupChatId });
         }
         catch (error) {
             if (callback)

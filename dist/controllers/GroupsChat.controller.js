@@ -15,6 +15,7 @@ const GroupsChatUsers_model_1 = require("../models/GroupsChatUsers.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const GroupsChatMessages_model_1 = require("../models/GroupsChatMessages.model");
 const extractLing_1 = require("../utils/extractLing");
+const websocket_1 = __importDefault(require("../websocket/websocket"));
 var MessageType;
 (function (MessageType) {
     MessageType["messages"] = "messages";
@@ -170,6 +171,7 @@ exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, 
     }
     await groupChat.save();
     await GroupsChatUsers_model_1.GroupsChatUsers.save(groupChat.userGroupsChats);
+    websocket_1.default.sendNewGroupUpdate(groupChat);
     res.status(200).json({ groupChat });
 });
 exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
@@ -213,6 +215,7 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
             gender: true,
         },
     });
+    websocket_1.default.sendNewGroupUpdate(groupChat);
     res.status(200).json({ users: groupChatUsers });
 });
 exports.removeUsersfromGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
@@ -236,6 +239,7 @@ exports.removeUsersfromGroupChat = (0, express_async_handler_1.default)(async (r
     if (!isAdmin)
         return next(new ApiError_1.default("you are not group admin", 400));
     await GroupsChatUsers_model_1.GroupsChatUsers.remove(deletedRows);
+    websocket_1.default.sendNewGroupUpdate(groupChat);
     res.status(200).json({ message: "removed users to groupchat succes" });
 });
 exports.leaveGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
@@ -252,6 +256,7 @@ exports.leaveGroupChat = (0, express_async_handler_1.default)(async (req, res, n
         },
     });
     await GroupsChatUsers_model_1.GroupsChatUsers.remove(deletedRows);
+    websocket_1.default.sendNewGroupUpdate(groupChat);
     res.status(200).json({ message: "user leaved groupchat succes" });
 });
 const isUserGroupAdmin = (user, userGroupsChat) => {

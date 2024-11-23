@@ -90,6 +90,14 @@ class Websocket extends socket_io_1.Server {
                 .emit("active-rooms", { activegGroupsChat: userActiveGroups });
         });
     }
+    static async sendNewGroupUpdate(group) {
+        const room = this.rooms[group.id];
+        if (room) {
+            room.group = group;
+        }
+        this.rooms = Object.assign(Object.assign({}, this.rooms), { [group.id]: room });
+        this.sendActiveRoomsToUsers();
+    }
 }
 Websocket.users = [];
 Websocket.rooms = {};

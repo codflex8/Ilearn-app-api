@@ -141,11 +141,7 @@ export const groupsChatEvents = (socket: Socket) => {
         const isUserInGroupChat = Websocket.getroomUsers(groupChatId).find(
           (u) => u.id === user.id
         );
-        // if (!isUserInGroupChat) {
-        //   if (callback)
-        //     callback({ message: "the user did not joined in room " });
-        //   return;
-        // }
+
         const groupchatUsers = Websocket.getroomUsers(groupChatId);
         const groupchatUsersSockets = Websocket.getUsersSocketIds(
           groupchatUsers.map((user) => user.id)
@@ -165,12 +161,9 @@ export const groupsChatEvents = (socket: Socket) => {
 
   socket.on(
     "new-media-message",
-    async (
-      data: { groupChatId: string; message: GroupsChatMessages },
-      callback
-    ) => {
+    async (data: { groupChatId: string; messageId: string }, callback) => {
       try {
-        const { groupChatId, message } = data;
+        const { groupChatId, messageId } = data;
         const user = socket.user;
         const isGroupchatExist = await GroupsChat.isGroupChatExist(
           groupChatId,
@@ -179,20 +172,20 @@ export const groupsChatEvents = (socket: Socket) => {
         if (!isGroupchatExist) {
           throw new ApiError("groupchat not found", 400);
         }
-        const isMessageExist = await GroupsChatMessages.findOne({
+        const getMessage = await GroupsChatMessages.findOne({
           where: {
-            id: message.id,
+            id: messageId,
             from: {
               id: user.id,
             },
           },
         });
-        if (!isMessageExist) {
+        if (!getMessage) {
           throw new ApiError("message not found", 400);
         }
         socket
           .to(groupChatId)
-          .emit("new-media-message", { message, groupChatId });
+          .emit("new-media-message", { message: getMessage, groupChatId });
       } catch (error: any) {
         if (callback) callback({ message: error.message });
       }
