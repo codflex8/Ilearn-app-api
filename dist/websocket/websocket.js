@@ -78,8 +78,8 @@ class Websocket extends socket_io_1.Server {
         const users = this.users;
         users.map((user) => {
             const userActiveGroups = Object.entries(this.rooms)
-                .filter(([roomId, { users, group }]) => users.length > 0)
-                .map(([roomId, { users, group }]) => group)
+                .filter(([roomId, data]) => data.users.length > 0)
+                .map(([roomId, data]) => data.group)
                 .filter((activeGroup) => {
                 var _a;
                 return !!((_a = user.userGroupsChats) === null || _a === void 0 ? void 0 : _a.find((userChat) => { var _a; return ((_a = userChat === null || userChat === void 0 ? void 0 : userChat.groupChat) === null || _a === void 0 ? void 0 : _a.id) === activeGroup.id; }));
