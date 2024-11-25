@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.verifyPassResetCode = exports.forgotPassword = exports.protect = exports.refreshToken = exports.signIn = exports.signup = void 0;
+exports.googleAuthSignIn = exports.googleAuthSignUp = exports.resetPassword = exports.verifyPassResetCode = exports.forgotPassword = exports.protect = exports.refreshToken = exports.signIn = exports.signup = void 0;
 const User_model_1 = require("../models/User.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const bcrypt = __importStar(require("bcryptjs"));
@@ -38,6 +38,7 @@ const bcryptPassword_1 = __importDefault(require("../utils/bcryptPassword"));
 const generateCode_1 = __importDefault(require("../utils/generateCode"));
 const typeorm_1 = require("typeorm");
 const getUserFromToken_1 = require("../utils/getUserFromToken");
+const socialMediaAuth_1 = require("../utils/socialMediaAuth");
 exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { username, email, password, image } = req.body;
     const isUserExist = await User_model_1.User.findOne({
@@ -219,5 +220,46 @@ exports.resetPassword = (0, express_async_handler_1.default)(async (req, res, ne
     // 3) if everything is ok, generate token
     const token = (0, createToken_1.createToken)(user.id);
     res.status(200).json({ token });
+});
+exports.googleAuthSignUp = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const { token } = req.body;
+    const { email, name, picture, locale, userid } = await (0, socialMediaAuth_1.verifyGoogleAuth)(token);
+    const isEmailExist = await User_model_1.User.isEmailExist(email);
+    if (isEmailExist) {
+        return next(new ApiError_1.default("user email is exist", 409));
+    }
+    const newUser = User_model_1.User.create({
+        email,
+        username: name,
+        imageUrl: picture,
+        googleId: userid,
+    });
+    await newUser.save();
+    const authToken = (0, createToken_1.createToken)(newUser.id);
+    res.status(201).json({ message: "google signup success", token: authToken });
+});
+exports.googleAuthSignIn = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const { token } = req.body;
+    const { email, name, picture, locale, userid } = await (0, socialMediaAuth_1.verifyGoogleAuth)(token);
+    const user = await User_model_1.User.findOne({
+        where: {
+            email,
+        },
+        select: [
+            "username",
+            "email",
+            "imageUrl",
+            "gender",
+            "birthDate",
+            "gender",
+            "id",
+            "phoneNumber",
+        ],
+    });
+    if (!user) {
+        return next(new ApiError_1.default("user email not exist", 409));
+    }
+    const authToken = (0, createToken_1.createToken)(user.id);
+    res.status(201).json({ user, token: authToken });
 });
 //# sourceMappingURL=authentication.controller.js.map

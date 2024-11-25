@@ -28,3 +28,7 @@ export const resetPasswordValidator = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
+
+export const googleAuthValidator = z.object({
+  token: z.string(),
+});

@@ -140,14 +140,29 @@ const groupsChatEvents = (socket) => {
             if (!isGroupchatExist) {
                 throw new ApiError_1.default("groupchat not found", 400);
             }
-            const getMessage = await GroupsChatMessages_model_1.GroupsChatMessages.findOne({
-                where: {
-                    id: messageId,
-                    from: {
-                        id: user.id,
-                    },
-                },
-            });
+            const getMessage = await GroupsChatMessages_model_1.GroupsChatMessages.getRepository()
+                .createQueryBuilder("message")
+                .leftJoinAndSelect("message.from", "user")
+                .where("message.id = :messageId", { messageId })
+                .andWhere("user.id = :userId", { userId: user.id })
+                .select("message")
+                .addSelect([
+                "user.email",
+                "user.phoneNumber",
+                "user.username",
+                "user.birthDate",
+                "user.gender",
+                "user.imageUrl",
+            ])
+                .getOne();
+            //   ({
+            //   where: {
+            //     id: messageId,
+            //     from: {
+            //       id: user.id,
+            //     },
+            //   },
+            // });
             if (!getMessage) {
                 throw new ApiError_1.default("message not found", 400);
             }

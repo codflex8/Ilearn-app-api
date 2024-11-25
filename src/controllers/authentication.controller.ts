@@ -10,6 +10,7 @@ import bcryptPassword from "../utils/bcryptPassword";
 import generateRandomCode from "../utils/generateCode";
 import { Equal } from "typeorm";
 import { getUserFromToken } from "../utils/getUserFromToken";
+import { verifyGoogleAuth } from "../utils/socialMediaAuth";
 
 interface JwtPayload extends jwt.JwtPayload {
   userId: string;
@@ -253,4 +254,54 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   // 3) if everything is ok, generate token
   const token = createToken(user.id);
   res.status(200).json({ token });
+});
+
+export const googleAuthSignUp = asyncHandler(async (req, res, next) => {
+  const { token } = req.body;
+  const { email, name, picture, locale, userid } = await verifyGoogleAuth(
+    token
+  );
+
+  const isEmailExist = await User.isEmailExist(email);
+  if (isEmailExist) {
+    return next(new ApiError("user email is exist", 409));
+  }
+  const newUser = User.create({
+    email,
+    username: name,
+    imageUrl: picture,
+    googleId: userid,
+  });
+  await newUser.save();
+  const authToken = createToken(newUser.id);
+  res.status(201).json({ message: "google signup success", token: authToken });
+});
+
+export const googleAuthSignIn = asyncHandler(async (req, res, next) => {
+  const { token } = req.body;
+  const { email, name, picture, locale, userid } = await verifyGoogleAuth(
+    token
+  );
+
+  const user = await User.findOne({
+    where: {
+      email,
+    },
+    select: [
+      "username",
+      "email",
+      "imageUrl",
+      "gender",
+      "birthDate",
+      "gender",
+      "id",
+      "phoneNumber",
+    ],
+  });
+  if (!user) {
+    return next(new ApiError("user email not exist", 409));
+  }
+
+  const authToken = createToken(user.id);
+  res.status(201).json({ user, token: authToken });
 });

@@ -1,6 +1,8 @@
 import express, { Router } from "express";
 import {
   forgotPassword,
+  googleAuthSignIn,
+  googleAuthSignUp,
   refreshToken,
   resetPassword,
   signIn,
@@ -10,6 +12,7 @@ import {
 import { validateData } from "../middleware/validationMiddleware";
 import {
   forgetPasswordValidator,
+  googleAuthValidator,
   resetPasswordValidator,
   signInValidator,
   signUpValidator,
@@ -42,4 +45,16 @@ router.put(
   validateData(resetPasswordValidator),
   resetPassword
 );
+
+router.post(
+  "/google-signup",
+  validateData(googleAuthValidator),
+  googleAuthSignUp
+);
+router.post(
+  "/google-signin",
+  validateData(googleAuthValidator),
+  googleAuthSignIn
+);
+
 export default router;

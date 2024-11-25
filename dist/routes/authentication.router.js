@@ -12,5 +12,7 @@ router.post("/refreshToken", authentication_controller_1.refreshToken);
 router.post("/forgotPassword", (0, validationMiddleware_1.validateData)(AuthValidator_1.forgetPasswordValidator), authentication_controller_1.forgotPassword);
 router.post("/verifyResetCode", (0, validationMiddleware_1.validateData)(AuthValidator_1.verifyForgetPasswordValidator), authentication_controller_1.verifyPassResetCode);
 router.put("/resetPassword", (0, validationMiddleware_1.validateData)(AuthValidator_1.resetPasswordValidator), authentication_controller_1.resetPassword);
+router.post("/google-signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.googleAuthValidator), authentication_controller_1.googleAuthSignUp);
+router.post("/google-signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.googleAuthValidator), authentication_controller_1.googleAuthSignIn);
 exports.default = router;
 //# sourceMappingURL=authentication.router.js.map

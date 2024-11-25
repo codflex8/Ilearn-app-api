@@ -20,8 +20,11 @@ export class User extends BaseModel {
   @Column()
   username: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
+
+  @Column()
+  googleId: string;
 
   @Column({ type: "datetime", nullable: true })
   birthDate: Date;
@@ -65,4 +68,12 @@ export class User extends BaseModel {
   // @ManyToMany(() => GroupsChat, (group) => group.users)
   // @JoinTable({ name: "groups_chat_users" })
   // groupsChat: GroupsChat[];
+
+  static isEmailExist(email: string) {
+    return this.exists({
+      where: {
+        email,
+      },
+    });
+  }
 }

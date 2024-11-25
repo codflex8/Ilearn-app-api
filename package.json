@@ -9,7 +9,7 @@
     "start:dev": "nodemon src/server.ts",
     "typeorm:migrate": "npx typeorm-ts-node-commonjs migration:generate",
     "apply:migrations": "npx typeorm-ts-node-commonjs migration:run -d ./src/models/dataSource.ts",
-    "prod:apply:migrations":"typeorm migration:run -d ./dist/models/dataSource.js",
+    "prod:apply:migrations": "typeorm migration:run -d ./dist/models/dataSource.js",
     "seed-data": "ts-node src/seeders/seeder.ts"
   },
   "author": "",
@@ -40,6 +40,7 @@
     "express": "^4.21.0",
     "express-async-handler": "^1.2.0",
     "g": "^2.0.1",
+    "google-auth-library": "^9.15.0",
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
@@ -48,6 +49,7 @@
     "reflect-metadata": "^0.2.2",
     "socket.io": "^4.8.1",
     "typeorm": "^0.3.20",
+    "winston": "^3.17.0",
     "zod": "^3.23.8"
   }
 }

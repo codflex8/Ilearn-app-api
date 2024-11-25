@@ -20,6 +20,16 @@ const Quiz_model_1 = require("./Quiz.model");
 const Bookmarks_model_1 = require("./Bookmarks.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 let User = class User extends BaseModel_1.BaseModel {
+    // @ManyToMany(() => GroupsChat, (group) => group.users)
+    // @JoinTable({ name: "groups_chat_users" })
+    // groupsChat: GroupsChat[];
+    static isEmailExist(email) {
+        return this.exists({
+            where: {
+                email,
+            },
+        });
+    }
 };
 exports.User = User;
 __decorate([
@@ -35,9 +45,13 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "username", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], User.prototype, "googleId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "datetime", nullable: true }),
     __metadata("design:type", Date)
