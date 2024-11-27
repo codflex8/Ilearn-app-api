@@ -40,8 +40,8 @@ const verifyGoogleAuth = async (token) => {
 };
 exports.verifyGoogleAuth = verifyGoogleAuth;
 const getFacebookUserData = async (accessToken) => {
-    const url = `https://graph.facebook.com/v21/me`;
-    console.log("tokennnn", accessToken);
+    var _a, _b;
+    const url = `https://graph.facebook.com/v21.0/me`;
     try {
         const response = await axios_1.default.get(url, {
             params: {
@@ -50,7 +50,7 @@ const getFacebookUserData = async (accessToken) => {
             },
         });
         console.log(response.data);
-        return new SocialMediaUserData(response.data.name, response.data.profilePicture, response.data.email, response.data.id); // User data returned from Facebook
+        return new SocialMediaUserData(response.data.name, (_b = (_a = response.data.picture) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.url, response.data.email, response.data.id); // User data returned from Facebook
     }
     catch (error) {
         console.error("Error fetching Facebook user data:", error.message);

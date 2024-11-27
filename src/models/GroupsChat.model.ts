@@ -70,4 +70,29 @@ export class GroupsChat extends BaseModel {
       ])
       .getOne();
   }
+
+  static async getGroupChatWithMessagesData(chat: GroupsChat, userId: string) {
+    const messages = await GroupsChatMessages.find({
+      where: {
+        group: {
+          id: chat.id,
+        },
+      },
+      order: {
+        createdAt: "DESC",
+      },
+      take: 10,
+    });
+    const unreadMessagesCount = await GroupsChatMessages.countChatUreadMessages(
+      chat.id,
+      userId
+    );
+    chat.messages = messages.map((msg) => {
+      msg.isSeenMessage(userId);
+      return msg;
+    });
+    chat.unreadMessagesCount = unreadMessagesCount;
+
+    return chat;
+  }
 }

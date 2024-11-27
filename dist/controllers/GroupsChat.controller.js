@@ -41,23 +41,7 @@ exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, ne
     const count = await querable.getCount();
     const groupsChat = await querable.skip(skip).take(take).getMany();
     const getGroupsChatWithMessages = groupsChat.map(async (chat) => {
-        const messages = await GroupsChatMessages_model_1.GroupsChatMessages.find({
-            where: {
-                group: {
-                    id: chat.id,
-                },
-            },
-            order: {
-                createdAt: "DESC",
-            },
-            take: 10,
-        });
-        const unreadMessagesCount = await GroupsChatMessages_model_1.GroupsChatMessages.countChatUreadMessages(chat.id, user.id);
-        chat.messages = messages.map((msg) => {
-            msg.isSeenMessage(user.id);
-            return msg;
-        });
-        chat.unreadMessagesCount = unreadMessagesCount;
+        await GroupsChat_model_1.GroupsChat.getGroupChatWithMessagesData(chat, user.id);
         return chat;
     });
     const chats = await Promise.all(getGroupsChatWithMessages);
@@ -172,6 +156,7 @@ exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, 
     await groupChat.save();
     await GroupsChatUsers_model_1.GroupsChatUsers.save(groupChat.userGroupsChats);
     websocket_1.default.sendNewGroupUpdate(groupChat);
+    await GroupsChat_model_1.GroupsChat.getGroupChatWithMessagesData(groupChat, user.id);
     res.status(200).json({ groupChat });
 });
 exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {

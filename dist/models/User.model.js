@@ -30,11 +30,9 @@ let User = class User extends BaseModel_1.BaseModel {
             },
         });
     }
-    static getPublicUserDataByEmail(email) {
+    static getPublicUserDataByEmail(query) {
         return this.findOne({
-            where: {
-                email,
-            },
+            where: query,
             select: [
                 "username",
                 "email",
@@ -50,7 +48,7 @@ let User = class User extends BaseModel_1.BaseModel {
 };
 exports.User = User;
 __decorate([
-    (0, typeorm_1.Column)({ unique: true }),
+    (0, typeorm_1.Column)({ unique: true, nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
@@ -105,6 +103,18 @@ __decorate([
     (0, typeorm_1.Column)({ type: "boolean", default: false }),
     __metadata("design:type", Boolean)
 ], User.prototype, "passwordResetVerified", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], User.prototype, "booksGoal", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], User.prototype, "examsGoal", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], User.prototype, "intensePoints", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Categories_model_1.Category, (category) => category.user),
     __metadata("design:type", Array)

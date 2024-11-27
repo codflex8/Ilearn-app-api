@@ -55,6 +55,26 @@ let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
         ])
             .getOne();
     }
+    static async getGroupChatWithMessagesData(chat, userId) {
+        const messages = await GroupsChatMessages_model_1.GroupsChatMessages.find({
+            where: {
+                group: {
+                    id: chat.id,
+                },
+            },
+            order: {
+                createdAt: "DESC",
+            },
+            take: 10,
+        });
+        const unreadMessagesCount = await GroupsChatMessages_model_1.GroupsChatMessages.countChatUreadMessages(chat.id, userId);
+        chat.messages = messages.map((msg) => {
+            msg.isSeenMessage(userId);
+            return msg;
+        });
+        chat.unreadMessagesCount = unreadMessagesCount;
+        return chat;
+    }
 };
 exports.GroupsChat = GroupsChat;
 __decorate([

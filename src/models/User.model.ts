@@ -1,4 +1,11 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
+import {
+  Column,
+  Entity,
+  FindOptionsWhere,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from "typeorm";
 import { Category } from "./Categories.model";
 import { Book } from "./Books.model";
 import { GenderEnum } from "../utils/validators/AuthValidator";
@@ -11,7 +18,7 @@ import { GroupsChatUsers } from "./GroupsChatUsers.model";
 
 @Entity()
 export class User extends BaseModel {
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   email: string;
 
   @Column({ unique: true, nullable: true })
@@ -53,6 +60,15 @@ export class User extends BaseModel {
   @Column({ type: "boolean", default: false })
   passwordResetVerified: Boolean;
 
+  @Column({ nullable: true })
+  booksGoal: number;
+
+  @Column({ nullable: true })
+  examsGoal: number;
+
+  @Column({ nullable: true })
+  intensePoints: number;
+
   @OneToMany(() => Category, (category) => category.user)
   categories: Category[];
 
@@ -83,11 +99,9 @@ export class User extends BaseModel {
     });
   }
 
-  static getPublicUserDataByEmail(email: string) {
+  static getPublicUserDataByEmail(query: FindOptionsWhere<User>) {
     return this.findOne({
-      where: {
-        email,
-      },
+      where: query,
       select: [
         "username",
         "email",

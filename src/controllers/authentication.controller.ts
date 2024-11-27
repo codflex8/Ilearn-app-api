@@ -275,15 +275,13 @@ const createSocialMediaUser = async ({
   facebookId?: string;
   twitterId?: string;
 }) => {
-  const isEmailExist = await User.isEmailExist(email);
-  if (isEmailExist) {
-    throw new ApiError("user email is exist", 409);
-  }
   const newUser = User.create({
     email,
     username,
     imageUrl,
     googleId,
+    facebookId,
+    twitterId,
   });
   await newUser.save();
   return newUser;
@@ -292,7 +290,14 @@ const createSocialMediaUser = async ({
 export const googleAuthSignUp = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
   const { email, username, imageUrl, userId } = await verifyGoogleAuth(token);
-
+  const isUserExist = await User.findOne({
+    where: {
+      googleId: userId,
+    },
+  });
+  if (isUserExist) {
+    return next(new ApiError("user already signed up", 409));
+  }
   const newUser = await createSocialMediaUser({
     email,
     username,
@@ -311,7 +316,7 @@ export const googleAuthSignIn = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
   const userData = await verifyGoogleAuth(token);
 
-  const user = await User.getPublicUserDataByEmail(userData.email);
+  const user = await User.getPublicUserDataByEmail({ email: userData.email });
   if (!user) {
     return next(new ApiError("user email not exist", 409));
   }
@@ -325,7 +330,14 @@ export const facebookAuthSignUp = asyncHandler(async (req, res, next) => {
   const { email, username, imageUrl, userId } = await getFacebookUserData(
     token
   );
-
+  const isUserExist = await User.findOne({
+    where: {
+      facebookId: userId,
+    },
+  });
+  if (isUserExist) {
+    return next(new ApiError("user already signed up", 409));
+  }
   const newUser = await createSocialMediaUser({
     email,
     username,
@@ -342,11 +354,11 @@ export const facebookAuthSignUp = asyncHandler(async (req, res, next) => {
 
 export const facebookAuthSignIn = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
-  const userData = await getFacebookUserData(token);
+  const { userId } = await getFacebookUserData(token);
 
-  const user = await User.getPublicUserDataByEmail(userData.email);
+  const user = await User.getPublicUserDataByEmail({ facebookId: userId });
   if (!user) {
-    return next(new ApiError("user email not exist", 409));
+    return next(new ApiError("user  not signed up", 409));
   }
 
   const authToken = createToken(user.id);
@@ -356,7 +368,14 @@ export const facebookAuthSignIn = asyncHandler(async (req, res, next) => {
 export const twitterAuthSignUp = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
   const { email, username, imageUrl, userId } = await getTwitterUserData(token);
-
+  const isUserExist = await User.findOne({
+    where: {
+      twitterId: userId,
+    },
+  });
+  if (isUserExist) {
+    return next(new ApiError("user already signed up", 409));
+  }
   const newUser = await createSocialMediaUser({
     email,
     username,
@@ -375,7 +394,7 @@ export const twitterAuthSignIn = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
   const userData = await getTwitterUserData(token);
 
-  const user = await User.getPublicUserDataByEmail(userData.email);
+  const user = await User.getPublicUserDataByEmail({ email: userData.email });
   if (!user) {
     return next(new ApiError("user email not exist", 409));
   }

@@ -38,9 +38,9 @@ export const verifyGoogleAuth = async (token: string) => {
 
 export const getFacebookUserData = async (
   accessToken: string
-): Promise<any> => {
-  const url = `https://graph.facebook.com/v21/me`;
-  console.log("tokennnn", accessToken);
+): Promise<SocialMediaUserData> => {
+  const url = `https://graph.facebook.com/v21.0/me`;
+
   try {
     const response = await axios.get(url, {
       params: {
@@ -51,7 +51,7 @@ export const getFacebookUserData = async (
     console.log(response.data);
     return new SocialMediaUserData(
       response.data.name,
-      response.data.profilePicture,
+      response.data.picture?.data?.url,
       response.data.email,
       response.data.id
     ); // User data returned from Facebook
