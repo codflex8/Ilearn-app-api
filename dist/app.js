@@ -11,6 +11,7 @@ const ErrorMiddleware_1 = require("./middleware/ErrorMiddleware");
 const ApiError_1 = __importDefault(require("./utils/ApiError"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
+const logger_1 = require("./utils/logger");
 class AppServer {
     constructor(app) {
         this.syncDatabase();
@@ -22,8 +23,12 @@ class AppServer {
         app.use(express_1.default.json({ limit: "100mb" }));
         app.use(express_1.default.urlencoded({ limit: "100mb", extended: true }));
         app.use((req, res, next) => {
-            console.log("path", req.path, req.originalUrl);
-            console.log("body", req.body);
+            logger_1.httpLogger.info("new request", {
+                path: req.path,
+                body: req.body,
+                // headers: req.headers,
+                query: req.query,
+            });
             next();
         });
         // app.use(morgan());
@@ -41,7 +46,7 @@ class AppServer {
         dataSource_1.dataSource
             .initialize()
             .then(() => {
-            console.log("connected to db success");
+            console.log("data base connected");
         })
             .catch((err) => {
             console.error(err.message);

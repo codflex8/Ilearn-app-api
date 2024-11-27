@@ -82,7 +82,6 @@ const storage = multer_1.default.diskStorage({
 const fileFilter = (req, file, cb) => {
     const allowedTypes = [...imagesExtensions, ...audioExtensions];
     const extension = path_1.default.extname(file.originalname);
-    console.log("fileeee", file, extension);
     if (allowedTypes.includes(extension)) {
         cb(null, true);
     }

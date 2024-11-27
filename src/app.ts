@@ -7,6 +7,7 @@ import { globalError } from "./middleware/ErrorMiddleware";
 import ApiError from "./utils/ApiError";
 import dotenv from "dotenv";
 import path from "path";
+import { httpLogger } from "./utils/logger";
 
 export default class AppServer {
   constructor(app: Application) {
@@ -20,8 +21,13 @@ export default class AppServer {
     app.use(express.json({ limit: "100mb" }));
     app.use(express.urlencoded({ limit: "100mb", extended: true }));
     app.use((req: Request, res: Response, next: NextFunction) => {
-      console.log("path", req.path, req.originalUrl);
-      console.log("body", req.body);
+      httpLogger.info("new request", {
+        path: req.path,
+        body: req.body,
+        // headers: req.headers,
+        query: req.query,
+      });
+
       next();
     });
     // app.use(morgan());
@@ -42,7 +48,7 @@ export default class AppServer {
     dataSource
       .initialize()
       .then(() => {
-        console.log("connected to db success");
+        console.log("data base connected");
       })
       .catch((err) => {
         console.error(err.message);

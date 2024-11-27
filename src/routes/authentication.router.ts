@@ -1,5 +1,7 @@
 import express, { Router } from "express";
 import {
+  facebookAuthSignIn,
+  facebookAuthSignUp,
   forgotPassword,
   googleAuthSignIn,
   googleAuthSignUp,
@@ -7,12 +9,14 @@ import {
   resetPassword,
   signIn,
   signup,
+  twitterAuthSignIn,
+  twitterAuthSignUp,
   verifyPassResetCode,
 } from "../controllers/authentication.controller";
 import { validateData } from "../middleware/validationMiddleware";
 import {
   forgetPasswordValidator,
-  googleAuthValidator,
+  socialMediaAuthValidator,
   resetPasswordValidator,
   signInValidator,
   signUpValidator,
@@ -47,14 +51,35 @@ router.put(
 );
 
 router.post(
-  "/google-signup",
-  validateData(googleAuthValidator),
+  "/google/signup",
+  validateData(socialMediaAuthValidator),
   googleAuthSignUp
 );
 router.post(
-  "/google-signin",
-  validateData(googleAuthValidator),
+  "/google/signin",
+  validateData(socialMediaAuthValidator),
   googleAuthSignIn
 );
 
+router.post(
+  "/facebook/signup",
+  validateData(socialMediaAuthValidator),
+  facebookAuthSignUp
+);
+router.post(
+  "/facebook/signin",
+  validateData(socialMediaAuthValidator),
+  facebookAuthSignIn
+);
+
+router.post(
+  "/twitter/signup",
+  validateData(socialMediaAuthValidator),
+  twitterAuthSignUp
+);
+router.post(
+  "/twitter/signin",
+  validateData(socialMediaAuthValidator),
+  twitterAuthSignIn
+);
 export default router;

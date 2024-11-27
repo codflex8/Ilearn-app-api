@@ -29,6 +29,6 @@ export const resetPasswordValidator = z.object({
   password: z.string().min(6),
 });
 
-export const googleAuthValidator = z.object({
+export const socialMediaAuthValidator = z.object({
   token: z.string(),
 });

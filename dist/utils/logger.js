@@ -18,9 +18,22 @@ exports.httpLogger = void 0;
 const winston_1 = __importDefault(require("winston"));
 const { combine, timestamp, json, printf } = winston_1.default.format;
 const timestampFormat = "MMM-DD-YYYY HH:mm:ss";
+winston_1.default.addColors({
+    error: "bold red",
+    warn: "yellow",
+    info: "green",
+    debug: "blue",
+});
 // Logger for API endpoints
 exports.httpLogger = winston_1.default.createLogger({
-    format: combine(timestamp({ format: timestampFormat }), json(), printf((_a) => {
+    format: combine(timestamp({ format: timestampFormat }), json(), winston_1.default.format.colorize({
+        colors: {
+            error: "bold red",
+            warn: "yellow",
+            info: "green",
+            debug: "blue",
+        },
+    }), printf((_a) => {
         var { timestamp, level, message } = _a, data = __rest(_a, ["timestamp", "level", "message"]);
         const response = {
             level,

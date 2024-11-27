@@ -9,7 +9,6 @@ import schemaValidator from "../utils/schemaValidator";
 export const chatbotEvents = (socket: Socket) => {
   socket.on("chatbot-new-message", async (data: IChatbotMessage, callback) => {
     const user = socket.user;
-    console.log("chatbot-new-message", data);
     try {
       schemaValidator(refineChatbotMessageValidator, data);
       await addMessage({

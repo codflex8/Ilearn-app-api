@@ -10,7 +10,11 @@ import bcryptPassword from "../utils/bcryptPassword";
 import generateRandomCode from "../utils/generateCode";
 import { Equal } from "typeorm";
 import { getUserFromToken } from "../utils/getUserFromToken";
-import { verifyGoogleAuth } from "../utils/socialMediaAuth";
+import {
+  getFacebookUserData,
+  getTwitterUserData,
+  verifyGoogleAuth,
+} from "../utils/socialMediaAuth";
 
 interface JwtPayload extends jwt.JwtPayload {
   userId: string;
@@ -256,48 +260,122 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   res.status(200).json({ token });
 });
 
-export const googleAuthSignUp = asyncHandler(async (req, res, next) => {
-  const { token } = req.body;
-  const { email, name, picture, locale, userid } = await verifyGoogleAuth(
-    token
-  );
-
+const createSocialMediaUser = async ({
+  email,
+  username,
+  imageUrl,
+  googleId,
+  facebookId,
+  twitterId,
+}: {
+  email: string;
+  username: string;
+  imageUrl: string;
+  googleId?: string;
+  facebookId?: string;
+  twitterId?: string;
+}) => {
   const isEmailExist = await User.isEmailExist(email);
   if (isEmailExist) {
-    return next(new ApiError("user email is exist", 409));
+    throw new ApiError("user email is exist", 409);
   }
   const newUser = User.create({
     email,
-    username: name,
-    imageUrl: picture,
-    googleId: userid,
+    username,
+    imageUrl,
+    googleId,
   });
   await newUser.save();
+  return newUser;
+};
+
+export const googleAuthSignUp = asyncHandler(async (req, res, next) => {
+  const { token } = req.body;
+  const { email, username, imageUrl, userId } = await verifyGoogleAuth(token);
+
+  const newUser = await createSocialMediaUser({
+    email,
+    username,
+    imageUrl,
+    googleId: userId,
+  });
   const authToken = createToken(newUser.id);
-  res.status(201).json({ message: "google signup success", token: authToken });
+  res.status(201).json({
+    message: "google signup success",
+    user: newUser,
+    token: authToken,
+  });
 });
 
 export const googleAuthSignIn = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
-  const { email, name, picture, locale, userid } = await verifyGoogleAuth(
+  const userData = await verifyGoogleAuth(token);
+
+  const user = await User.getPublicUserDataByEmail(userData.email);
+  if (!user) {
+    return next(new ApiError("user email not exist", 409));
+  }
+
+  const authToken = createToken(user.id);
+  res.status(201).json({ user, token: authToken });
+});
+
+export const facebookAuthSignUp = asyncHandler(async (req, res, next) => {
+  const { token } = req.body;
+  const { email, username, imageUrl, userId } = await getFacebookUserData(
     token
   );
 
-  const user = await User.findOne({
-    where: {
-      email,
-    },
-    select: [
-      "username",
-      "email",
-      "imageUrl",
-      "gender",
-      "birthDate",
-      "gender",
-      "id",
-      "phoneNumber",
-    ],
+  const newUser = await createSocialMediaUser({
+    email,
+    username,
+    imageUrl,
+    facebookId: userId,
   });
+  const authToken = createToken(newUser.id);
+  res.status(201).json({
+    message: "facebook signup success",
+    user: newUser,
+    token: authToken,
+  });
+});
+
+export const facebookAuthSignIn = asyncHandler(async (req, res, next) => {
+  const { token } = req.body;
+  const userData = await getFacebookUserData(token);
+
+  const user = await User.getPublicUserDataByEmail(userData.email);
+  if (!user) {
+    return next(new ApiError("user email not exist", 409));
+  }
+
+  const authToken = createToken(user.id);
+  res.status(201).json({ user, token: authToken });
+});
+
+export const twitterAuthSignUp = asyncHandler(async (req, res, next) => {
+  const { token } = req.body;
+  const { email, username, imageUrl, userId } = await getTwitterUserData(token);
+
+  const newUser = await createSocialMediaUser({
+    email,
+    username,
+    imageUrl,
+    twitterId: userId,
+  });
+  const authToken = createToken(newUser.id);
+  res.status(201).json({
+    message: "twitter signup success",
+    user: newUser,
+    token: authToken,
+  });
+});
+
+export const twitterAuthSignIn = asyncHandler(async (req, res, next) => {
+  const { token } = req.body;
+  const userData = await getTwitterUserData(token);
+
+  const user = await User.getPublicUserDataByEmail(userData.email);
   if (!user) {
     return next(new ApiError("user email not exist", 409));
   }

@@ -10,7 +10,6 @@ const schemaValidator_1 = __importDefault(require("../utils/schemaValidator"));
 const chatbotEvents = (socket) => {
     socket.on("chatbot-new-message", async (data, callback) => {
         const user = socket.user;
-        console.log("chatbot-new-message", data);
         try {
             (0, schemaValidator_1.default)(ChatbotValidator_1.refineChatbotMessageValidator, data);
             await (0, chatbot_controller_1.addMessage)({

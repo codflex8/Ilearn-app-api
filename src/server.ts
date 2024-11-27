@@ -8,6 +8,7 @@ import { chatbotEvents } from "./websocket/chatbots.websocket";
 import { groupsChatEvents } from "./websocket/groupsChat.socket";
 import { getUserFromToken } from "./utils/getUserFromToken";
 import ApiError from "./utils/ApiError";
+import { httpLogger } from "./utils/logger";
 
 const app = express();
 
@@ -44,7 +45,7 @@ io.use(async (socket: Socket, callback) => {
 });
 
 io.on("connection", async (socket: Socket) => {
-  console.log("user connect");
+  httpLogger.info("user connect", { user: socket.user });
   socket.emit("connect-success");
   chatbotEvents(socket);
   groupsChatEvents(socket);

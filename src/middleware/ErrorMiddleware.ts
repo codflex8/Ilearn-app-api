@@ -1,5 +1,6 @@
 import multer from "multer";
 import ApiError from "../utils/ApiError";
+import { httpLogger } from "../utils/logger";
 
 const sendErrorForDev = (err, res) =>
   res.status(err.statusCode).json({
@@ -23,7 +24,7 @@ const handleJwtExpired = () =>
 
 export const globalError = (err: ApiError, req, res, next) => {
   err.statusCode = err.statusCode || 500;
-  console.log(err);
+  httpLogger.error(err.message, { error: err.stack });
   if (process.env.NODE_ENV === "development") {
     sendErrorForDev(err, res);
   } else {

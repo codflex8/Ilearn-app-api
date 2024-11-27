@@ -22,7 +22,7 @@ let ChatbotMessages = class ChatbotMessages extends BaseModel_1.BaseModel {
 };
 exports.ChatbotMessages = ChatbotMessages;
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true, type: "longtext" }),
     __metadata("design:type", String)
 ], ChatbotMessages.prototype, "message", void 0);
 __decorate([

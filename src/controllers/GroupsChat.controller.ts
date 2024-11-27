@@ -342,7 +342,6 @@ export const leaveGroupChat = asyncHandler(
 );
 
 const isUserGroupAdmin = (user: User, userGroupsChat: GroupsChatUsers[]) => {
-  console.log("userrrrr", { user, userGroupsChat });
   const userGroupChat = userGroupsChat.find(
     (chat) => chat.user?.id === user.id
   );

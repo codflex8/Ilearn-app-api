@@ -12,6 +12,7 @@ const schemaValidator_1 = __importDefault(require("../utils/schemaValidator"));
 const GroupsChatMessages_model_1 = require("../models/GroupsChatMessages.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const User_model_1 = require("../models/User.model");
+const logger_1 = require("../utils/logger");
 const groupsChatEvents = (socket) => {
     socket.on("active-rooms", async () => {
         const user = socket.user;
@@ -42,7 +43,6 @@ const groupsChatEvents = (socket) => {
         });
     });
     socket.on("join-room", async ({ groupChatId }, callback) => {
-        var _a;
         const user = socket.user;
         if (!groupChatId) {
             if (callback)
@@ -91,8 +91,6 @@ const groupsChatEvents = (socket) => {
         if (callback)
             callback({ success: true, message: `Joined room: ${groupChatId}` });
         websocket_1.default.sendActiveRoomsToUsers();
-        console.log("groupChatUsersssss", groupChatUsers, socketsIds);
-        console.log(`${(_a = socket.user) === null || _a === void 0 ? void 0 : _a.username} joined room: ${groupChatId} ${groupChat.name}`);
     });
     socket.on("leave-room", async ({ groupChatId }, callback) => {
         try {
@@ -120,8 +118,7 @@ const groupsChatEvents = (socket) => {
             const isUserInGroupChat = websocket_1.default.getroomUsers(groupChatId).find((u) => u.id === user.id);
             const groupchatUsers = websocket_1.default.getroomUsers(groupChatId);
             const groupchatUsersSockets = websocket_1.default.getUsersSocketIds(groupchatUsers.map((user) => user.id));
-            console.log(`new message from ${user.username}, message: ${message},`);
-            console.log(`groupcahtUsers: `, groupchatUsers, groupchatUsersSockets);
+            logger_1.httpLogger.info(`new message from ${user.username}, message: ${message},`);
             const newMessage = await (0, GroupsChat_controller_1.addNewMessage)({ message, groupChatId, user });
             socket
                 .to(groupChatId)

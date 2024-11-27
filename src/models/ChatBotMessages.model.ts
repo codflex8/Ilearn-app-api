@@ -15,7 +15,7 @@ import { Bookmark } from "./Bookmarks.model";
 
 @Entity()
 export class ChatbotMessages extends BaseModel {
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "longtext" })
   message: string;
 
   @Column({ nullable: true })

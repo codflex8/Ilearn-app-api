@@ -12,6 +12,7 @@ const chatbots_websocket_1 = require("./websocket/chatbots.websocket");
 const groupsChat_socket_1 = require("./websocket/groupsChat.socket");
 const getUserFromToken_1 = require("./utils/getUserFromToken");
 const ApiError_1 = __importDefault(require("./utils/ApiError"));
+const logger_1 = require("./utils/logger");
 const app = (0, express_1.default)();
 new app_1.default(app);
 const httpServer = (0, http_1.createServer)(app);
@@ -40,7 +41,7 @@ io.use(async (socket, callback) => {
     }
 });
 io.on("connection", async (socket) => {
-    console.log("user connect");
+    logger_1.httpLogger.info("user connect", { user: socket.user });
     socket.emit("connect-success");
     (0, chatbots_websocket_1.chatbotEvents)(socket);
     (0, groupsChat_socket_1.groupsChatEvents)(socket);

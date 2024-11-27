@@ -30,6 +30,23 @@ let User = class User extends BaseModel_1.BaseModel {
             },
         });
     }
+    static getPublicUserDataByEmail(email) {
+        return this.findOne({
+            where: {
+                email,
+            },
+            select: [
+                "username",
+                "email",
+                "imageUrl",
+                "gender",
+                "birthDate",
+                "gender",
+                "id",
+                "phoneNumber",
+            ],
+        });
+    }
 };
 exports.User = User;
 __decorate([
@@ -49,9 +66,17 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "googleId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "facebookId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "twitterId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "datetime", nullable: true }),
     __metadata("design:type", Date)

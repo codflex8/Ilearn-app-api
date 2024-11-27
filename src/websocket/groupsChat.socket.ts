@@ -11,6 +11,7 @@ import schemaValidator from "../utils/schemaValidator";
 import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
 import ApiError from "../utils/ApiError";
 import { User } from "../models/User.model";
+import { httpLogger } from "../utils/logger";
 
 export const groupsChatEvents = (socket: Socket) => {
   socket.on("active-rooms", async () => {
@@ -101,10 +102,6 @@ export const groupsChatEvents = (socket: Socket) => {
       if (callback)
         callback({ success: true, message: `Joined room: ${groupChatId}` });
       Websocket.sendActiveRoomsToUsers();
-      console.log("groupChatUsersssss", groupChatUsers, socketsIds);
-      console.log(
-        `${socket.user?.username} joined room: ${groupChatId} ${groupChat.name}`
-      );
     }
   );
 
@@ -147,8 +144,9 @@ export const groupsChatEvents = (socket: Socket) => {
           groupchatUsers.map((user) => user.id)
         );
 
-        console.log(`new message from ${user.username}, message: ${message},`);
-        console.log(`groupcahtUsers: `, groupchatUsers, groupchatUsersSockets);
+        httpLogger.info(
+          `new message from ${user.username}, message: ${message},`
+        );
         const newMessage = await addNewMessage({ message, groupChatId, user });
         socket
           .to(groupChatId)

@@ -23,8 +23,14 @@ export class User extends BaseModel {
   @Column({ nullable: true })
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   googleId: string;
+
+  @Column({ nullable: true })
+  facebookId: string;
+
+  @Column({ nullable: true })
+  twitterId: string;
 
   @Column({ type: "datetime", nullable: true })
   birthDate: Date;
@@ -74,6 +80,24 @@ export class User extends BaseModel {
       where: {
         email,
       },
+    });
+  }
+
+  static getPublicUserDataByEmail(email: string) {
+    return this.findOne({
+      where: {
+        email,
+      },
+      select: [
+        "username",
+        "email",
+        "imageUrl",
+        "gender",
+        "birthDate",
+        "gender",
+        "id",
+        "phoneNumber",
+      ],
     });
   }
 }

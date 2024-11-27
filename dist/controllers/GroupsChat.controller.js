@@ -260,7 +260,6 @@ exports.leaveGroupChat = (0, express_async_handler_1.default)(async (req, res, n
     res.status(200).json({ message: "user leaved groupchat succes" });
 });
 const isUserGroupAdmin = (user, userGroupsChat) => {
-    console.log("userrrrr", { user, userGroupsChat });
     const userGroupChat = userGroupsChat.find((chat) => { var _a; return ((_a = chat.user) === null || _a === void 0 ? void 0 : _a.id) === user.id; });
     return (userGroupChat === null || userGroupChat === void 0 ? void 0 : userGroupChat.role) === GroupsChatValidator_1.GroupChatRoles.Admin;
 };

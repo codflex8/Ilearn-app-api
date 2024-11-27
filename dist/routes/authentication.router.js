@@ -12,7 +12,11 @@ router.post("/refreshToken", authentication_controller_1.refreshToken);
 router.post("/forgotPassword", (0, validationMiddleware_1.validateData)(AuthValidator_1.forgetPasswordValidator), authentication_controller_1.forgotPassword);
 router.post("/verifyResetCode", (0, validationMiddleware_1.validateData)(AuthValidator_1.verifyForgetPasswordValidator), authentication_controller_1.verifyPassResetCode);
 router.put("/resetPassword", (0, validationMiddleware_1.validateData)(AuthValidator_1.resetPasswordValidator), authentication_controller_1.resetPassword);
-router.post("/google-signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.googleAuthValidator), authentication_controller_1.googleAuthSignUp);
-router.post("/google-signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.googleAuthValidator), authentication_controller_1.googleAuthSignIn);
+router.post("/google/signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.googleAuthSignUp);
+router.post("/google/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.googleAuthSignIn);
+router.post("/facebook/signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.facebookAuthSignUp);
+router.post("/facebook/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.facebookAuthSignIn);
+router.post("/twitter/signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.twitterAuthSignUp);
+router.post("/twitter/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.twitterAuthSignIn);
 exports.default = router;
 //# sourceMappingURL=authentication.router.js.map

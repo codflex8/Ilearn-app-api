@@ -44,7 +44,6 @@ export class GroupsChatMessages extends BaseModel {
   // @AfterInsert()
   // @AfterUpdate()
   // isMessageSeen() {
-  //   // console.log("this.readbyIds", this.readbyIds, this.id);
   //   this.seen = !!this.readbyIds?.find((id) => id === this.id);
   // }
 

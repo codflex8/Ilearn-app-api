@@ -20,7 +20,6 @@ let GroupsChatMessages = GroupsChatMessages_1 = class GroupsChatMessages extends
     // @AfterInsert()
     // @AfterUpdate()
     // isMessageSeen() {
-    //   // console.log("this.readbyIds", this.readbyIds, this.id);
     //   this.seen = !!this.readbyIds?.find((id) => id === this.id);
     // }
     isSeenMessage(userId) {

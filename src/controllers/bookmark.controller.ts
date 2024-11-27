@@ -139,7 +139,6 @@ const handleChatbotMessagesBookmark = async (
 };
 
 const handleQuestionBookmark = async (question: Question, user: User) => {
-  console.log("questionnnn", question);
   const bookmark = await Bookmark.findOne({
     where: {
       question: { id: question.id },
