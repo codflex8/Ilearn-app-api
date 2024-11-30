@@ -10,6 +10,7 @@ import homeRouter from "./home.router";
 import archiveRouter from "./archive.router";
 import groupChatRouter from "./groupsChat.router";
 import usersRouter from "./users.router";
+import statisticsRouter from "./statistics.router";
 
 import { protect } from "../controllers/authentication.controller";
 
@@ -26,5 +27,6 @@ export default class Routes {
     app.use("/api/v1/quizes", protect, quizesRouter);
     app.use("/api/v1/bookmarks", protect, bookmarksRouter);
     app.use("/api/v1/groupschat", protect, groupChatRouter);
+    app.use("/api/v1/statistics", protect, statisticsRouter);
   }
 }

@@ -14,6 +14,7 @@ const home_router_1 = __importDefault(require("./home.router"));
 const archive_router_1 = __importDefault(require("./archive.router"));
 const groupsChat_router_1 = __importDefault(require("./groupsChat.router"));
 const users_router_1 = __importDefault(require("./users.router"));
+const statistics_router_1 = __importDefault(require("./statistics.router"));
 const authentication_controller_1 = require("../controllers/authentication.controller");
 class Routes {
     constructor(app) {
@@ -28,6 +29,7 @@ class Routes {
         app.use("/api/v1/quizes", authentication_controller_1.protect, quizes_router_1.default);
         app.use("/api/v1/bookmarks", authentication_controller_1.protect, bookmarks_router_1.default);
         app.use("/api/v1/groupschat", authentication_controller_1.protect, groupsChat_router_1.default);
+        app.use("/api/v1/statistics", authentication_controller_1.protect, statistics_router_1.default);
     }
 }
 exports.default = Routes;

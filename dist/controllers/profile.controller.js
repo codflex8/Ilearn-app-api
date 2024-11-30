@@ -40,9 +40,9 @@ exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res
     user.gender = gender !== null && gender !== void 0 ? gender : null;
     if (image)
         user.imageUrl = image;
-    user.booksGoal = Number(booksGoal);
-    user.examsGoal = Number(examsGoal);
-    user.intensePoints = Number(intensePoints);
+    user.booksGoal = booksGoal;
+    user.examsGoal = examsGoal;
+    user.intensePoints = intensePoints;
     await user.save();
     res.status(200).json({ user });
 });
