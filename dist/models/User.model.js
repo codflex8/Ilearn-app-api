@@ -42,6 +42,9 @@ let User = class User extends BaseModel_1.BaseModel {
                 "gender",
                 "id",
                 "phoneNumber",
+                "booksGoal",
+                "examsGoal",
+                "intensePoints",
             ],
         });
     }
@@ -104,15 +107,15 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "passwordResetVerified", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true, default: 10 }),
     __metadata("design:type", Number)
 ], User.prototype, "booksGoal", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true, default: 10 }),
     __metadata("design:type", Number)
 ], User.prototype, "examsGoal", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true, default: 10 }),
     __metadata("design:type", Number)
 ], User.prototype, "intensePoints", void 0);
 __decorate([

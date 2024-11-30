@@ -9,8 +9,12 @@ const User_model_1 = require("../models/User.model");
 const typeorm_1 = require("typeorm");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const user = req.user;
-    const { phoneNumber, email, username, birthDate, gender, image } = req.body;
+    const user = await User_model_1.User.findOne({
+        where: {
+            id: req.user.id,
+        },
+    });
+    const { phoneNumber, email, username, birthDate, gender, image, booksGoal, examsGoal, intensePoints, } = req.body;
     const isEmailExist = await User_model_1.User.findOne({
         where: {
             email: (0, typeorm_1.Equal)(email),
@@ -32,9 +36,13 @@ exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res
     user.email = email;
     user.username = username;
     user.phoneNumber = phoneNumber !== null && phoneNumber !== void 0 ? phoneNumber : null;
-    user.birthDate = birthDate !== null && birthDate !== void 0 ? birthDate : null;
+    user.birthDate = birthDate ? new Date(birthDate) : null;
     user.gender = gender !== null && gender !== void 0 ? gender : null;
-    user.imageUrl = image;
+    if (image)
+        user.imageUrl = image;
+    user.booksGoal = Number(booksGoal);
+    user.examsGoal = Number(examsGoal);
+    user.intensePoints = Number(intensePoints);
     await user.save();
     res.status(200).json({ user });
 });

@@ -3,11 +3,34 @@ import asyncHandler from "express-async-handler";
 import { User } from "../models/User.model";
 import { Equal, Not } from "typeorm";
 import ApiError from "../utils/ApiError";
+import { IProfile } from "../utils/validators/profileValidator";
+
+type IProfileWithImage = IProfile & {
+  image: string;
+};
 
 export const updateProfileData = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user;
-    const { phoneNumber, email, username, birthDate, gender, image } = req.body;
+  async (
+    req: Request<{}, {}, IProfileWithImage>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user = await User.findOne({
+      where: {
+        id: req.user.id,
+      },
+    });
+    const {
+      phoneNumber,
+      email,
+      username,
+      birthDate,
+      gender,
+      image,
+      booksGoal,
+      examsGoal,
+      intensePoints,
+    } = req.body;
     const isEmailExist = await User.findOne({
       where: {
         email: Equal(email),
@@ -30,9 +53,12 @@ export const updateProfileData = asyncHandler(
     user.email = email;
     user.username = username;
     user.phoneNumber = phoneNumber ?? null;
-    user.birthDate = birthDate ?? null;
+    user.birthDate = birthDate ? new Date(birthDate) : null;
     user.gender = gender ?? null;
-    user.imageUrl = image;
+    if (image) user.imageUrl = image;
+    user.booksGoal = Number(booksGoal);
+    user.examsGoal = Number(examsGoal);
+    user.intensePoints = Number(intensePoints);
     await user.save();
     res.status(200).json({ user });
   }

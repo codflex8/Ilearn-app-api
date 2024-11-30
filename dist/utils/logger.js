@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.httpLogger = void 0;
 const winston_1 = __importDefault(require("winston"));
-const { combine, timestamp, json, printf } = winston_1.default.format;
+const { combine, timestamp, json, printf, label, colorize } = winston_1.default.format;
 const timestampFormat = "MMM-DD-YYYY HH:mm:ss";
 winston_1.default.addColors({
     error: "bold red",
@@ -24,24 +24,14 @@ winston_1.default.addColors({
     info: "green",
     debug: "blue",
 });
-// Logger for API endpoints
 exports.httpLogger = winston_1.default.createLogger({
-    format: combine(timestamp({ format: timestampFormat }), json(), winston_1.default.format.colorize({
-        colors: {
-            error: "bold red",
-            warn: "yellow",
-            info: "green",
-            debug: "blue",
-        },
-    }), printf((_a) => {
-        var { timestamp, level, message } = _a, data = __rest(_a, ["timestamp", "level", "message"]);
-        const response = {
-            level,
-            timestamp,
-            message,
-            data,
-        };
-        return JSON.stringify(response);
+    format: combine(
+    // label(),
+    timestamp({ format: timestampFormat }), colorize({ level: true, message: true }), printf((_a) => {
+        var { level, message, label, timestamp } = _a, data = __rest(_a, ["level", "message", "label", "timestamp"]);
+        return `[${timestamp}] ${level} : ${message} stack:${JSON.stringify(
+        //(${label})
+        data)}`;
     })),
     transports: [new winston_1.default.transports.Console()],
 });
