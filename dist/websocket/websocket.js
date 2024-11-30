@@ -24,7 +24,7 @@ class Websocket extends socket_io_1.Server {
     }
     static getActiveRoomsIds() {
         return Object.entries(this.rooms)
-            .filter(([roomId, usersGroup]) => usersGroup.users.length)
+            .filter(([roomId, usersGroup]) => { var _a; return (_a = usersGroup.users) === null || _a === void 0 ? void 0 : _a.length; })
             .map(([roomId, users]) => roomId);
     }
     static getroomUsers(roomId) {
@@ -78,7 +78,7 @@ class Websocket extends socket_io_1.Server {
         const users = this.users;
         users.map((user) => {
             const userActiveGroups = Object.entries(this.rooms)
-                .filter(([roomId, data]) => data && data.users.length > 0)
+                .filter(([roomId, data]) => { var _a; return data && ((_a = data.users) === null || _a === void 0 ? void 0 : _a.length) > 0; })
                 .map(([roomId, data]) => data.group)
                 .filter((activeGroup) => {
                 var _a;
