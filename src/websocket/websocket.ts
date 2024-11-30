@@ -45,7 +45,7 @@ class Websocket extends Server {
   }
 
   public static getroomUsers(roomId: string): User[] {
-    return this.rooms[roomId] ? this.rooms[roomId].users : [];
+    return this.rooms[roomId]?.users ?? [];
   }
 
   // public static getroomById(roomId: string): User[] {
@@ -61,7 +61,7 @@ class Websocket extends Server {
   public static addUserToRoom(group: GroupsChat, user: User) {
     if (
       !this.rooms[group.id] ||
-      !this.rooms[group.id]?.users.find((u) => u.id == user?.id)
+      !this.rooms[group.id]?.users?.find((u) => u.id == user?.id)
     ) {
       const newRoomUsers = [...(this.rooms[group.id]?.users ?? []), user];
       this.rooms = {
@@ -72,7 +72,7 @@ class Websocket extends Server {
   }
 
   public static removeUserFromRoom(roomId: string, user: User) {
-    const newRoomUsers = this.rooms[roomId]?.users.filter(
+    const newRoomUsers = this.rooms[roomId]?.users?.filter(
       (u) => u.id !== user.id
     );
     this.rooms = {

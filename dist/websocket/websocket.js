@@ -28,7 +28,8 @@ class Websocket extends socket_io_1.Server {
             .map(([roomId, users]) => roomId);
     }
     static getroomUsers(roomId) {
-        return this.rooms[roomId] ? this.rooms[roomId].users : [];
+        var _a, _b;
+        return (_b = (_a = this.rooms[roomId]) === null || _a === void 0 ? void 0 : _a.users) !== null && _b !== void 0 ? _b : [];
     }
     // public static getroomById(roomId: string): User[] {
     //   return this.rooms[roomId];
@@ -39,17 +40,17 @@ class Websocket extends socket_io_1.Server {
     //   }
     // }
     static addUserToRoom(group, user) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         if (!this.rooms[group.id] ||
-            !((_a = this.rooms[group.id]) === null || _a === void 0 ? void 0 : _a.users.find((u) => u.id == (user === null || user === void 0 ? void 0 : user.id)))) {
-            const newRoomUsers = [...((_c = (_b = this.rooms[group.id]) === null || _b === void 0 ? void 0 : _b.users) !== null && _c !== void 0 ? _c : []), user];
+            !((_b = (_a = this.rooms[group.id]) === null || _a === void 0 ? void 0 : _a.users) === null || _b === void 0 ? void 0 : _b.find((u) => u.id == (user === null || user === void 0 ? void 0 : user.id)))) {
+            const newRoomUsers = [...((_d = (_c = this.rooms[group.id]) === null || _c === void 0 ? void 0 : _c.users) !== null && _d !== void 0 ? _d : []), user];
             this.rooms = Object.assign(Object.assign({}, this.rooms), { [group.id]: { group, users: newRoomUsers } });
         }
     }
     static removeUserFromRoom(roomId, user) {
-        var _a, _b;
-        const newRoomUsers = (_a = this.rooms[roomId]) === null || _a === void 0 ? void 0 : _a.users.filter((u) => u.id !== user.id);
-        this.rooms = Object.assign(Object.assign({}, this.rooms), { [roomId]: { group: (_b = this.rooms[roomId]) === null || _b === void 0 ? void 0 : _b.group, users: newRoomUsers } });
+        var _a, _b, _c;
+        const newRoomUsers = (_b = (_a = this.rooms[roomId]) === null || _a === void 0 ? void 0 : _a.users) === null || _b === void 0 ? void 0 : _b.filter((u) => u.id !== user.id);
+        this.rooms = Object.assign(Object.assign({}, this.rooms), { [roomId]: { group: (_c = this.rooms[roomId]) === null || _c === void 0 ? void 0 : _c.group, users: newRoomUsers } });
     }
     static getUsers() {
         return this.users;

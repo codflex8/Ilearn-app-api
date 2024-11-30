@@ -115,9 +115,13 @@ const groupsChatEvents = (socket) => {
             (0, schemaValidator_1.default)(GroupsChatValidator_1.newGroupChatMessageValidator, data);
             const { groupChatId, message } = data;
             const user = socket.user;
-            const isUserInGroupChat = websocket_1.default.getroomUsers(groupChatId).find((u) => u.id === user.id);
-            const groupchatUsers = websocket_1.default.getroomUsers(groupChatId);
-            const groupchatUsersSockets = websocket_1.default.getUsersSocketIds(groupchatUsers.map((user) => user.id));
+            // const isUserInGroupChat = Websocket.getroomUsers(groupChatId)?.find(
+            //   (u) => u.id === user.id
+            // );
+            // const groupchatUsers = Websocket.getroomUsers(groupChatId);
+            // const groupchatUsersSockets = Websocket.getUsersSocketIds(
+            //   groupchatUsers.map((user) => user.id)
+            // );
             logger_1.httpLogger.info(`new message from ${user.username}, message: ${message},`);
             const newMessage = await (0, GroupsChat_controller_1.addNewMessage)({ message, groupChatId, user });
             socket

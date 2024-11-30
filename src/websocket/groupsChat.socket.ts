@@ -135,14 +135,14 @@ export const groupsChatEvents = (socket: Socket) => {
         schemaValidator(newGroupChatMessageValidator, data);
         const { groupChatId, message } = data;
         const user = socket.user;
-        const isUserInGroupChat = Websocket.getroomUsers(groupChatId).find(
-          (u) => u.id === user.id
-        );
+        // const isUserInGroupChat = Websocket.getroomUsers(groupChatId)?.find(
+        //   (u) => u.id === user.id
+        // );
 
-        const groupchatUsers = Websocket.getroomUsers(groupChatId);
-        const groupchatUsersSockets = Websocket.getUsersSocketIds(
-          groupchatUsers.map((user) => user.id)
-        );
+        // const groupchatUsers = Websocket.getroomUsers(groupChatId);
+        // const groupchatUsersSockets = Websocket.getUsersSocketIds(
+        //   groupchatUsers.map((user) => user.id)
+        // );
 
         httpLogger.info(
           `new message from ${user.username}, message: ${message},`
