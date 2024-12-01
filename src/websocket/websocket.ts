@@ -86,10 +86,10 @@ class Websocket extends Server {
   }
 
   public static addUser(user: User, socketId: string) {
-    if (!this.users.find((u) => u.id == user?.id)) {
+    if (user && !this.users.find((u) => u.id == user?.id)) {
       this.users = [...this.users, user];
+      this.usersSockets = { ...this.usersSockets, [user.id]: socketId };
     }
-    this.usersSockets = { ...this.usersSockets, [user.id]: socketId };
   }
 
   public static removeUser(user: User) {

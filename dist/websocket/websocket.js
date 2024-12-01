@@ -56,10 +56,10 @@ class Websocket extends socket_io_1.Server {
         return this.users;
     }
     static addUser(user, socketId) {
-        if (!this.users.find((u) => u.id == (user === null || user === void 0 ? void 0 : user.id))) {
+        if (user && !this.users.find((u) => u.id == (user === null || user === void 0 ? void 0 : user.id))) {
             this.users = [...this.users, user];
+            this.usersSockets = Object.assign(Object.assign({}, this.usersSockets), { [user.id]: socketId });
         }
-        this.usersSockets = Object.assign(Object.assign({}, this.usersSockets), { [user.id]: socketId });
     }
     static removeUser(user) {
         var _a, _b;
