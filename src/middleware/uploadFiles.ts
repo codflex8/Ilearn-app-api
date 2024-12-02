@@ -41,17 +41,35 @@ const audioExtensions = [
   ".opus",
 ];
 
+const documentsExtensions = [
+  ".txt",
+  ".csv",
+  ".log",
+  ".md",
+  ".doc",
+  ".docx",
+  ".pdf",
+  ".xls",
+  ".xlsx",
+  ".ppt",
+  ".pptx",
+];
+
 // Define the storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const extension = path.extname(file.originalname);
     const isImage = imagesExtensions.includes(extension);
     const isAudio = audioExtensions.includes(extension);
+    const isDocument = documentsExtensions.includes(extension);
+
     let uploadDirectory = "";
     if (isImage) {
       uploadDirectory = path.join(__dirname, "../public/images");
     } else if (isAudio) {
       uploadDirectory = path.join(__dirname, "../public/audio");
+    } else if (isDocument) {
+      uploadDirectory = path.join(__dirname, "../public/documents");
     } else {
       return cb(new Error("Unsupported file type"), null);
     }
@@ -68,10 +86,13 @@ const storage = multer.diskStorage({
     const extension = path.extname(file.originalname).toLowerCase();
     const isImage = imagesExtensions.includes(extension);
     const isAudio = audioExtensions.includes(extension);
-    const relativePath = isImage
-      ? `/public/images/${filename}`
-      : `/public/audio/${filename}`;
+    const isDocument = documentsExtensions.includes(extension);
 
+    let relativePath: string;
+    if (isImage) relativePath = `/public/images/${filename}`;
+    if (isAudio) relativePath = `/public/audio/${filename}`;
+    if (isDocument) relativePath = `/public/documents/${filename}`;
+    console.log("relativePathhhhh", relativePath, isImage, isAudio, isDocument);
     // Add the path to req.body using the field name
     req.body[file.fieldname] = relativePath;
     cb(null, filename);
@@ -80,7 +101,11 @@ const storage = multer.diskStorage({
 
 // Updated file filter with additional file extensions
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = [...imagesExtensions, ...audioExtensions];
+  const allowedTypes = [
+    ...imagesExtensions,
+    ...audioExtensions,
+    ...documentsExtensions,
+  ];
   const extension = path.extname(file.originalname);
 
   if (allowedTypes.includes(extension)) {
@@ -88,7 +113,7 @@ const fileFilter = (req, file, cb) => {
   } else {
     cb(
       new ApiError(
-        "Invalid file type. Only images and audio files are allowed",
+        "Invalid file type. Only images , audio and documents files are allowed",
         400
       ),
       false

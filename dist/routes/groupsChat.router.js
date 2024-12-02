@@ -17,6 +17,7 @@ router.get("/:id/messages", GroupsChat_controller_1.getGroupChatMessages);
 router.post("/:id/messages", uploadFiles_1.upload.fields([
     { name: "image", maxCount: 1 },
     { name: "record", maxCount: 1 },
+    { name: "file", maxCount: 1 },
 ]), (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.newGroupChatMessageValidator), GroupsChat_controller_1.newGroupChatMessage);
 router.post("/:id/users", (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.groupsChatUsersValidator), GroupsChat_controller_1.addUsersToGroupChat);
 router.delete("/:id/users", (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.groupsChatUsersValidator), GroupsChat_controller_1.removeUsersfromGroupChat);

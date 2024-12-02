@@ -66,6 +66,32 @@ let Quiz = class Quiz extends BaseModel_1.BaseModel {
         }
         return querable.orderBy("quiz.createdAt", "DESC");
     }
+    static async getQuizesPercentage({ userId, startDate, endDate, examsGoal }) {
+        const fullmarkQuizesCount = await this.getRepository()
+            .createQueryBuilder("quiz")
+            .leftJoin("quiz.user", "user")
+            .where("user.id = :userId", { userId })
+            .andWhere("quiz.createdAt BETWEEN :startDate AND :endDate", {
+            startDate,
+            endDate,
+        })
+            .andWhere((qb) => {
+            const subQuery = qb
+                .subQuery()
+                .select("COUNT(DISTINCT question.id)")
+                .from("quiz", "subQuiz")
+                .leftJoin("subQuiz.questions", "question")
+                .where("subQuiz.id = quiz.id")
+                .getQuery();
+            return `quiz.mark >= (${subQuery})`;
+        })
+            .getCount();
+        return {
+            examsGoal,
+            examsCount: fullmarkQuizesCount,
+            percentage: (fullmarkQuizesCount / examsGoal) * 100,
+        };
+    }
 };
 exports.Quiz = Quiz;
 __decorate([

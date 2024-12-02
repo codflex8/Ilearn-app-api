@@ -38,9 +38,9 @@ exports.getQuizes = (0, express_async_handler_1.default)(async (req, res, next) 
         where: conditions,
         skip,
         take,
-        // relations: {
-        //   books: true,
-        // },
+        relations: {
+            questions: true,
+        },
         order: {
             createdAt: "DESC",
         },

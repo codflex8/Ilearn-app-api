@@ -107,15 +107,15 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "passwordResetVerified", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true, default: 10 }),
+    (0, typeorm_1.Column)({ default: 3 }),
     __metadata("design:type", Number)
 ], User.prototype, "booksGoal", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true, default: 10 }),
+    (0, typeorm_1.Column)({ default: 4 }),
     __metadata("design:type", Number)
 ], User.prototype, "examsGoal", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true, default: 10 }),
+    (0, typeorm_1.Column)({ default: 10 }),
     __metadata("design:type", Number)
 ], User.prototype, "intensePoints", void 0);
 __decorate([

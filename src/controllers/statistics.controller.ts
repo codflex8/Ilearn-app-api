@@ -1,54 +1,96 @@
 import { NextFunction, Response, Request } from "express";
 import expressAsync from "express-async-handler";
-import { getTodayDates } from "../utils/Dates";
+import {
+  currentWeekDates,
+  getDayStartAndEndDates,
+  getMonthStartAndEndDates,
+  getWeekDays,
+  getWeeksInMonth,
+  weekStartsOn,
+} from "../utils/Dates";
 import { User } from "../models/User.model";
+import { Book } from "../models/Books.model";
+import { Between } from "typeorm";
+import { Quiz } from "../models/Quiz.model";
+// import { getWeeksInMonth } from "date-fns";
 
+enum ReportType {
+  daily = "daily",
+  weekly = "weekly",
+  monthly = "monthly",
+}
 export const getHomeStatistcs = expressAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    const { todayEnd, todayStart } = getTodayDates();
-
-    const queryResult = await User.getRepository()
-      .createQueryBuilder("user")
-      .leftJoin("user.books", "book")
-      .leftJoin("user.quizes", "quize")
-      .select("user.id", "userId")
-      .addSelect("user.booksGoal", "booksGoal")
-      .addSelect("user.examsGoal", "examsGoal")
-      .addSelect("COUNT(DISTINCT book.id)", "booksCount")
-      .addSelect("COUNT(DISTINCT quize.id)", "examsCount")
-      .addSelect(
-        `CASE 
-            WHEN user.booksGoal > 0 THEN (COUNT(DISTINCT book.id) / user.booksGoal) * 100
-            ELSE 0
-        END`,
-        "booksPercentage"
-      )
-      .addSelect(
-        `CASE 
-            WHEN user.examsGoal > 0 THEN (COUNT(DISTINCT quize.id) / user.examsGoal) * 100
-            ELSE 0
-        END`,
-        "examsPercentage"
-      )
-      .where("user.id = :userId", { userId: user.id })
-      .andWhere("book.createdAt BETWEEN :todayStart AND :todayEnd", {
-        todayStart,
-        todayEnd,
-      })
-      .andWhere("quize.createdAt BETWEEN :todayStart AND :todayEnd", {
-        todayStart,
-        todayEnd,
-      })
-      .getRawOne();
-
-    res.status(200).json({
-      booksPercentage: parseFloat(queryResult.booksPercentage),
-      examsPercentage: parseFloat(queryResult.examsPercentage),
-      booksCount: parseInt(queryResult.booksCount, 10),
-      examsCount: parseInt(queryResult.examsCount, 10),
-      booksGoal: parseInt(queryResult.booksGoal, 10),
-      examsGoal: parseInt(queryResult.examsGoal, 10),
+    const { startWeekDate, endWeekDate } = currentWeekDates();
+    const weekPercentageData = await Book.getUserGoalPercentage({
+      booksGoal: user.booksGoal,
+      startDate: startWeekDate,
+      endDate: endWeekDate,
+      userId: user.id,
     });
+    const days = getWeekDays(startWeekDate);
+    const dailyData = await Promise.all(
+      days.map(async ({ startDay, endDay }, index) => {
+        const todayPercentage = await Book.getUserGoalPercentage({
+          booksGoal: user.booksGoal,
+          startDate: startDay,
+          endDate: endDay,
+          userId: user.id,
+        });
+        return { index, todayPercentage };
+      })
+    );
+    res.status(200).json({ weekPercentageData, dailyData });
   }
 );
+
+export const getProfileStatistics = expressAsync(
+  async (
+    req: Request<{}, {}, {}, { date: Date; reportType: ReportType }>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user = req.user;
+    const { date, reportType } = req.query;
+    const { endDate, startDate } = getReportsStartAndEndDate(date, reportType);
+    // const monthWeeks = getWeeksInMonth(new Date(date));
+    // console.log("monthWeeksssss", monthWeeks);
+    const booksPercentage = await Book.getUserGoalPercentage({
+      userId: user.id,
+      booksGoal:
+        reportType === ReportType.monthly ? user.booksGoal * 4 : user.booksGoal,
+      endDate,
+      startDate,
+    });
+
+    const examsPercentage = await Quiz.getQuizesPercentage({
+      userId: user.id,
+      examsGoal:
+        reportType === ReportType.monthly ? user.examsGoal * 4 : user.examsGoal,
+      endDate,
+      startDate,
+    });
+    res.status(200).json({ booksPercentage, examsPercentage });
+  }
+);
+
+const getReportsStartAndEndDate = (date: Date, reportType: ReportType) => {
+  let startDate: Date;
+  let endDate: Date;
+  if (reportType === ReportType.monthly) {
+    const { monthEnd, monthStart } = getMonthStartAndEndDates(date);
+    startDate = monthStart;
+    endDate = monthEnd;
+  } else if (reportType === ReportType.weekly) {
+    const { startWeekDate, endWeekDate } = currentWeekDates(date);
+    startDate = startWeekDate;
+    endDate = endWeekDate;
+  } else {
+    const { dayEnd, dayStart } = getDayStartAndEndDates(date);
+    startDate = dayStart;
+    endDate = dayEnd;
+  }
+  console.log("dayEnd, dayStart", startDate, endDate);
+  return { startDate, endDate };
+};

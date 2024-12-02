@@ -60,13 +60,13 @@ export class User extends BaseModel {
   @Column({ type: "boolean", default: false })
   passwordResetVerified: Boolean;
 
-  @Column({ nullable: true, default: 10 })
+  @Column({ default: 3 })
   booksGoal: number;
 
-  @Column({ nullable: true, default: 10 })
+  @Column({ default: 4 })
   examsGoal: number;
 
-  @Column({ nullable: true, default: 10 })
+  @Column({ default: 10 })
   intensePoints: number;
 
   @OneToMany(() => Category, (category) => category.user)

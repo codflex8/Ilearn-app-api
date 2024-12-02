@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var Book_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Book = void 0;
 const typeorm_1 = require("typeorm");
@@ -16,7 +17,7 @@ const User_model_1 = require("./User.model");
 const BaseModel_1 = require("./BaseModel");
 const ChatBot_model_1 = require("./ChatBot.model");
 const Quiz_model_1 = require("./Quiz.model");
-let Book = class Book extends BaseModel_1.BaseModel {
+let Book = Book_1 = class Book extends BaseModel_1.BaseModel {
     chekBookImage() {
         if (!this.imageUrl) {
             this.imageUrl = "/public/default/book.jpg";
@@ -32,6 +33,30 @@ let Book = class Book extends BaseModel_1.BaseModel {
                 category: true,
             },
         });
+    }
+    static async countBooksInDate({ userId, startDate, endDate }) {
+        const weekBooksCount = await Book_1.count({
+            where: {
+                createdAt: (0, typeorm_1.Between)(startDate, endDate),
+                user: {
+                    id: userId,
+                },
+            },
+        });
+        return weekBooksCount;
+    }
+    static async getUserGoalPercentage({ userId, startDate, endDate, booksGoal, }) {
+        const booksCount = await this.countBooksInDate({
+            userId,
+            startDate,
+            endDate,
+        });
+        const weekPercentageData = {
+            booksGoal: booksGoal,
+            booksCount,
+            percentage: (booksCount / booksGoal) * 100,
+        };
+        return weekPercentageData;
     }
 };
 exports.Book = Book;
@@ -105,7 +130,7 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], Book.prototype, "chekBookImage", null);
-exports.Book = Book = __decorate([
+exports.Book = Book = Book_1 = __decorate([
     (0, typeorm_1.Entity)()
 ], Book);
 //# sourceMappingURL=Books.model.js.map

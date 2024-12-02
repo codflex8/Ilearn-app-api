@@ -2,6 +2,7 @@ import {
   AfterInsert,
   AfterLoad,
   AfterUpdate,
+  Between,
   Column,
   Entity,
   JoinColumn,
@@ -89,5 +90,36 @@ export class Book extends BaseModel {
         category: true,
       },
     });
+  }
+
+  static async countBooksInDate({ userId, startDate, endDate }) {
+    const weekBooksCount = await Book.count({
+      where: {
+        createdAt: Between(startDate, endDate),
+        user: {
+          id: userId,
+        },
+      },
+    });
+    return weekBooksCount;
+  }
+
+  static async getUserGoalPercentage({
+    userId,
+    startDate,
+    endDate,
+    booksGoal,
+  }) {
+    const booksCount = await this.countBooksInDate({
+      userId,
+      startDate,
+      endDate,
+    });
+    const weekPercentageData = {
+      booksGoal: booksGoal,
+      booksCount,
+      percentage: (booksCount / booksGoal) * 100,
+    };
+    return weekPercentageData;
   }
 }

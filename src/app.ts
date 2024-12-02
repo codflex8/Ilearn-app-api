@@ -11,7 +11,7 @@ import { httpLogger } from "./utils/logger";
 
 export default class AppServer {
   constructor(app: Application) {
-    this.syncDatabase();
+    this.connectDatabase();
     this.config(app);
   }
 
@@ -44,7 +44,7 @@ export default class AppServer {
     app.use(globalError);
   }
 
-  private syncDatabase() {
+  private connectDatabase() {
     dataSource
       .initialize()
       .then(() => {

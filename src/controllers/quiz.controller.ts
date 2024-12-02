@@ -58,9 +58,9 @@ export const getQuizes = asyncHandler(
       where: conditions,
       skip,
       take,
-      // relations: {
-      //   books: true,
-      // },
+      relations: {
+        questions: true,
+      },
       order: {
         createdAt: "DESC",
       },

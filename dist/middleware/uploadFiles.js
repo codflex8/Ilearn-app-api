@@ -44,18 +44,35 @@ const audioExtensions = [
     ".caf",
     ".opus",
 ];
+const documentsExtensions = [
+    ".txt",
+    ".csv",
+    ".log",
+    ".md",
+    ".doc",
+    ".docx",
+    ".pdf",
+    ".xls",
+    ".xlsx",
+    ".ppt",
+    ".pptx",
+];
 // Define the storage configuration
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         const extension = path_1.default.extname(file.originalname);
         const isImage = imagesExtensions.includes(extension);
         const isAudio = audioExtensions.includes(extension);
+        const isDocument = documentsExtensions.includes(extension);
         let uploadDirectory = "";
         if (isImage) {
             uploadDirectory = path_1.default.join(__dirname, "../public/images");
         }
         else if (isAudio) {
             uploadDirectory = path_1.default.join(__dirname, "../public/audio");
+        }
+        else if (isDocument) {
+            uploadDirectory = path_1.default.join(__dirname, "../public/documents");
         }
         else {
             return cb(new Error("Unsupported file type"), null);
@@ -70,9 +87,15 @@ const storage = multer_1.default.diskStorage({
         const extension = path_1.default.extname(file.originalname).toLowerCase();
         const isImage = imagesExtensions.includes(extension);
         const isAudio = audioExtensions.includes(extension);
-        const relativePath = isImage
-            ? `/public/images/${filename}`
-            : `/public/audio/${filename}`;
+        const isDocument = documentsExtensions.includes(extension);
+        let relativePath;
+        if (isImage)
+            relativePath = `/public/images/${filename}`;
+        if (isAudio)
+            relativePath = `/public/audio/${filename}`;
+        if (isDocument)
+            relativePath = `/public/documents/${filename}`;
+        console.log("relativePathhhhh", relativePath, isImage, isAudio, isDocument);
         // Add the path to req.body using the field name
         req.body[file.fieldname] = relativePath;
         cb(null, filename);
@@ -80,13 +103,17 @@ const storage = multer_1.default.diskStorage({
 });
 // Updated file filter with additional file extensions
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = [...imagesExtensions, ...audioExtensions];
+    const allowedTypes = [
+        ...imagesExtensions,
+        ...audioExtensions,
+        ...documentsExtensions,
+    ];
     const extension = path_1.default.extname(file.originalname);
     if (allowedTypes.includes(extension)) {
         cb(null, true);
     }
     else {
-        cb(new ApiError_1.default("Invalid file type. Only images and audio files are allowed", 400), false);
+        cb(new ApiError_1.default("Invalid file type. Only images , audio and documents files are allowed", 400), false);
     }
 };
 // Create the multer upload instance

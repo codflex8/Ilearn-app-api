@@ -190,6 +190,14 @@ export const updateGroupChat = asyncHandler(
         userGroupsChats: { user: true },
       },
     });
+    const userGroupsChatIndex = groupChat.userGroupsChats.findIndex(
+      (groupchat) => groupchat.user.id === user.id
+    );
+    const userGroupsChat = groupChat.userGroupsChats[userGroupsChatIndex];
+
+    if (userGroupsChat.role !== GroupChatRoles.Admin) {
+      return next(new ApiError("just admin can change group settings", 409));
+    }
     if (!groupChat) return next(new ApiError("groupcaht not found", 400));
     groupChat.name = name;
     if (image) groupChat.imageUrl = image;
@@ -197,10 +205,6 @@ export const updateGroupChat = asyncHandler(
     if (backgroundCover) groupChat.backgroundCoverUrl = backgroundCover;
 
     if (muteNotification !== null && muteNotification !== undefined) {
-      const userGroupsChatIndex = groupChat.userGroupsChats.findIndex(
-        (groupchat) => groupchat.user.id === user.id
-      );
-      const userGroupsChat = groupChat.userGroupsChats[userGroupsChatIndex];
       userGroupsChat.muteNotification = muteNotification === "true";
       groupChat.userGroupsChats[userGroupsChatIndex] = userGroupsChat;
     }

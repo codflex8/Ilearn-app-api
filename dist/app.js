@@ -14,7 +14,7 @@ const path_1 = __importDefault(require("path"));
 const logger_1 = require("./utils/logger");
 class AppServer {
     constructor(app) {
-        this.syncDatabase();
+        this.connectDatabase();
         this.config(app);
     }
     config(app) {
@@ -42,7 +42,7 @@ class AppServer {
         });
         app.use(ErrorMiddleware_1.globalError);
     }
-    syncDatabase() {
+    connectDatabase() {
         dataSource_1.dataSource
             .initialize()
             .then(() => {
