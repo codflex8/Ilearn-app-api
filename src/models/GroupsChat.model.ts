@@ -29,6 +29,18 @@ export class GroupsChat extends BaseModel {
 
   unreadMessagesCount: number;
 
+  acceptJoin: boolean;
+
+  isAcceptJoin(userId: string, filterUserGroups: boolean) {
+    if (this.userGroupsChats.length) {
+      this.acceptJoin = filterUserGroups
+        ? !!this.userGroupsChats.find(
+            (userGroup) => userGroup.user.id === userId
+          )?.acceptJoin
+        : this.userGroupsChats[0]?.acceptJoin;
+    }
+  }
+
   static isGroupChatExist(id: string, userId: string) {
     return this.getRepository().exists({
       where: {

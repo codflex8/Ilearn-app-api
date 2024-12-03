@@ -15,6 +15,14 @@ const BaseModel_1 = require("./BaseModel");
 const GroupsChatMessages_model_1 = require("./GroupsChatMessages.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
+    isAcceptJoin(userId, filterUserGroups) {
+        var _a, _b;
+        if (this.userGroupsChats.length) {
+            this.acceptJoin = filterUserGroups
+                ? !!((_a = this.userGroupsChats.find((userGroup) => userGroup.user.id === userId)) === null || _a === void 0 ? void 0 : _a.acceptJoin)
+                : (_b = this.userGroupsChats[0]) === null || _b === void 0 ? void 0 : _b.acceptJoin;
+        }
+    }
     static isGroupChatExist(id, userId) {
         return this.getRepository().exists({
             where: {

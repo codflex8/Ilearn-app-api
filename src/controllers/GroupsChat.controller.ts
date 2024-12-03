@@ -56,6 +56,7 @@ export const getGroupsChat = asyncHandler(
     const count = await querable.getCount();
     const groupsChat = await querable.skip(skip).take(take).getMany();
     const getGroupsChatWithMessages = groupsChat.map(async (chat) => {
+      chat.isAcceptJoin(user.id, false);
       await GroupsChat.getGroupChatWithMessagesData(chat, user.id);
       return chat;
     });
@@ -65,6 +66,31 @@ export const getGroupsChat = asyncHandler(
     res
       .status(200)
       .json(new GenericResponse<GroupsChat>(Number(page), take, count, chats));
+  }
+);
+
+export const acceptJoinGroup = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const user = req.user;
+    const groupChatUser = await GroupsChatUsers.findOne({
+      where: {
+        user: {
+          id: user.id,
+        },
+        groupChat: {
+          id,
+        },
+      },
+    });
+    if (!groupChatUser) {
+      return next(new ApiError("can not find groupChat", 400));
+    }
+    groupChatUser.acceptJoin = true;
+    await groupChatUser.save();
+    const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
+    groupChat.isAcceptJoin(user.id, true);
+    res.status(200).json({ groupChat });
   }
 );
 
@@ -90,6 +116,7 @@ export const createGroupChat = asyncHandler(
       GroupsChatUsers.create({
         user: currentUser,
         groupChat: newGroupChat,
+        acceptJoin: user.id === currentUser.id,
         role:
           user.id === currentUser.id
             ? GroupChatRoles.Admin
@@ -107,6 +134,7 @@ export const getGroupChatById = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
+    groupChat.isAcceptJoin(user.id, true);
     res.status(200).json({ groupChat });
   }
 );

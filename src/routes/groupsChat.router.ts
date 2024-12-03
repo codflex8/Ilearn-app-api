@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  acceptJoinGroup,
   addUsersToGroupChat,
   createGroupChat,
   getGroupChatById,
@@ -59,6 +60,8 @@ router.delete(
   validateData(groupsChatUsersValidator),
   removeUsersfromGroupChat
 );
+
+router.post("/:id/accept-join", acceptJoinGroup);
 
 router.post("/:id/leave", leaveGroupChat);
 

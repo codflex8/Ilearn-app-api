@@ -237,9 +237,14 @@ exports.googleAuthSignUp = (0, express_async_handler_1.default)(async (req, res,
     const { token } = req.body;
     const { email, username, imageUrl, userId } = await (0, socialMediaAuth_1.verifyGoogleAuth)(token);
     const isUserExist = await User_model_1.User.findOne({
-        where: {
-            googleId: userId,
-        },
+        where: [
+            {
+                googleId: userId,
+            },
+            {
+                email,
+            },
+        ],
     });
     if (isUserExist) {
         return next(new ApiError_1.default("user already signed up", 409));
@@ -271,9 +276,14 @@ exports.facebookAuthSignUp = (0, express_async_handler_1.default)(async (req, re
     const { token } = req.body;
     const { email, username, imageUrl, userId } = await (0, socialMediaAuth_1.getFacebookUserData)(token);
     const isUserExist = await User_model_1.User.findOne({
-        where: {
-            facebookId: userId,
-        },
+        where: [
+            {
+                facebookId: userId,
+            },
+            {
+                email,
+            },
+        ],
     });
     if (isUserExist) {
         return next(new ApiError_1.default("user already signed up", 409));
@@ -305,9 +315,14 @@ exports.twitterAuthSignUp = (0, express_async_handler_1.default)(async (req, res
     const { token } = req.body;
     const { email, username, imageUrl, userId } = await (0, socialMediaAuth_1.getTwitterUserData)(token);
     const isUserExist = await User_model_1.User.findOne({
-        where: {
-            twitterId: userId,
-        },
+        where: [
+            {
+                twitterId: userId,
+            },
+            {
+                email,
+            },
+        ],
     });
     if (isUserExist) {
         return next(new ApiError_1.default("user already signed up", 409));

@@ -14,14 +14,11 @@ import { BaseModel } from "./BaseModel";
 
 @Entity("groups_chat_users")
 export class GroupsChatUsers extends BaseModel {
-  // @Column({ type: "uuid", primary: true })
-  // userId: string;
-
-  // @Column({ type: "uuid", primary: true })
-  // groupChatId: string;
-
   @Column({ type: "boolean", default: false })
   muteNotification: boolean;
+
+  @Column({ type: "boolean", default: false })
+  acceptJoin: boolean;
 
   @Column({ type: "enum", enum: GroupChatRoles, nullable: true })
   role: GroupChatRoles;

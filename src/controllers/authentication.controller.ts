@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 import sendEmail from "../utils/sendEmail";
 import bcryptPassword from "../utils/bcryptPassword";
 import generateRandomCode from "../utils/generateCode";
-import { Equal } from "typeorm";
+import { Equal, Or } from "typeorm";
 import { getUserFromToken } from "../utils/getUserFromToken";
 import {
   getFacebookUserData,
@@ -291,9 +291,14 @@ export const googleAuthSignUp = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
   const { email, username, imageUrl, userId } = await verifyGoogleAuth(token);
   const isUserExist = await User.findOne({
-    where: {
-      googleId: userId,
-    },
+    where: [
+      {
+        googleId: userId,
+      },
+      {
+        email,
+      },
+    ],
   });
   if (isUserExist) {
     return next(new ApiError("user already signed up", 409));
@@ -331,9 +336,14 @@ export const facebookAuthSignUp = asyncHandler(async (req, res, next) => {
     token
   );
   const isUserExist = await User.findOne({
-    where: {
-      facebookId: userId,
-    },
+    where: [
+      {
+        facebookId: userId,
+      },
+      {
+        email,
+      },
+    ],
   });
   if (isUserExist) {
     return next(new ApiError("user already signed up", 409));
@@ -369,9 +379,14 @@ export const twitterAuthSignUp = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
   const { email, username, imageUrl, userId } = await getTwitterUserData(token);
   const isUserExist = await User.findOne({
-    where: {
-      twitterId: userId,
-    },
+    where: [
+      {
+        twitterId: userId,
+      },
+      {
+        email,
+      },
+    ],
   });
   if (isUserExist) {
     return next(new ApiError("user already signed up", 409));
