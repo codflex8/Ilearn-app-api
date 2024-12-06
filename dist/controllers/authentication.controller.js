@@ -39,6 +39,7 @@ const generateCode_1 = __importDefault(require("../utils/generateCode"));
 const typeorm_1 = require("typeorm");
 const getUserFromToken_1 = require("../utils/getUserFromToken");
 const socialMediaAuth_1 = require("../utils/socialMediaAuth");
+const getServerIpAddress_1 = require("../utils/getServerIpAddress");
 exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { username, email, password, image } = req.body;
     const isUserExist = await User_model_1.User.findOne({
@@ -69,6 +70,7 @@ exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => 
 });
 exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = await User_model_1.User.findOneBy({ email: (0, typeorm_1.Equal)(req.body.email) });
+    console.log("getServerIPAddress", (0, getServerIpAddress_1.getServerIPAddress)());
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
         return next(new ApiError_1.default("Incorrect email or password", 401));
     }
@@ -247,6 +249,9 @@ exports.googleAuthSignUp = (0, express_async_handler_1.default)(async (req, res,
         ],
     });
     if (isUserExist) {
+        if (email === isUserExist.email && !isUserExist.googleId) {
+            return next(new ApiError_1.default("this email signed up already", 409));
+        }
         return next(new ApiError_1.default("user already signed up", 409));
     }
     const newUser = await createSocialMediaUser({
@@ -286,6 +291,9 @@ exports.facebookAuthSignUp = (0, express_async_handler_1.default)(async (req, re
         ],
     });
     if (isUserExist) {
+        if (email === isUserExist.email && !isUserExist.facebookId) {
+            return next(new ApiError_1.default("this email signed up already", 409));
+        }
         return next(new ApiError_1.default("user already signed up", 409));
     }
     const newUser = await createSocialMediaUser({
@@ -325,6 +333,9 @@ exports.twitterAuthSignUp = (0, express_async_handler_1.default)(async (req, res
         ],
     });
     if (isUserExist) {
+        if (email === isUserExist.email && !isUserExist.twitterId) {
+            return next(new ApiError_1.default("this email signed up already", 409));
+        }
         return next(new ApiError_1.default("user already signed up", 409));
     }
     const newUser = await createSocialMediaUser({

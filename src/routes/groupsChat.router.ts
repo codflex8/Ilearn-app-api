@@ -6,6 +6,7 @@ import {
   getGroupChatById,
   getGroupChatMessages,
   getGroupsChat,
+  joinGroup,
   leaveGroupChat,
   newGroupChatMessage,
   removeUsersfromGroupChat,
@@ -61,6 +62,7 @@ router.delete(
   removeUsersfromGroupChat
 );
 
+router.post("/:id/join-group", joinGroup);
 router.post("/:id/accept-join", acceptJoinGroup);
 
 router.post("/:id/leave", leaveGroupChat);

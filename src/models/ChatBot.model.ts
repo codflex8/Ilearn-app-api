@@ -16,7 +16,10 @@ export class Chatbot extends BaseModel {
   @Column()
   name: string;
 
-  @OneToMany(() => ChatbotMessages, (message) => message.chatbot)
+  @OneToMany(() => ChatbotMessages, (message) => message.chatbot, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   messages: ChatbotMessages[];
 
   @ManyToOne(() => User, (user) => user.chatbots)

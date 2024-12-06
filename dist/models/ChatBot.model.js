@@ -74,7 +74,10 @@ __decorate([
     __metadata("design:type", String)
 ], Chatbot.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => ChatBotMessages_model_1.ChatbotMessages, (message) => message.chatbot),
+    (0, typeorm_1.OneToMany)(() => ChatBotMessages_model_1.ChatbotMessages, (message) => message.chatbot, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], Chatbot.prototype, "messages", void 0);
 __decorate([

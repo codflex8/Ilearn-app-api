@@ -15,6 +15,7 @@ import {
   getTwitterUserData,
   verifyGoogleAuth,
 } from "../utils/socialMediaAuth";
+import { getServerIPAddress } from "../utils/getServerIpAddress";
 
 interface JwtPayload extends jwt.JwtPayload {
   userId: string;
@@ -56,7 +57,7 @@ export const signup = asyncHandler(
 export const signIn = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = await User.findOneBy({ email: Equal(req.body.email) });
-
+    console.log("getServerIPAddress", getServerIPAddress());
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
       return next(new ApiError("Incorrect email or password", 401));
     }
@@ -301,6 +302,9 @@ export const googleAuthSignUp = asyncHandler(async (req, res, next) => {
     ],
   });
   if (isUserExist) {
+    if (email === isUserExist.email && !isUserExist.googleId) {
+      return next(new ApiError("this email signed up already", 409));
+    }
     return next(new ApiError("user already signed up", 409));
   }
   const newUser = await createSocialMediaUser({
@@ -346,6 +350,9 @@ export const facebookAuthSignUp = asyncHandler(async (req, res, next) => {
     ],
   });
   if (isUserExist) {
+    if (email === isUserExist.email && !isUserExist.facebookId) {
+      return next(new ApiError("this email signed up already", 409));
+    }
     return next(new ApiError("user already signed up", 409));
   }
   const newUser = await createSocialMediaUser({
@@ -389,6 +396,9 @@ export const twitterAuthSignUp = asyncHandler(async (req, res, next) => {
     ],
   });
   if (isUserExist) {
+    if (email === isUserExist.email && !isUserExist.twitterId) {
+      return next(new ApiError("this email signed up already", 409));
+    }
     return next(new ApiError("user already signed up", 409));
   }
   const newUser = await createSocialMediaUser({

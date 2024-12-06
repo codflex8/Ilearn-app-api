@@ -94,6 +94,33 @@ export const acceptJoinGroup = asyncHandler(
   }
 );
 
+export const joinGroup = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    const { id } = req.params;
+    const groupChat = await GroupsChat.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!groupChat) {
+      return next(new ApiError("groupchat not found", 400));
+    }
+    const groupAdmin = await GroupsChatUsers.findOne({
+      where: {
+        groupChat: {
+          id,
+        },
+        role: GroupChatRoles.Admin,
+      },
+      relations: { user: true },
+    });
+    console.log("groupAdminnnnn", groupAdmin);
+    //ToDo: send notification to group admin
+    res.status(200).json({ message: "join request sent to group admin" });
+  }
+);
+
 export const createGroupChat = asyncHandler(
   async (
     req: Request<{}, typeof addGroupChatValidator>,
@@ -134,7 +161,7 @@ export const getGroupChatById = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
-    groupChat.isAcceptJoin(user.id, true);
+    if (groupChat) groupChat.isAcceptJoin(user.id, true);
     res.status(200).json({ groupChat });
   }
 );

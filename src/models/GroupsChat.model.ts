@@ -18,12 +18,19 @@ export class GroupsChat extends BaseModel {
   @Column({ nullable: true })
   backgroundCoverUrl: string;
 
-  @OneToMany(() => GroupsChatMessages, (chat) => chat.group)
+  @OneToMany(() => GroupsChatMessages, (chat) => chat.group, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   messages: GroupsChatMessages[];
 
   @OneToMany(
     () => GroupsChatUsers,
-    (groupsChatUsers) => groupsChatUsers.groupChat
+    (groupsChatUsers) => groupsChatUsers.groupChat,
+    {
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    }
   )
   userGroupsChats: GroupsChatUsers[];
 

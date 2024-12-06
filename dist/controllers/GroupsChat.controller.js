@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserRooms = exports.readMessages = exports.addNewMessage = exports.newGroupChatMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.acceptJoinGroup = exports.getGroupsChat = void 0;
+exports.getUserRooms = exports.readMessages = exports.addNewMessage = exports.newGroupChatMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.joinGroup = exports.acceptJoinGroup = exports.getGroupsChat = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const GroupsChat_model_1 = require("../models/GroupsChat.model");
 const getPaginationData_1 = require("../utils/getPaginationData");
@@ -72,6 +72,30 @@ exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, 
     groupChat.isAcceptJoin(user.id, true);
     res.status(200).json({ groupChat });
 });
+exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const user = req.user;
+    const { id } = req.params;
+    const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
+        where: {
+            id,
+        },
+    });
+    if (!groupChat) {
+        return next(new ApiError_1.default("groupchat not found", 400));
+    }
+    const groupAdmin = await GroupsChatUsers_model_1.GroupsChatUsers.findOne({
+        where: {
+            groupChat: {
+                id,
+            },
+            role: GroupsChatValidator_1.GroupChatRoles.Admin,
+        },
+        relations: { user: true },
+    });
+    console.log("groupAdminnnnn", groupAdmin);
+    //ToDo: send notification to group admin
+    res.status(200).json({ message: "join request sent to group admin" });
+});
 exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { name, usersIds, image } = req.body;
     const user = req.user;
@@ -100,7 +124,8 @@ exports.getGroupChatById = (0, express_async_handler_1.default)(async (req, res,
     const { id } = req.params;
     const user = req.user;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
-    groupChat.isAcceptJoin(user.id, true);
+    if (groupChat)
+        groupChat.isAcceptJoin(user.id, true);
     res.status(200).json({ groupChat });
 });
 exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, res, next) => {

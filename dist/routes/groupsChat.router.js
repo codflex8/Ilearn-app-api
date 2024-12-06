@@ -21,6 +21,7 @@ router.post("/:id/messages", uploadFiles_1.upload.fields([
 ]), (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.newGroupChatMessageValidator), GroupsChat_controller_1.newGroupChatMessage);
 router.post("/:id/users", (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.groupsChatUsersValidator), GroupsChat_controller_1.addUsersToGroupChat);
 router.delete("/:id/users", (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.groupsChatUsersValidator), GroupsChat_controller_1.removeUsersfromGroupChat);
+router.post("/:id/join-group", GroupsChat_controller_1.joinGroup);
 router.post("/:id/accept-join", GroupsChat_controller_1.acceptJoinGroup);
 router.post("/:id/leave", GroupsChat_controller_1.leaveGroupChat);
 exports.default = router;

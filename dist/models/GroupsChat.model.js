@@ -102,11 +102,17 @@ __decorate([
     __metadata("design:type", String)
 ], GroupsChat.prototype, "backgroundCoverUrl", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => GroupsChatMessages_model_1.GroupsChatMessages, (chat) => chat.group),
+    (0, typeorm_1.OneToMany)(() => GroupsChatMessages_model_1.GroupsChatMessages, (chat) => chat.group, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], GroupsChat.prototype, "messages", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => GroupsChatUsers_model_1.GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.groupChat),
+    (0, typeorm_1.OneToMany)(() => GroupsChatUsers_model_1.GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.groupChat, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], GroupsChat.prototype, "userGroupsChats", void 0);
 exports.GroupsChat = GroupsChat = __decorate([

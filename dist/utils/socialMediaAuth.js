@@ -19,6 +19,15 @@ exports.SocialMediaUserData = SocialMediaUserData;
 const client = new google_auth_library_1.OAuth2Client();
 const verifyGoogleAuth = async (token) => {
     try {
+        // const response = await axios.get(
+        //   "https://oauth2.googleapis.com/tokeninfo?",
+        //   {
+        //     params: {
+        //       id_token: token,
+        //     },
+        //   }
+        // );
+        // console.log(response.data.data);
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
@@ -34,7 +43,7 @@ const verifyGoogleAuth = async (token) => {
     }
     catch (error) {
         console.log(error);
-        console.error("Error fetching Google user data:", error.message);
+        console.error("Error fetching Google user data:", error.message, error);
         throw new ApiError_1.default("somthing wrong with token, Unable to fetch user data from Google", 400);
     }
 };

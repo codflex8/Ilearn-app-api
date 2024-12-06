@@ -192,6 +192,24 @@ const groupsChatEvents = (socket) => {
                 callback(error.message);
         }
     });
+    socket.on("share-group", async ({ sharedGroupId, toGroupId, }, callback) => {
+        try {
+            const user = socket.user;
+            const sharedGroup = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, sharedGroupId);
+            if (!sharedGroup) {
+                throw new ApiError_1.default("sharedGroupId not found", 400);
+            }
+            const toGroupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, toGroupId);
+            if (!toGroupChat) {
+                throw new ApiError_1.default("toGroupChat not found", 400);
+            }
+            socket.to(toGroupId).emit("share-group", { sharedGroup });
+        }
+        catch (error) {
+            if (callback)
+                callback(error.message);
+        }
+    });
 };
 exports.groupsChatEvents = groupsChatEvents;
 //# sourceMappingURL=groupsChat.socket.js.map

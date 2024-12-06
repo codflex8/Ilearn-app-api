@@ -82,7 +82,11 @@ const storage = multer_1.default.diskStorage({
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        const filename = uniqueSuffix + path_1.default.extname(file.originalname);
+        const originalNameWithoutExt = path_1.default.parse(file.originalname).name;
+        const filename = uniqueSuffix +
+            "_" +
+            originalNameWithoutExt +
+            path_1.default.extname(file.originalname);
         // Determine the relative path for the file
         const extension = path_1.default.extname(file.originalname).toLowerCase();
         const isImage = imagesExtensions.includes(extension);
@@ -95,7 +99,6 @@ const storage = multer_1.default.diskStorage({
             relativePath = `/public/audio/${filename}`;
         if (isDocument)
             relativePath = `/public/documents/${filename}`;
-        console.log("relativePathhhhh", relativePath, isImage, isAudio, isDocument);
         // Add the path to req.body using the field name
         req.body[file.fieldname] = relativePath;
         cb(null, filename);
@@ -120,6 +123,6 @@ const fileFilter = (req, file, cb) => {
 exports.upload = (0, multer_1.default)({
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 100 * 1024 * 1024 }, // Increased to 50 MB limit
+    limits: { fileSize: 50 * 1024 * 1024 }, // Increased to 50 MB limit
 });
 //# sourceMappingURL=uploadFiles.js.map

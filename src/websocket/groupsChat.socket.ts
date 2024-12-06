@@ -227,4 +227,36 @@ export const groupsChatEvents = (socket: Socket) => {
       }
     }
   );
+
+  socket.on(
+    "share-group",
+    async (
+      {
+        sharedGroupId,
+        toGroupId,
+      }: { sharedGroupId: string; toGroupId: string },
+      callback
+    ) => {
+      try {
+        const user = socket.user;
+        const sharedGroup = await GroupsChat.getUserGroupChatById(
+          user.id,
+          sharedGroupId
+        );
+        if (!sharedGroup) {
+          throw new ApiError("sharedGroupId not found", 400);
+        }
+        const toGroupChat = await GroupsChat.getUserGroupChatById(
+          user.id,
+          toGroupId
+        );
+        if (!toGroupChat) {
+          throw new ApiError("toGroupChat not found", 400);
+        }
+        socket.to(toGroupId).emit("share-group", { sharedGroup });
+      } catch (error: any) {
+        if (callback) callback(error.message);
+      }
+    }
+  );
 };

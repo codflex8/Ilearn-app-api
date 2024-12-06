@@ -32,7 +32,7 @@ export class GroupsChatMessages extends BaseModel {
   @ManyToOne(() => GroupsChat)
   group: GroupsChat;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "SET NULL" })
   from: User;
 
   @Column({ type: "simple-array", nullable: true })

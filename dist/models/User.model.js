@@ -119,27 +119,45 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "intensePoints", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Categories_model_1.Category, (category) => category.user),
+    (0, typeorm_1.OneToMany)(() => Categories_model_1.Category, (category) => category.user, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "categories", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Books_model_1.Book, (book) => book.user),
+    (0, typeorm_1.OneToMany)(() => Books_model_1.Book, (book) => book.user, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "books", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Quiz_model_1.Quiz, (quiz) => quiz.user),
+    (0, typeorm_1.OneToMany)(() => Quiz_model_1.Quiz, (quiz) => quiz.user, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "quizes", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => ChatBot_model_1.Chatbot, (chatbot) => chatbot.user),
+    (0, typeorm_1.OneToMany)(() => ChatBot_model_1.Chatbot, (chatbot) => chatbot.user, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "chatbots", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Bookmarks_model_1.Bookmark, (bookmark) => bookmark.user),
+    (0, typeorm_1.OneToMany)(() => Bookmarks_model_1.Bookmark, (bookmark) => bookmark.user, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "bookmarks", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => GroupsChatUsers_model_1.GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.user),
+    (0, typeorm_1.OneToMany)(() => GroupsChatUsers_model_1.GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.user, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "userGroupsChats", void 0);
 exports.User = User = __decorate([

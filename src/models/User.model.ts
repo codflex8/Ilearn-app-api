@@ -69,22 +69,40 @@ export class User extends BaseModel {
   @Column({ default: 10 })
   intensePoints: number;
 
-  @OneToMany(() => Category, (category) => category.user)
+  @OneToMany(() => Category, (category) => category.user, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   categories: Category[];
 
-  @OneToMany(() => Book, (book) => book.user)
+  @OneToMany(() => Book, (book) => book.user, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   books: Book[];
 
-  @OneToMany(() => Quiz, (quiz) => quiz.user)
+  @OneToMany(() => Quiz, (quiz) => quiz.user, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   quizes: Quiz[];
 
-  @OneToMany(() => Chatbot, (chatbot) => chatbot.user)
+  @OneToMany(() => Chatbot, (chatbot) => chatbot.user, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   chatbots: Chatbot[];
 
-  @OneToMany(() => Bookmark, (bookmark) => bookmark.user)
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.user, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   bookmarks: Bookmark[];
 
-  @OneToMany(() => GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.user)
+  @OneToMany(() => GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.user, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   userGroupsChats: GroupsChatUsers[];
 
   // @ManyToMany(() => GroupsChat, (group) => group.users)

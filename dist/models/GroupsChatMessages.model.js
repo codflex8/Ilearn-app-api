@@ -78,7 +78,7 @@ __decorate([
     __metadata("design:type", GroupsChat_model_1.GroupsChat)
 ], GroupsChatMessages.prototype, "group", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User),
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, { onDelete: "SET NULL" }),
     __metadata("design:type", User_model_1.User)
 ], GroupsChatMessages.prototype, "from", void 0);
 __decorate([
