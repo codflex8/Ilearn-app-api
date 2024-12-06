@@ -59,12 +59,19 @@ exports.getBookById = (0, express_async_handler_1.default)(async (req, res, next
     res.status(200).json({ book });
 });
 exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) => {
+    var _a;
     const { name, image, fileUrl, link, content, categoryId } = req.body;
+    const fileData = (_a = req.files["file"]) === null || _a === void 0 ? void 0 : _a[0];
+    if (!fileData) {
+        console.log("fileData", fileData);
+        return next(new ApiError_1.default("somthing wrong with file data", 400));
+    }
+    console.log("req.fileeeee", req.files);
     const user = req.user;
     const book = Books_model_1.Book.create({
         name,
         imageUrl: image !== null && image !== void 0 ? image : null,
-        fileUrl,
+        fileUrl: fileData.location,
         link,
         content,
         user,

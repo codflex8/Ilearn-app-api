@@ -2,6 +2,8 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import ApiError from "../utils/ApiError";
+import multerS3 from "multer-s3";
+import { s3 } from "../utils/uploadToAws";
 
 const createDirIfNotExist = (dir: string) => {
   if (!fs.existsSync(dir)) {
@@ -56,7 +58,7 @@ const documentsExtensions = [
 ];
 
 // Define the storage configuration
-const storage = multer.diskStorage({
+const localStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const extension = path.extname(file.originalname);
     const isImage = imagesExtensions.includes(extension);
@@ -126,9 +128,51 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+const s3Storage = multerS3({
+  s3,
+  acl: "public-read",
+  bucket: process.env.AWS_BUCKET_NAME,
+  contentType: multerS3.AUTO_CONTENT_TYPE,
+  key: (req, file, cb) => {
+    const fileName = `${Date.now()}_${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${fileName}${path.extname(file.originalname)}`);
+  },
+});
+
+const dynamicStorage: multer.StorageEngine = {
+  _handleFile(req, file, cb) {
+    if (file.fieldname === "file") {
+      // Use S3 for "file" field
+
+      return s3Storage._handleFile(req, file, cb);
+    } else if (file.fieldname === "image") {
+      // Use local storage for "image" field
+      return localStorage._handleFile(req, file, cb);
+    } else {
+      cb(new Error("Unsupported field name"));
+    }
+  },
+  _removeFile(req, file, cb) {
+    if (file.fieldname === "file") {
+      // Use S3's remove logic if needed
+      const s3Storage = multerS3({
+        s3,
+        acl: "public-read",
+        bucket: process.env.AWS_BUCKET_NAME!,
+      });
+      return s3Storage._removeFile(req, file, cb);
+    } else if (file.fieldname === "image") {
+      // Use local storage's remove logic
+      return localStorage._removeFile(req, file, cb);
+    } else {
+      cb(new Error("Unsupported field name"));
+    }
+  },
+};
+
 // Create the multer upload instance
 export const upload = multer({
-  storage: storage,
+  storage: dynamicStorage,
   fileFilter: fileFilter,
   limits: { fileSize: 50 * 1024 * 1024 }, // Increased to 50 MB limit
 });

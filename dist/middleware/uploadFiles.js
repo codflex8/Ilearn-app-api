@@ -8,6 +8,8 @@ const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
+const multer_s3_1 = __importDefault(require("multer-s3"));
+const uploadToAws_1 = require("../utils/uploadToAws");
 const createDirIfNotExist = (dir) => {
     if (!fs_1.default.existsSync(dir)) {
         // If not, create it
@@ -58,7 +60,7 @@ const documentsExtensions = [
     ".pptx",
 ];
 // Define the storage configuration
-const storage = multer_1.default.diskStorage({
+const localStorage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         const extension = path_1.default.extname(file.originalname);
         const isImage = imagesExtensions.includes(extension);
@@ -119,9 +121,52 @@ const fileFilter = (req, file, cb) => {
         cb(new ApiError_1.default("Invalid file type. Only images , audio and documents files are allowed", 400), false);
     }
 };
+const s3Storage = (0, multer_s3_1.default)({
+    s3: uploadToAws_1.s3,
+    acl: "public-read",
+    bucket: process.env.AWS_BUCKET_NAME,
+    contentType: multer_s3_1.default.AUTO_CONTENT_TYPE,
+    key: (req, file, cb) => {
+        const fileName = `${Date.now()}_${Math.round(Math.random() * 1e9)}`;
+        cb(null, `${fileName}${path_1.default.extname(file.originalname)}`);
+    },
+});
+const dynamicStorage = {
+    _handleFile(req, file, cb) {
+        if (file.fieldname === "file") {
+            // Use S3 for "file" field
+            return s3Storage._handleFile(req, file, cb);
+        }
+        else if (file.fieldname === "image") {
+            // Use local storage for "image" field
+            return localStorage._handleFile(req, file, cb);
+        }
+        else {
+            cb(new Error("Unsupported field name"));
+        }
+    },
+    _removeFile(req, file, cb) {
+        if (file.fieldname === "file") {
+            // Use S3's remove logic if needed
+            const s3Storage = (0, multer_s3_1.default)({
+                s3: uploadToAws_1.s3,
+                acl: "public-read",
+                bucket: process.env.AWS_BUCKET_NAME,
+            });
+            return s3Storage._removeFile(req, file, cb);
+        }
+        else if (file.fieldname === "image") {
+            // Use local storage's remove logic
+            return localStorage._removeFile(req, file, cb);
+        }
+        else {
+            cb(new Error("Unsupported field name"));
+        }
+    },
+};
 // Create the multer upload instance
 exports.upload = (0, multer_1.default)({
-    storage: storage,
+    storage: dynamicStorage,
     fileFilter: fileFilter,
     limits: { fileSize: 50 * 1024 * 1024 }, // Increased to 50 MB limit
 });

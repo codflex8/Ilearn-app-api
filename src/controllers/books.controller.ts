@@ -74,11 +74,17 @@ export const getBookById = asyncHandler(
 export const addBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, image, fileUrl, link, content, categoryId } = req.body;
+    const fileData = req.files["file"]?.[0];
+    if (!fileData) {
+      console.log("fileData", fileData);
+      return next(new ApiError("somthing wrong with file data", 400));
+    }
+    console.log("req.fileeeee", req.files);
     const user = req.user;
     const book = Book.create({
       name,
       imageUrl: image ?? null,
-      fileUrl,
+      fileUrl: fileData.location,
       link,
       content,
       user,

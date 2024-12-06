@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import {
   addBook,
   deleteBook,
@@ -13,9 +13,13 @@ import { upload } from "../middleware/uploadFiles";
 const router = Router();
 
 router.get("/", getBooks);
+
 router.post(
   "/",
-  upload.single("image"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "file", maxCount: 1 },
+  ]),
   validateData(addBookValidator),
   addBook
 );
