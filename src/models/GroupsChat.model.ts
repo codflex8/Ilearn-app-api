@@ -1,8 +1,18 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
+import {
+  AfterInsert,
+  AfterLoad,
+  AfterUpdate,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from "typeorm";
 import { BaseModel } from "./BaseModel";
 import { GroupsChatMessages } from "./GroupsChatMessages.model";
 import { User } from "./User.model";
 import { GroupsChatUsers } from "./GroupsChatUsers.model";
+import { getServerIPAddress } from "../utils/getServerIpAddress";
 
 @Entity()
 export class GroupsChat extends BaseModel {
@@ -12,6 +22,16 @@ export class GroupsChat extends BaseModel {
   @Column({ nullable: true })
   imageUrl: string;
 
+  fullImageUrl: string = null;
+
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  setFullImageUrl() {
+    if (this.imageUrl) {
+      this.fullImageUrl = getServerIPAddress() + this.imageUrl;
+    }
+  }
   @Column({ nullable: true })
   backgroundColor: string;
 

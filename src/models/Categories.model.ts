@@ -15,6 +15,7 @@ import { Book } from "./Books.model";
 import { User } from "./User.model";
 import { BaseModel } from "./BaseModel";
 import { getPaginationData } from "../utils/getPaginationData";
+import { getServerIPAddress } from "../utils/getServerIpAddress";
 
 @Entity()
 export class Category extends BaseModel {
@@ -23,7 +24,16 @@ export class Category extends BaseModel {
 
   @Column({ nullable: true })
   imageUrl: string;
+  fullImageUrl: string = null;
 
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  setFullImageUrl() {
+    if (this.imageUrl) {
+      this.fullImageUrl = getServerIPAddress() + this.imageUrl;
+    }
+  }
   @OneToMany(() => Book, (book) => book.category, {
     cascade: true,
     onDelete: "CASCADE",
@@ -42,7 +52,7 @@ export class Category extends BaseModel {
   @AfterUpdate()
   chekCategoryImage() {
     if (!this.imageUrl) {
-      this.imageUrl = "/public/default/category.jpg";
+      this.fullImageUrl = getServerIPAddress() + "/public/default/category.jpg";
     }
   }
 

@@ -1,4 +1,7 @@
 import {
+  AfterInsert,
+  AfterLoad,
+  AfterUpdate,
   Column,
   Entity,
   FindOptionsWhere,
@@ -15,6 +18,7 @@ import { Quiz } from "./Quiz.model";
 import { Bookmark } from "./Bookmarks.model";
 import { GroupsChat } from "./GroupsChat.model";
 import { GroupsChatUsers } from "./GroupsChatUsers.model";
+import { getServerIPAddress } from "../utils/getServerIpAddress";
 
 @Entity()
 export class User extends BaseModel {
@@ -105,6 +109,18 @@ export class User extends BaseModel {
   })
   userGroupsChats: GroupsChatUsers[];
 
+  fullImageUrl: string = null;
+
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  setFullImageUrl() {
+    if (this.imageUrl) {
+      !this.facebookId && !this.googleId && !this.twitterId
+        ? (this.fullImageUrl = getServerIPAddress() + this.imageUrl)
+        : (this.fullImageUrl = this.imageUrl);
+    }
+  }
   // @ManyToMany(() => GroupsChat, (group) => group.users)
   // @JoinTable({ name: "groups_chat_users" })
   // groupsChat: GroupsChat[];

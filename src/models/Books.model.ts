@@ -15,6 +15,7 @@ import { User } from "./User.model";
 import { BaseModel } from "./BaseModel";
 import { Chatbot } from "./ChatBot.model";
 import { Quiz } from "./Quiz.model";
+import { getServerIPAddress } from "../utils/getServerIpAddress";
 
 @Entity()
 export class Book extends BaseModel {
@@ -24,6 +25,16 @@ export class Book extends BaseModel {
   @Column({ nullable: true })
   imageUrl: string;
 
+  fullImageUrl: string = null;
+
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  setFullImageUrl() {
+    if (this.imageUrl) {
+      this.fullImageUrl = getServerIPAddress() + this.imageUrl;
+    }
+  }
   @Column({ nullable: true })
   fileUrl: string;
 
@@ -76,7 +87,7 @@ export class Book extends BaseModel {
   @AfterUpdate()
   chekBookImage() {
     if (!this.imageUrl) {
-      this.imageUrl = "/public/default/book.jpg";
+      this.fullImageUrl = getServerIPAddress() + "/public/default/book.jpg";
     }
   }
 

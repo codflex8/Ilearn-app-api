@@ -19,7 +19,19 @@ const ChatBot_model_1 = require("./ChatBot.model");
 const Quiz_model_1 = require("./Quiz.model");
 const Bookmarks_model_1 = require("./Bookmarks.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
+const getServerIpAddress_1 = require("../utils/getServerIpAddress");
 let User = class User extends BaseModel_1.BaseModel {
+    constructor() {
+        super(...arguments);
+        this.fullImageUrl = null;
+    }
+    setFullImageUrl() {
+        if (this.imageUrl) {
+            !this.facebookId && !this.googleId && !this.twitterId
+                ? (this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + this.imageUrl)
+                : (this.fullImageUrl = this.imageUrl);
+        }
+    }
     // @ManyToMany(() => GroupsChat, (group) => group.users)
     // @JoinTable({ name: "groups_chat_users" })
     // groupsChat: GroupsChat[];
@@ -160,6 +172,14 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], User.prototype, "userGroupsChats", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], User.prototype, "setFullImageUrl", null);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);

@@ -17,10 +17,20 @@ const User_model_1 = require("./User.model");
 const BaseModel_1 = require("./BaseModel");
 const ChatBot_model_1 = require("./ChatBot.model");
 const Quiz_model_1 = require("./Quiz.model");
+const getServerIpAddress_1 = require("../utils/getServerIpAddress");
 let Book = Book_1 = class Book extends BaseModel_1.BaseModel {
+    constructor() {
+        super(...arguments);
+        this.fullImageUrl = null;
+    }
+    setFullImageUrl() {
+        if (this.imageUrl) {
+            this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + this.imageUrl;
+        }
+    }
     chekBookImage() {
         if (!this.imageUrl) {
-            this.imageUrl = "/public/default/book.jpg";
+            this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + "/public/default/book.jpg";
         }
     }
     static getUserBookById(userId, bookId) {
@@ -68,6 +78,14 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Book.prototype, "imageUrl", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], Book.prototype, "setFullImageUrl", null);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)

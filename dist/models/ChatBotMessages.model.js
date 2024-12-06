@@ -15,7 +15,17 @@ const BaseModel_1 = require("./BaseModel");
 const ChatBot_model_1 = require("./ChatBot.model");
 const ChatbotValidator_1 = require("../utils/validators/ChatbotValidator");
 const Bookmarks_model_1 = require("./Bookmarks.model");
+const getServerIpAddress_1 = require("../utils/getServerIpAddress");
 let ChatbotMessages = class ChatbotMessages extends BaseModel_1.BaseModel {
+    constructor() {
+        super(...arguments);
+        this.fullImageUrl = null;
+    }
+    setFullImageUrl() {
+        if (this.imageUrl) {
+            this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + this.imageUrl;
+        }
+    }
     updateCoverPhotoLink() {
         this.isBookmarked = !!this.bookmark;
     }
@@ -33,6 +43,14 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], ChatbotMessages.prototype, "imageUrl", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ChatbotMessages.prototype, "setFullImageUrl", null);
 __decorate([
     (0, typeorm_1.Column)({ type: "enum", enum: ChatbotValidator_1.MessageFrom }),
     __metadata("design:type", String)

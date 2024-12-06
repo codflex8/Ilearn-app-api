@@ -11,6 +11,7 @@ import {
 import { BaseModel } from "./BaseModel";
 import { User } from "./User.model";
 import { GroupsChat } from "./GroupsChat.model";
+import { getServerIPAddress } from "../utils/getServerIpAddress";
 
 @Entity()
 export class GroupsChatMessages extends BaseModel {
@@ -19,7 +20,16 @@ export class GroupsChatMessages extends BaseModel {
 
   @Column({ nullable: true })
   imageUrl: string;
+  fullImageUrl: string = null;
 
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  setFullImageUrl() {
+    if (this.imageUrl) {
+      this.fullImageUrl = getServerIPAddress() + this.imageUrl;
+    }
+  }
   @Column({ nullable: true })
   recordUrl: string;
 

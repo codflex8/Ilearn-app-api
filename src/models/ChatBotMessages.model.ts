@@ -12,6 +12,7 @@ import { BaseModel } from "./BaseModel";
 import { Chatbot } from "./ChatBot.model";
 import { MessageFrom } from "../utils/validators/ChatbotValidator";
 import { Bookmark } from "./Bookmarks.model";
+import { getServerIPAddress } from "../utils/getServerIpAddress";
 
 @Entity()
 export class ChatbotMessages extends BaseModel {
@@ -23,7 +24,16 @@ export class ChatbotMessages extends BaseModel {
 
   @Column({ nullable: true })
   imageUrl: string;
+  fullImageUrl: string = null;
 
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  setFullImageUrl() {
+    if (this.imageUrl) {
+      this.fullImageUrl = getServerIPAddress() + this.imageUrl;
+    }
+  }
   @Column({ type: "enum", enum: MessageFrom })
   from: MessageFrom;
 

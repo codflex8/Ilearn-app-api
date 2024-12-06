@@ -14,7 +14,17 @@ const typeorm_1 = require("typeorm");
 const BaseModel_1 = require("./BaseModel");
 const GroupsChatMessages_model_1 = require("./GroupsChatMessages.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
+const getServerIpAddress_1 = require("../utils/getServerIpAddress");
 let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
+    constructor() {
+        super(...arguments);
+        this.fullImageUrl = null;
+    }
+    setFullImageUrl() {
+        if (this.imageUrl) {
+            this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + this.imageUrl;
+        }
+    }
     isAcceptJoin(userId, filterUserGroups) {
         var _a, _b;
         if (this.userGroupsChats.length) {
@@ -93,6 +103,14 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], GroupsChat.prototype, "imageUrl", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], GroupsChat.prototype, "setFullImageUrl", null);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)

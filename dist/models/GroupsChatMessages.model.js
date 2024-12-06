@@ -15,7 +15,17 @@ const typeorm_1 = require("typeorm");
 const BaseModel_1 = require("./BaseModel");
 const User_model_1 = require("./User.model");
 const GroupsChat_model_1 = require("./GroupsChat.model");
+const getServerIpAddress_1 = require("../utils/getServerIpAddress");
 let GroupsChatMessages = GroupsChatMessages_1 = class GroupsChatMessages extends BaseModel_1.BaseModel {
+    constructor() {
+        super(...arguments);
+        this.fullImageUrl = null;
+    }
+    setFullImageUrl() {
+        if (this.imageUrl) {
+            this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + this.imageUrl;
+        }
+    }
     // @AfterLoad()
     // @AfterInsert()
     // @AfterUpdate()
@@ -61,6 +71,14 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], GroupsChatMessages.prototype, "imageUrl", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], GroupsChatMessages.prototype, "setFullImageUrl", null);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)

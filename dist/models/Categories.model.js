@@ -14,10 +14,20 @@ const typeorm_1 = require("typeorm");
 const Books_model_1 = require("./Books.model");
 const User_model_1 = require("./User.model");
 const BaseModel_1 = require("./BaseModel");
+const getServerIpAddress_1 = require("../utils/getServerIpAddress");
 let Category = class Category extends BaseModel_1.BaseModel {
+    constructor() {
+        super(...arguments);
+        this.fullImageUrl = null;
+    }
+    setFullImageUrl() {
+        if (this.imageUrl) {
+            this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + this.imageUrl;
+        }
+    }
     chekCategoryImage() {
         if (!this.imageUrl) {
-            this.imageUrl = "/public/default/category.jpg";
+            this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + "/public/default/category.jpg";
         }
     }
     static getUserCategoryById(userId, categoryId) {
@@ -41,6 +51,14 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Category.prototype, "imageUrl", void 0);
+__decorate([
+    (0, typeorm_1.AfterLoad)(),
+    (0, typeorm_1.AfterInsert)(),
+    (0, typeorm_1.AfterUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], Category.prototype, "setFullImageUrl", null);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Books_model_1.Book, (book) => book.category, {
         cascade: true,
