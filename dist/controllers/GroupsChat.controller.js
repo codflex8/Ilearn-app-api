@@ -158,11 +158,13 @@ exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, 
     const count = await querable.getCount();
     const messages = await querable
         .leftJoinAndSelect("messages.from", "user")
+        .leftJoinAndSelect("messages.sharedGroup", "sharedGroup")
         .orderBy("messages.createdAt", "DESC")
         .skip(skip)
         .take(take)
         .select("messages")
         .addSelect(["user.id", "user.username", "user.email", "user.imageUrl"])
+        .addSelect("sharedGroup")
         .getMany();
     const checkIsSeenMessages = messages.map((msg) => {
         msg.isSeenMessage(user.id);
@@ -319,7 +321,7 @@ exports.newGroupChatMessage = (0, express_async_handler_1.default)(async (req, r
     });
     res.status(201).json({ message: "messages added successfuly", newMessage });
 });
-const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, recordUrl, }) => {
+const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, recordUrl, sharedGroup, }) => {
     const groupChat = await checkGroupChatExist(groupChatId, user.id);
     const isLink = (0, extractLing_1.containsLink)(message);
     const newMessage = GroupsChatMessages_model_1.GroupsChatMessages.create({
@@ -330,6 +332,7 @@ const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, re
         imageUrl,
         isLink,
         recordUrl,
+        sharedGroup,
         readbyIds: [user.id],
     });
     delete newMessage.from.userGroupsChats;

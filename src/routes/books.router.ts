@@ -8,7 +8,7 @@ import {
 } from "../controllers/books.controller";
 import { validateData } from "../middleware/validationMiddleware";
 import { addBookValidator } from "../utils/validators/BookValidator";
-import { upload } from "../middleware/uploadFiles";
+import { s3Upload, upload } from "../middleware/uploadFiles";
 
 const router = Router();
 
@@ -16,7 +16,7 @@ router.get("/", getBooks);
 
 router.post(
   "/",
-  upload.fields([
+  s3Upload.fields([
     { name: "image", maxCount: 1 },
     { name: "file", maxCount: 1 },
   ]),

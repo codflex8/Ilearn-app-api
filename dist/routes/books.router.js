@@ -7,7 +7,7 @@ const BookValidator_1 = require("../utils/validators/BookValidator");
 const uploadFiles_1 = require("../middleware/uploadFiles");
 const router = (0, express_1.Router)();
 router.get("/", books_controller_1.getBooks);
-router.post("/", uploadFiles_1.upload.fields([
+router.post("/", uploadFiles_1.s3Upload.fields([
     { name: "image", maxCount: 1 },
     { name: "file", maxCount: 1 },
 ]), (0, validationMiddleware_1.validateData)(BookValidator_1.addBookValidator), books_controller_1.addBook);

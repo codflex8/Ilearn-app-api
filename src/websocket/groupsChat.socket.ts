@@ -253,7 +253,17 @@ export const groupsChatEvents = (socket: Socket) => {
         if (!toGroupChat) {
           throw new ApiError("toGroupChat not found", 400);
         }
-        socket.to(toGroupId).emit("share-group", { sharedGroup });
+        const newMessage = await addNewMessage({
+          user,
+          groupChatId: toGroupChat.id,
+          sharedGroup,
+        });
+        socket.to(toGroupId).emit("new-message", {
+          message: newMessage,
+          groupChatId: toGroupChat.id,
+        });
+
+        // .emit("share-group", { newMessage });
       } catch (error: any) {
         if (callback) callback(error.message);
       }

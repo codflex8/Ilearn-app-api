@@ -203,11 +203,13 @@ export const getGroupChatMessages = asyncHandler(
     const count = await querable.getCount();
     const messages = await querable
       .leftJoinAndSelect("messages.from", "user")
+      .leftJoinAndSelect("messages.sharedGroup", "sharedGroup")
       .orderBy("messages.createdAt", "DESC")
       .skip(skip)
       .take(take)
       .select("messages")
       .addSelect(["user.id", "user.username", "user.email", "user.imageUrl"])
+      .addSelect("sharedGroup")
       .getMany();
     const checkIsSeenMessages = messages.map((msg) => {
       msg.isSeenMessage(user.id);
@@ -418,6 +420,7 @@ export const addNewMessage = async ({
   fileUrl,
   imageUrl,
   recordUrl,
+  sharedGroup,
 }: {
   message?: string;
   groupChatId: string;
@@ -425,6 +428,7 @@ export const addNewMessage = async ({
   imageUrl?: string;
   recordUrl?: string;
   fileUrl?: string;
+  sharedGroup?: GroupsChat;
 }) => {
   const groupChat = await checkGroupChatExist(groupChatId, user.id);
   const isLink = containsLink(message);
@@ -437,6 +441,7 @@ export const addNewMessage = async ({
     imageUrl,
     isLink,
     recordUrl,
+    sharedGroup,
     readbyIds: [user.id],
   });
   delete newMessage.from.userGroupsChats;

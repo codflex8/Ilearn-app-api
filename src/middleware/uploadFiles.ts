@@ -171,8 +171,14 @@ const dynamicStorage: multer.StorageEngine = {
 };
 
 // Create the multer upload instance
-export const upload = multer({
+export const s3Upload = multer({
   storage: dynamicStorage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 50 * 1024 * 1024 }, // Increased to 50 MB limit
+});
+// Create the multer upload instance
+export const upload = multer({
+  storage: localStorage,
   fileFilter: fileFilter,
   limits: { fileSize: 50 * 1024 * 1024 }, // Increased to 50 MB limit
 });

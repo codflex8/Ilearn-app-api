@@ -96,6 +96,11 @@ __decorate([
     __metadata("design:type", GroupsChat_model_1.GroupsChat)
 ], GroupsChatMessages.prototype, "group", void 0);
 __decorate([
+    (0, typeorm_1.ManyToOne)(() => GroupsChat_model_1.GroupsChat),
+    (0, typeorm_1.JoinColumn)({ name: "shared_group_id" }),
+    __metadata("design:type", GroupsChat_model_1.GroupsChat)
+], GroupsChatMessages.prototype, "sharedGroup", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => User_model_1.User, { onDelete: "SET NULL" }),
     __metadata("design:type", User_model_1.User)
 ], GroupsChatMessages.prototype, "from", void 0);

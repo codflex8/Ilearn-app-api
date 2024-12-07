@@ -5,6 +5,7 @@ import {
   Brackets,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
 } from "typeorm";
@@ -41,6 +42,10 @@ export class GroupsChatMessages extends BaseModel {
 
   @ManyToOne(() => GroupsChat)
   group: GroupsChat;
+
+  @ManyToOne(() => GroupsChat)
+  @JoinColumn({ name: "shared_group_id" })
+  sharedGroup: GroupsChat;
 
   @ManyToOne(() => User, { onDelete: "SET NULL" })
   from: User;

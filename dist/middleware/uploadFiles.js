@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.upload = void 0;
+exports.upload = exports.s3Upload = void 0;
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
@@ -165,8 +165,14 @@ const dynamicStorage = {
     },
 };
 // Create the multer upload instance
-exports.upload = (0, multer_1.default)({
+exports.s3Upload = (0, multer_1.default)({
     storage: dynamicStorage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 50 * 1024 * 1024 }, // Increased to 50 MB limit
+});
+// Create the multer upload instance
+exports.upload = (0, multer_1.default)({
+    storage: localStorage,
     fileFilter: fileFilter,
     limits: { fileSize: 50 * 1024 * 1024 }, // Increased to 50 MB limit
 });
