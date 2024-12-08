@@ -78,12 +78,13 @@ export const addBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, image, fileUrl, link, content, categoryId } = req.body;
     const fileData = req.files["file"]?.[0];
+    httpLogger.info("upload new book", { fileData });
+    console.log("fileDataaaaaaa", fileData);
     try {
       if (!fileData) {
         console.log("fileData", fileData);
         return next(new ApiError("somthing wrong with file data", 400));
       }
-      console.log("req.fileeeee", req.files);
       const user = req.user;
       const book = Book.create({
         name,
@@ -92,6 +93,7 @@ export const addBook = asyncHandler(
         link,
         content,
         user,
+        s3Key: fileData.key,
       });
       const category = await Category.getUserCategoryById(user.id, categoryId);
       if (!category) {
@@ -136,7 +138,17 @@ export const updateBook = asyncHandler(
 export const deleteBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const book = await Book.delete(id);
+    const user = req.user;
+    const book = await Book.findOne({
+      where: {
+        id,
+        user: {
+          id: user.id,
+        },
+      },
+    });
+    await book.remove();
+    await deleteS3File(book.s3Key);
     res.status(200).json({ message: "delete success" });
   }
 );

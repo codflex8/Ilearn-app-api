@@ -64,12 +64,13 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
     var _a;
     const { name, image, fileUrl, link, content, categoryId } = req.body;
     const fileData = (_a = req.files["file"]) === null || _a === void 0 ? void 0 : _a[0];
+    logger_1.httpLogger.info("upload new book", { fileData });
+    console.log("fileDataaaaaaa", fileData);
     try {
         if (!fileData) {
             console.log("fileData", fileData);
             return next(new ApiError_1.default("somthing wrong with file data", 400));
         }
-        console.log("req.fileeeee", req.files);
         const user = req.user;
         const book = Books_model_1.Book.create({
             name,
@@ -78,6 +79,7 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
             link,
             content,
             user,
+            s3Key: fileData.key,
         });
         const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
         if (!category) {
@@ -120,7 +122,17 @@ exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next)
 });
 exports.deleteBook = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
-    const book = await Books_model_1.Book.delete(id);
+    const user = req.user;
+    const book = await Books_model_1.Book.findOne({
+        where: {
+            id,
+            user: {
+                id: user.id,
+            },
+        },
+    });
+    await book.remove();
+    await (0, uploadToAws_1.deleteS3File)(book.s3Key);
     res.status(200).json({ message: "delete success" });
 });
 //# sourceMappingURL=books.controller.js.map

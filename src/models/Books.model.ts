@@ -25,6 +25,9 @@ export class Book extends BaseModel {
   @Column({ nullable: true })
   imageUrl: string;
 
+  @Column({ nullable: true })
+  s3Key: string;
+
   fullImageUrl: string = null;
 
   @AfterLoad()

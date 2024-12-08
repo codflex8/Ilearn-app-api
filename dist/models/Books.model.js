@@ -79,6 +79,10 @@ __decorate([
     __metadata("design:type", String)
 ], Book.prototype, "imageUrl", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Book.prototype, "s3Key", void 0);
+__decorate([
     (0, typeorm_1.AfterLoad)(),
     (0, typeorm_1.AfterInsert)(),
     (0, typeorm_1.AfterUpdate)(),
