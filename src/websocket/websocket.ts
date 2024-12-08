@@ -106,23 +106,27 @@ class Websocket extends Server {
     return socketsIds;
   }
 
-  public static async sendActiveRoomsToUsers() {
+  public static async sendActiveRoomsToAllUsers() {
     const users = this.users;
     users.map((user) => {
-      const userActiveGroups = Object.entries(this.rooms)
-        .filter(([roomId, data]) => data && data.users?.length > 0)
-        .map(([roomId, data]) => data.group)
-        .filter(
-          (activeGroup) =>
-            !!user.userGroupsChats?.find(
-              (userChat) => userChat?.groupChat?.id === activeGroup.id
-            )
-        );
-      const userSocketId = this.usersSockets[user.id];
-      this.io
-        .to(userSocketId)
-        .emit("active-rooms", { activegGroupsChat: userActiveGroups });
+      this.sendActiveRoomsToUser(user);
     });
+  }
+
+  public static async sendActiveRoomsToUser(user: User) {
+    const userActiveGroups = Object.entries(this.rooms)
+      .filter(([roomId, data]) => data && data.users?.length > 0)
+      .map(([roomId, data]) => data.group)
+      .filter(
+        (activeGroup) =>
+          !!user.userGroupsChats?.find(
+            (userChat) => userChat?.groupChat?.id === activeGroup.id
+          )
+      );
+    const userSocketId = this.usersSockets[user.id];
+    this.io
+      .to(userSocketId)
+      .emit("active-rooms", { activegGroupsChat: userActiveGroups });
   }
 
   public static async sendNewGroupUpdate(group: GroupsChat) {
@@ -131,7 +135,7 @@ class Websocket extends Server {
       room.group = group;
     }
     this.rooms = { ...this.rooms, [group.id]: room };
-    this.sendActiveRoomsToUsers();
+    this.sendActiveRoomsToAllUsers();
   }
 }
 

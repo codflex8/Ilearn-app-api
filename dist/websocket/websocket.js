@@ -75,21 +75,24 @@ class Websocket extends socket_io_1.Server {
         });
         return socketsIds;
     }
-    static async sendActiveRoomsToUsers() {
+    static async sendActiveRoomsToAllUsers() {
         const users = this.users;
         users.map((user) => {
-            const userActiveGroups = Object.entries(this.rooms)
-                .filter(([roomId, data]) => { var _a; return data && ((_a = data.users) === null || _a === void 0 ? void 0 : _a.length) > 0; })
-                .map(([roomId, data]) => data.group)
-                .filter((activeGroup) => {
-                var _a;
-                return !!((_a = user.userGroupsChats) === null || _a === void 0 ? void 0 : _a.find((userChat) => { var _a; return ((_a = userChat === null || userChat === void 0 ? void 0 : userChat.groupChat) === null || _a === void 0 ? void 0 : _a.id) === activeGroup.id; }));
-            });
-            const userSocketId = this.usersSockets[user.id];
-            this.io
-                .to(userSocketId)
-                .emit("active-rooms", { activegGroupsChat: userActiveGroups });
+            this.sendActiveRoomsToUser(user);
         });
+    }
+    static async sendActiveRoomsToUser(user) {
+        const userActiveGroups = Object.entries(this.rooms)
+            .filter(([roomId, data]) => { var _a; return data && ((_a = data.users) === null || _a === void 0 ? void 0 : _a.length) > 0; })
+            .map(([roomId, data]) => data.group)
+            .filter((activeGroup) => {
+            var _a;
+            return !!((_a = user.userGroupsChats) === null || _a === void 0 ? void 0 : _a.find((userChat) => { var _a; return ((_a = userChat === null || userChat === void 0 ? void 0 : userChat.groupChat) === null || _a === void 0 ? void 0 : _a.id) === activeGroup.id; }));
+        });
+        const userSocketId = this.usersSockets[user.id];
+        this.io
+            .to(userSocketId)
+            .emit("active-rooms", { activegGroupsChat: userActiveGroups });
     }
     static async sendNewGroupUpdate(group) {
         const room = this.rooms[group.id];
@@ -97,7 +100,7 @@ class Websocket extends socket_io_1.Server {
             room.group = group;
         }
         this.rooms = Object.assign(Object.assign({}, this.rooms), { [group.id]: room });
-        this.sendActiveRoomsToUsers();
+        this.sendActiveRoomsToAllUsers();
     }
 }
 Websocket.users = [];

@@ -21,6 +21,7 @@ let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
         this.fullImageUrl = null;
     }
     setFullImageUrl() {
+        console.log("setimageeeeeee");
         if (this.imageUrl) {
             this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + this.imageUrl;
         }

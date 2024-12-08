@@ -11,6 +11,8 @@ const Categories_model_1 = require("../models/Categories.model");
 const GenericResponse_1 = require("../utils/GenericResponse");
 const getPaginationData_1 = require("../utils/getPaginationData");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
+const uploadToAws_1 = require("../utils/uploadToAws");
+const logger_1 = require("../utils/logger");
 exports.getBooks = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { page, pageSize, categoryId, name, forArchive } = req.query;
     const user = req.user;
@@ -62,29 +64,38 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
     var _a;
     const { name, image, fileUrl, link, content, categoryId } = req.body;
     const fileData = (_a = req.files["file"]) === null || _a === void 0 ? void 0 : _a[0];
-    if (!fileData) {
-        console.log("fileData", fileData);
-        return next(new ApiError_1.default("somthing wrong with file data", 400));
+    try {
+        if (!fileData) {
+            console.log("fileData", fileData);
+            return next(new ApiError_1.default("somthing wrong with file data", 400));
+        }
+        console.log("req.fileeeee", req.files);
+        const user = req.user;
+        const book = Books_model_1.Book.create({
+            name,
+            imageUrl: image !== null && image !== void 0 ? image : null,
+            fileUrl: fileData.location,
+            link,
+            content,
+            user,
+        });
+        const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
+        if (!category) {
+            throw new ApiError_1.default("category not found", 400);
+        }
+        book.category = category;
+        await book.save();
+        delete book.user;
+        delete book.category;
+        res.status(201).json({ book });
     }
-    console.log("req.fileeeee", req.files);
-    const user = req.user;
-    const book = Books_model_1.Book.create({
-        name,
-        imageUrl: image !== null && image !== void 0 ? image : null,
-        fileUrl: fileData.location,
-        link,
-        content,
-        user,
-    });
-    const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
-    if (!category) {
-        return next(new ApiError_1.default("category not found", 400));
+    catch (error) {
+        if (fileData) {
+            logger_1.httpLogger.error(error.message, { fileData });
+            (0, uploadToAws_1.deleteS3File)(fileData.key);
+        }
+        next(error);
     }
-    book.category = category;
-    await book.save();
-    delete book.user;
-    delete book.category;
-    res.status(201).json({ book });
 });
 exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;

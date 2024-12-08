@@ -139,7 +139,7 @@ const s3Storage = multerS3({
   },
 });
 
-const dynamicStorage: multer.StorageEngine = {
+export const dynamicStorage: multer.StorageEngine = {
   _handleFile(req, file, cb) {
     if (file.fieldname === "file") {
       // Use S3 for "file" field

@@ -8,6 +8,7 @@ export enum GenderEnum {
 export const signInValidator = z.object({
   email: z.string().email(),
   password: z.string().min(6),
+  fcm: z.string().optional(),
 });
 
 export const signUpValidator = signInValidator.extend({

@@ -43,6 +43,7 @@ io.use(async (socket, callback) => {
 io.on("connection", async (socket) => {
     logger_1.httpLogger.info("user connect", { user: socket.user });
     socket.emit("connect-success");
+    websocket_1.default.sendActiveRoomsToUser(socket.user);
     (0, chatbots_websocket_1.chatbotEvents)(socket);
     (0, groupsChat_socket_1.groupsChatEvents)(socket);
     socket.on("error", (err) => {

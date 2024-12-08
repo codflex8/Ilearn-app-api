@@ -6,6 +6,9 @@ import { Category } from "../models/Categories.model";
 import { GenericResponse } from "../utils/GenericResponse";
 import { getPaginationData } from "../utils/getPaginationData";
 import ApiError from "../utils/ApiError";
+import { dynamicStorage } from "../middleware/uploadFiles";
+import { deleteS3File } from "../utils/uploadToAws";
+import { httpLogger } from "../utils/logger";
 
 export const getBooks = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -75,29 +78,37 @@ export const addBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, image, fileUrl, link, content, categoryId } = req.body;
     const fileData = req.files["file"]?.[0];
-    if (!fileData) {
-      console.log("fileData", fileData);
-      return next(new ApiError("somthing wrong with file data", 400));
+    try {
+      if (!fileData) {
+        console.log("fileData", fileData);
+        return next(new ApiError("somthing wrong with file data", 400));
+      }
+      console.log("req.fileeeee", req.files);
+      const user = req.user;
+      const book = Book.create({
+        name,
+        imageUrl: image ?? null,
+        fileUrl: fileData.location,
+        link,
+        content,
+        user,
+      });
+      const category = await Category.getUserCategoryById(user.id, categoryId);
+      if (!category) {
+        throw new ApiError("category not found", 400);
+      }
+      book.category = category;
+      await book.save();
+      delete book.user;
+      delete book.category;
+      res.status(201).json({ book });
+    } catch (error: any) {
+      if (fileData) {
+        httpLogger.error(error.message, { fileData });
+        deleteS3File(fileData.key);
+      }
+      next(error);
     }
-    console.log("req.fileeeee", req.files);
-    const user = req.user;
-    const book = Book.create({
-      name,
-      imageUrl: image ?? null,
-      fileUrl: fileData.location,
-      link,
-      content,
-      user,
-    });
-    const category = await Category.getUserCategoryById(user.id, categoryId);
-    if (!category) {
-      return next(new ApiError("category not found", 400));
-    }
-    book.category = category;
-    await book.save();
-    delete book.user;
-    delete book.category;
-    res.status(201).json({ book });
   }
 );
 

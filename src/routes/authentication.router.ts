@@ -8,6 +8,7 @@ import {
   refreshToken,
   resetPassword,
   signIn,
+  signOut,
   signup,
   twitterAuthSignIn,
   twitterAuthSignUp,
@@ -33,6 +34,8 @@ router.post(
   signup
 );
 router.post("/signin", validateData(signInValidator), signIn);
+router.post("/signout", signOut);
+
 router.post("/refreshToken", refreshToken);
 router.post(
   "/forgotPassword",

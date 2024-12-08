@@ -101,7 +101,7 @@ export const groupsChatEvents = (socket: Socket) => {
       // socketsIds.map()
       if (callback)
         callback({ success: true, message: `Joined room: ${groupChatId}` });
-      Websocket.sendActiveRoomsToUsers();
+      Websocket.sendActiveRoomsToAllUsers();
     }
   );
 
@@ -119,7 +119,7 @@ export const groupsChatEvents = (socket: Socket) => {
         }
         socket.leave(groupChatId);
         Websocket.removeUserFromRoom(groupChatId, user);
-        Websocket.sendActiveRoomsToUsers();
+        Websocket.sendActiveRoomsToAllUsers();
         if (callback)
           callback({ success: true, message: `leave room: ${groupChatId}` });
       } catch (error: any) {
@@ -258,6 +258,8 @@ export const groupsChatEvents = (socket: Socket) => {
           groupChatId: toGroupChat.id,
           sharedGroup,
         });
+        console.log("call setimageeee");
+        newMessage.sharedGroup?.setFullImageUrl();
         socket.to(toGroupId).emit("new-message", {
           message: newMessage,
           groupChatId: toGroupChat.id,

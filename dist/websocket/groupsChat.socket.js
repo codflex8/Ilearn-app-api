@@ -90,7 +90,7 @@ const groupsChatEvents = (socket) => {
         // socketsIds.map()
         if (callback)
             callback({ success: true, message: `Joined room: ${groupChatId}` });
-        websocket_1.default.sendActiveRoomsToUsers();
+        websocket_1.default.sendActiveRoomsToAllUsers();
     });
     socket.on("leave-room", async ({ groupChatId }, callback) => {
         try {
@@ -101,7 +101,7 @@ const groupsChatEvents = (socket) => {
             }
             socket.leave(groupChatId);
             websocket_1.default.removeUserFromRoom(groupChatId, user);
-            websocket_1.default.sendActiveRoomsToUsers();
+            websocket_1.default.sendActiveRoomsToAllUsers();
             if (callback)
                 callback({ success: true, message: `leave room: ${groupChatId}` });
         }
@@ -193,6 +193,7 @@ const groupsChatEvents = (socket) => {
         }
     });
     socket.on("share-group", async ({ sharedGroupId, toGroupId, }, callback) => {
+        var _a;
         try {
             const user = socket.user;
             const sharedGroup = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, sharedGroupId);
@@ -208,6 +209,8 @@ const groupsChatEvents = (socket) => {
                 groupChatId: toGroupChat.id,
                 sharedGroup,
             });
+            console.log("call setimageeee");
+            (_a = newMessage.sharedGroup) === null || _a === void 0 ? void 0 : _a.setFullImageUrl();
             socket.to(toGroupId).emit("new-message", {
                 message: newMessage,
                 groupChatId: toGroupChat.id,

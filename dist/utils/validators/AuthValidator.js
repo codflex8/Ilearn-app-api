@@ -10,6 +10,7 @@ var GenderEnum;
 exports.signInValidator = zod_1.z.object({
     email: zod_1.z.string().email(),
     password: zod_1.z.string().min(6),
+    fcm: zod_1.z.string().optional(),
 });
 exports.signUpValidator = exports.signInValidator.extend({
     username: zod_1.z.string(),

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkBucket = exports.s3 = void 0;
+exports.deleteS3File = exports.checkBucket = exports.s3 = void 0;
 const client_s3_1 = require("@aws-sdk/client-s3");
 const config = {
     region: process.env.AWS_REGION,
@@ -22,4 +22,15 @@ const checkBucket = async (s3, bucket) => {
     }
 };
 exports.checkBucket = checkBucket;
+const deleteS3File = async (fileKey) => {
+    try {
+        const bucketParams = { Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey };
+        const data = await exports.s3.send(new client_s3_1.DeleteObjectCommand(bucketParams));
+        return data;
+    }
+    catch (error) {
+        console.log("Error", error);
+    }
+};
+exports.deleteS3File = deleteS3File;
 //# sourceMappingURL=uploadToAws.js.map

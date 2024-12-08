@@ -63,9 +63,21 @@ export const signIn = asyncHandler(
     }
     const token = createToken(user.id);
     const refreshToken = createRefreshToken(user.id);
+    if (req.body.fcm) {
+      user.fcms = [...user.fcms, req.body.fcm];
+      await user.save();
+    }
     delete user.password;
-
     res.status(200).json({ user, token, refreshToken });
+  }
+);
+
+export const signOut = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    user.fcms = user.fcms.filter((token) => token !== req.body.fcm);
+    await user.save();
+    res.status(200).json({ message: "logout success" });
   }
 );
 

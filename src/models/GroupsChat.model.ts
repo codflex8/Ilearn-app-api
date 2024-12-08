@@ -28,6 +28,7 @@ export class GroupsChat extends BaseModel {
   @AfterInsert()
   @AfterUpdate()
   setFullImageUrl() {
+    console.log("setimageeeeeee");
     if (this.imageUrl) {
       this.fullImageUrl = getServerIPAddress() + this.imageUrl;
     }

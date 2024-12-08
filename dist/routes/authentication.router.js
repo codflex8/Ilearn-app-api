@@ -8,6 +8,7 @@ const uploadFiles_1 = require("../middleware/uploadFiles");
 const router = (0, express_1.Router)();
 router.post("/signup", uploadFiles_1.upload.single("image"), (0, validationMiddleware_1.validateData)(AuthValidator_1.signUpValidator), authentication_controller_1.signup);
 router.post("/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.signInValidator), authentication_controller_1.signIn);
+router.post("/signout", authentication_controller_1.signOut);
 router.post("/refreshToken", authentication_controller_1.refreshToken);
 router.post("/forgotPassword", (0, validationMiddleware_1.validateData)(AuthValidator_1.forgetPasswordValidator), authentication_controller_1.forgotPassword);
 router.post("/verifyResetCode", (0, validationMiddleware_1.validateData)(AuthValidator_1.verifyForgetPasswordValidator), authentication_controller_1.verifyPassResetCode);

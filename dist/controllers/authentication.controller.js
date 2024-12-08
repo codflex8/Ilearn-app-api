@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.twitterAuthSignIn = exports.twitterAuthSignUp = exports.facebookAuthSignIn = exports.facebookAuthSignUp = exports.googleAuthSignIn = exports.googleAuthSignUp = exports.resetPassword = exports.verifyPassResetCode = exports.forgotPassword = exports.protect = exports.refreshToken = exports.signIn = exports.signup = void 0;
+exports.twitterAuthSignIn = exports.twitterAuthSignUp = exports.facebookAuthSignIn = exports.facebookAuthSignUp = exports.googleAuthSignIn = exports.googleAuthSignUp = exports.resetPassword = exports.verifyPassResetCode = exports.forgotPassword = exports.protect = exports.refreshToken = exports.signOut = exports.signIn = exports.signup = void 0;
 const User_model_1 = require("../models/User.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const bcrypt = __importStar(require("bcryptjs"));
@@ -76,8 +76,18 @@ exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => 
     }
     const token = (0, createToken_1.createToken)(user.id);
     const refreshToken = (0, createToken_1.createRefreshToken)(user.id);
+    if (req.body.fcm) {
+        user.fcms = [...user.fcms, req.body.fcm];
+        await user.save();
+    }
     delete user.password;
     res.status(200).json({ user, token, refreshToken });
+});
+exports.signOut = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const user = req.user;
+    user.fcms = user.fcms.filter((token) => token !== req.body.fcm);
+    await user.save();
+    res.status(200).json({ message: "logout success" });
 });
 const refreshToken = (req, res, next) => {
     const refreshToken = req.body.refreshToken;

@@ -73,6 +73,10 @@ export class User extends BaseModel {
   @Column({ default: 10 })
   intensePoints: number;
 
+  // firebase tokens for notifcations
+  @Column({ type: "simple-array" })
+  fcms: string[];
+
   @OneToMany(() => Category, (category) => category.user, {
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
