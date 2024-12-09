@@ -12,9 +12,10 @@ const ChatBotMessages_model_1 = require("../models/ChatBotMessages.model");
 const getPaginationData_1 = require("../utils/getPaginationData");
 const GenericResponse_1 = require("../utils/GenericResponse");
 const Books_model_1 = require("../models/Books.model");
+const GroupsChatValidator_1 = require("../utils/validators/GroupsChatValidator");
 exports.getChatbots = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
-    const { page, pageSize, name, bookId, categoryId, fromDate, toDate } = req.query;
+    const { page, pageSize, name, bookId, categoryId, fromDate, toDate, messageType, } = req.query;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
     let querable = ChatBot_model_1.Chatbot.getChatbotQuerable({
         userId: user.id,
@@ -23,6 +24,7 @@ exports.getChatbots = (0, express_async_handler_1.default)(async (req, res, next
         categoryId,
         fromDate,
         toDate,
+        messageType,
     });
     const chatbots = await querable.skip(skip).take(take).getMany();
     const count = await querable.getCount();
@@ -90,7 +92,7 @@ exports.deleteChatbot = (0, express_async_handler_1.default)(async (req, res, ne
     res.status(200).json({ message: "delete success" });
 });
 exports.getChatbotMessages = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const { page, pageSize } = req.query;
+    const { page, pageSize, messageType } = req.query;
     const user = req.user;
     const { id } = req.params;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
@@ -105,11 +107,25 @@ exports.getChatbotMessages = (0, express_async_handler_1.default)(async (req, re
     if (!chatbot) {
         next(new ApiError_1.default("chatbot not found", 404));
     }
-    const condition = {
+    let condition = {
         chatbot: {
             id: (0, typeorm_1.Equal)(id),
         },
     };
+    if (messageType) {
+        if (messageType === GroupsChatValidator_1.MessageType.images) {
+            condition = Object.assign(Object.assign({}, condition), { imageUrl: (0, typeorm_1.Not)((0, typeorm_1.IsNull)()) });
+        }
+        if (messageType === GroupsChatValidator_1.MessageType.records) {
+            condition = Object.assign(Object.assign({}, condition), { recordUrl: (0, typeorm_1.Not)((0, typeorm_1.IsNull)()) });
+        }
+        if (messageType === GroupsChatValidator_1.MessageType.files) {
+            condition = Object.assign(Object.assign({}, condition), { fileUrl: (0, typeorm_1.Not)((0, typeorm_1.IsNull)()) });
+        }
+        // if (messageType === MessageType.links) {
+        //   querable = querable.andWhere("messages.isLink = 1");
+        // }
+    }
     const [messages, count] = await ChatBotMessages_model_1.ChatbotMessages.findAndCount({
         where: condition,
         take,
@@ -128,7 +144,7 @@ exports.getChatbotMessages = (0, express_async_handler_1.default)(async (req, re
 exports.addMessageHandler = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
-    const { message, record, image, from } = req.body;
+    const { message, record, image, from, file } = req.body;
     const newMessage = await (0, exports.addMessage)({
         message,
         recordUrl: record,
@@ -136,6 +152,7 @@ exports.addMessageHandler = (0, express_async_handler_1.default)(async (req, res
         from,
         chatbotId: id,
         userId: user.id,
+        fileUrl: file,
         errorHandler: next,
     });
     res.status(201).json({ message: newMessage });
@@ -160,7 +177,7 @@ exports.addBooksToChatbot = (0, express_async_handler_1.default)(async (req, res
     await chatbot.save();
     res.status(200).json({ chatbot });
 });
-const addMessage = async ({ chatbotId, message, recordUrl, imageUrl, from, userId, errorHandler, }) => {
+const addMessage = async ({ chatbotId, message, recordUrl, imageUrl, from, userId, fileUrl, errorHandler, }) => {
     const chatbot = await ChatBot_model_1.Chatbot.findOne({
         where: {
             id: (0, typeorm_1.Equal)(chatbotId),
@@ -174,8 +191,9 @@ const addMessage = async ({ chatbotId, message, recordUrl, imageUrl, from, userI
     }
     const newMessage = ChatBotMessages_model_1.ChatbotMessages.create({
         message,
-        recordUrl,
-        imageUrl,
+        recordUrl: recordUrl ? recordUrl : null,
+        imageUrl: imageUrl ? imageUrl : null,
+        fileUrl: fileUrl ? fileUrl : null,
         chatbot,
         from,
     });

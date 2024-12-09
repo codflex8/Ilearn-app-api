@@ -1,7 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GroupChatRoles = exports.newGroupChatMessageValidator = exports.updateGroupChatValidator = exports.addGroupChatValidator = exports.groupsChatUsersValidator = void 0;
+exports.GroupChatRoles = exports.newGroupChatMessageValidator = exports.updateGroupChatValidator = exports.addGroupChatValidator = exports.groupsChatUsersValidator = exports.MessageType = void 0;
 const zod_1 = require("zod");
+var MessageType;
+(function (MessageType) {
+    MessageType["messages"] = "messages";
+    MessageType["images"] = "images";
+    MessageType["records"] = "records";
+    MessageType["files"] = "files";
+    MessageType["links"] = "links";
+})(MessageType || (exports.MessageType = MessageType = {}));
 exports.groupsChatUsersValidator = zod_1.z.object({
     usersIds: zod_1.z.array(zod_1.z.string()),
 });

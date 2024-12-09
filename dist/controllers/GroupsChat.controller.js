@@ -16,14 +16,7 @@ const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const GroupsChatMessages_model_1 = require("../models/GroupsChatMessages.model");
 const extractLing_1 = require("../utils/extractLing");
 const websocket_1 = __importDefault(require("../websocket/websocket"));
-var MessageType;
-(function (MessageType) {
-    MessageType["messages"] = "messages";
-    MessageType["images"] = "images";
-    MessageType["records"] = "records";
-    MessageType["files"] = "files";
-    MessageType["links"] = "links";
-})(MessageType || (MessageType = {}));
+const sendNotification_1 = require("../utils/sendNotification");
 exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
     const { page, pageSize, name } = req.query;
@@ -93,7 +86,18 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
         relations: { user: true },
     });
     console.log("groupAdminnnnn", groupAdmin);
-    //ToDo: send notification to group admin
+    // send notification to group admin
+    await (0, sendNotification_1.sendAndCreateNotification)({
+        title: "join group chat request",
+        message: `user:${user.username} request to join group chat`,
+        user: groupAdmin.user,
+        group: groupChat,
+        data: {
+            message: `user:${user.username} request to join group chat`,
+            groupChat,
+        },
+        fcmTokens: groupAdmin.user.fcms,
+    });
     res.status(200).json({ message: "join request sent to group admin" });
 });
 exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
@@ -142,16 +146,16 @@ exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, 
         .leftJoin("messages.group", "chat")
         .where("chat.id = :chatId", { chatId: id });
     if (messageType) {
-        if (messageType === MessageType.images) {
+        if (messageType === GroupsChatValidator_1.MessageType.images) {
             querable = querable.andWhere("messages.imageUrl Is Not Null");
         }
-        if (messageType === MessageType.records) {
+        if (messageType === GroupsChatValidator_1.MessageType.records) {
             querable = querable.andWhere("messages.recordUrl Is Not Null");
         }
-        if (messageType === MessageType.files) {
+        if (messageType === GroupsChatValidator_1.MessageType.files) {
             querable = querable.andWhere("messages.fileUrl Is Not Null");
         }
-        if (messageType === MessageType.links) {
+        if (messageType === GroupsChatValidator_1.MessageType.links) {
             querable = querable.andWhere("messages.isLink = 1");
         }
     }

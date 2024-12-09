@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteBook = exports.updateBook = exports.addBook = exports.getBookById = exports.getBooks = void 0;
+exports.deleteBook = exports.setLocalPath = exports.updateBook = exports.addBook = exports.getBookById = exports.getBooks = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Books_model_1 = require("../models/Books.model");
 const typeorm_1 = require("typeorm");
@@ -62,7 +62,7 @@ exports.getBookById = (0, express_async_handler_1.default)(async (req, res, next
 });
 exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) => {
     var _a;
-    const { name, image, fileUrl, link, content, categoryId } = req.body;
+    const { name, image, fileUrl, link, content, categoryId, localPath } = req.body;
     const fileData = (_a = req.files["file"]) === null || _a === void 0 ? void 0 : _a[0];
     logger_1.httpLogger.info("upload new book", { fileData });
     console.log("fileDataaaaaaa", fileData);
@@ -80,6 +80,7 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
             content,
             user,
             s3Key: fileData.key,
+            localPath,
         });
         const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
         if (!category) {
@@ -102,7 +103,7 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
 exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
-    const { name, image, fileUrl, link, content, categoryId } = req.body;
+    const { name, image, fileUrl, link, content, categoryId, localPath } = req.body;
     const book = await Books_model_1.Book.getUserBookById(user.id, id);
     book.name = name;
     if (image)
@@ -111,12 +112,26 @@ exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next)
         book.fileUrl = fileUrl;
     if (link)
         book.link = link;
+    if (localPath)
+        book.localPath = localPath;
     book.content = content;
     const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
     if (!category) {
         return next(new ApiError_1.default("category not found", 400));
     }
     book.category = category;
+    await book.save();
+    res.status(200).json({ book });
+});
+exports.setLocalPath = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const { id } = req.params;
+    const user = req.user;
+    const { localPath } = req.body;
+    const book = await Books_model_1.Book.getUserBookById(user.id, id);
+    if (!book) {
+        return next(new ApiError_1.default("book not found", 400));
+    }
+    book.localPath = localPath;
     await book.save();
     res.status(200).json({ book });
 });
@@ -131,8 +146,10 @@ exports.deleteBook = (0, express_async_handler_1.default)(async (req, res, next)
             },
         },
     });
-    await book.remove();
-    await (0, uploadToAws_1.deleteS3File)(book.s3Key);
+    if (book) {
+        await book.remove();
+        await (0, uploadToAws_1.deleteS3File)(book.s3Key);
+    }
     res.status(200).json({ message: "delete success" });
 });
 //# sourceMappingURL=books.controller.js.map

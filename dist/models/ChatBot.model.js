@@ -16,6 +16,7 @@ const BaseModel_1 = require("./BaseModel");
 const ChatBotMessages_model_1 = require("./ChatBotMessages.model");
 const Books_model_1 = require("./Books.model");
 const User_model_1 = require("./User.model");
+const GroupsChatValidator_1 = require("../utils/validators/GroupsChatValidator");
 let Chatbot = Chatbot_1 = class Chatbot extends BaseModel_1.BaseModel {
     static getUserChatbotById(userId, chatbotId) {
         return this.findOne({
@@ -29,7 +30,7 @@ let Chatbot = Chatbot_1 = class Chatbot extends BaseModel_1.BaseModel {
             },
         });
     }
-    static getChatbotQuerable({ userId, name, bookId, categoryId, fromDate, toDate, }) {
+    static getChatbotQuerable({ userId, name, bookId, categoryId, fromDate, toDate, messageType, }) {
         let querable = Chatbot_1.getRepository()
             .createQueryBuilder("chatbot")
             .leftJoin("chatbot.user", "user")
@@ -64,6 +65,20 @@ let Chatbot = Chatbot_1 = class Chatbot extends BaseModel_1.BaseModel {
                     toDate,
                 });
             }
+        }
+        if (messageType) {
+            if (messageType === GroupsChatValidator_1.MessageType.images) {
+                querable = querable.andWhere("messages.imageUrl Is Not Null");
+            }
+            if (messageType === GroupsChatValidator_1.MessageType.records) {
+                querable = querable.andWhere("messages.recordUrl Is Not Null");
+            }
+            if (messageType === GroupsChatValidator_1.MessageType.files) {
+                querable = querable.andWhere("messages.fileUrl Is Not Null");
+            }
+            // if (messageType === MessageType.links) {
+            //   querable = querable.andWhere("messages.isLink = 1");
+            // }
         }
         return querable.orderBy("chatbot.createdAt", "DESC");
     }

@@ -20,6 +20,7 @@ const Quiz_model_1 = require("./Quiz.model");
 const Bookmarks_model_1 = require("./Bookmarks.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 const getServerIpAddress_1 = require("../utils/getServerIpAddress");
+const Notification_model_1 = require("./Notification.model");
 let User = class User extends BaseModel_1.BaseModel {
     constructor() {
         super(...arguments);
@@ -134,6 +135,13 @@ __decorate([
     (0, typeorm_1.Column)({ type: "simple-array" }),
     __metadata("design:type", Array)
 ], User.prototype, "fcms", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Notification_model_1.Notification, (not) => not.user, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
+    __metadata("design:type", Notification_model_1.Notification)
+], User.prototype, "notifications", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Categories_model_1.Category, (category) => category.user, {
         onDelete: "CASCADE",

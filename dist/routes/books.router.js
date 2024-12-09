@@ -12,7 +12,8 @@ router.post("/", uploadFiles_1.s3Upload.fields([
     { name: "file", maxCount: 1 },
 ]), (0, validationMiddleware_1.validateData)(BookValidator_1.addBookValidator), books_controller_1.addBook);
 router.get("/:id", books_controller_1.getBookById);
-router.put("/:id", uploadFiles_1.upload.single("image"), (0, validationMiddleware_1.validateData)(BookValidator_1.addBookValidator), books_controller_1.updateBook);
+router.put("/:id", uploadFiles_1.upload.single("image"), (0, validationMiddleware_1.validateData)(BookValidator_1.addBookValidator), books_controller_1.setLocalPath);
+router.post("/:id/local-path", (0, validationMiddleware_1.validateData)(BookValidator_1.setLocalPathValidation), books_controller_1.updateBook);
 router.delete("/:id", books_controller_1.deleteBook);
 exports.default = router;
 //# sourceMappingURL=books.router.js.map

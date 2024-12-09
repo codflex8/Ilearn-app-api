@@ -4,7 +4,7 @@
       "typeRoots" : ["./src/types", "./node_modules/@types"],
       "module": "commonjs",
       "strict": true,
-      "resolveJsonModule":true,
+      "resolveJsonModule":true, 
       "strictPropertyInitialization": false,
       "strictNullChecks": false,
       "noImplicitAny": false,
@@ -13,6 +13,7 @@
       "moduleResolution": "node",
       "sourceMap": true,
       "outDir": "dist",
+      "rootDir": "./src",
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true
     },

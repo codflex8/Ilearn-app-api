@@ -15,6 +15,7 @@ router.get("/:id/messages", chatbot_controller_1.getChatbotMessages);
 router.post("/:id/messages", uploadFiles_1.upload.fields([
     { name: "image", maxCount: 1 },
     { name: "record", maxCount: 1 },
+    { name: "file", maxCount: 1 },
 ]), (0, validationMiddleware_1.validateData)(ChatbotValidator_1.refineChatbotMessageValidator), chatbot_controller_1.addMessageHandler);
 router.post("/:id/books", (0, validationMiddleware_1.validateData)(ChatbotValidator_1.addBooksToChatbotValidator), chatbot_controller_1.addBooksToChatbot);
 exports.default = router;
