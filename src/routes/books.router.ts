@@ -5,9 +5,13 @@ import {
   getBooks,
   getBookById,
   updateBook,
+  setLocalPath,
 } from "../controllers/books.controller";
 import { validateData } from "../middleware/validationMiddleware";
-import { addBookValidator } from "../utils/validators/BookValidator";
+import {
+  addBookValidator,
+  setLocalPathValidation,
+} from "../utils/validators/BookValidator";
 import { s3Upload, upload } from "../middleware/uploadFiles";
 
 const router = Router();
@@ -28,6 +32,11 @@ router.put(
   "/:id",
   upload.single("image"),
   validateData(addBookValidator),
+  setLocalPath
+);
+router.post(
+  "/:id/local-path",
+  validateData(setLocalPathValidation),
   updateBook
 );
 router.delete("/:id", deleteBook);

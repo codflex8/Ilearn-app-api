@@ -30,6 +30,7 @@ router.post(
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "record", maxCount: 1 },
+    { name: "file", maxCount: 1 },
   ]),
   validateData(refineChatbotMessageValidator),
   addMessageHandler

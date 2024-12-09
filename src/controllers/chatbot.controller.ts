@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { Chatbot } from "../models/ChatBot.model";
-import { Equal, In } from "typeorm";
+import { Equal, FindOptionsWhere, In, IsNull, Not } from "typeorm";
 import ApiError from "../utils/ApiError";
 import { ChatbotMessages } from "../models/ChatBotMessages.model";
 import { getPaginationData } from "../utils/getPaginationData";
@@ -12,10 +12,12 @@ import {
   IChatbotMessage,
   MessageFrom,
 } from "../utils/validators/ChatbotValidator";
+import { MessageType } from "../utils/validators/GroupsChatValidator";
 
 interface IAddMessage extends IChatbotMessage {
   recordUrl?: string;
   imageUrl?: string;
+  fileUrl?: string;
   // from: MessageFrom;
   // chatbotId: string;
   userId: string;
@@ -29,8 +31,16 @@ export const getChatbots = asyncHandler(
     next: NextFunction
   ) => {
     const user = req.user;
-    const { page, pageSize, name, bookId, categoryId, fromDate, toDate } =
-      req.query;
+    const {
+      page,
+      pageSize,
+      name,
+      bookId,
+      categoryId,
+      fromDate,
+      toDate,
+      messageType,
+    } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
     let querable = Chatbot.getChatbotQuerable({
       userId: user.id,
@@ -39,6 +49,7 @@ export const getChatbots = asyncHandler(
       categoryId,
       fromDate,
       toDate,
+      messageType,
     });
 
     const chatbots = await querable.skip(skip).take(take).getMany();
@@ -125,7 +136,7 @@ export const deleteChatbot = asyncHandler(
 
 export const getChatbotMessages = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { page, pageSize } = req.query;
+    const { page, pageSize, messageType } = req.query;
     const user = req.user;
     const { id } = req.params;
     const { take, skip } = getPaginationData({ page, pageSize });
@@ -140,11 +151,26 @@ export const getChatbotMessages = asyncHandler(
     if (!chatbot) {
       next(new ApiError("chatbot not found", 404));
     }
-    const condition = {
+    let condition: FindOptionsWhere<ChatbotMessages> = {
       chatbot: {
         id: Equal(id),
       },
     };
+
+    if (messageType) {
+      if (messageType === MessageType.images) {
+        condition = { ...condition, imageUrl: Not(IsNull()) };
+      }
+      if (messageType === MessageType.records) {
+        condition = { ...condition, recordUrl: Not(IsNull()) };
+      }
+      if (messageType === MessageType.files) {
+        condition = { ...condition, fileUrl: Not(IsNull()) };
+      }
+      // if (messageType === MessageType.links) {
+      //   querable = querable.andWhere("messages.isLink = 1");
+      // }
+    }
     const [messages, count] = await ChatbotMessages.findAndCount({
       where: condition,
       take,
@@ -174,7 +200,7 @@ export const addMessageHandler = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const { message, record, image, from } = req.body;
+    const { message, record, image, from, file } = req.body;
 
     const newMessage = await addMessage({
       message,
@@ -183,6 +209,7 @@ export const addMessageHandler = asyncHandler(
       from,
       chatbotId: id,
       userId: user.id,
+      fileUrl: file,
       errorHandler: next,
     });
     res.status(201).json({ message: newMessage });
@@ -219,6 +246,7 @@ export const addMessage = async ({
   imageUrl,
   from,
   userId,
+  fileUrl,
   errorHandler,
 }: IAddMessage) => {
   const chatbot = await Chatbot.findOne({
@@ -234,8 +262,9 @@ export const addMessage = async ({
   }
   const newMessage = ChatbotMessages.create({
     message,
-    recordUrl,
-    imageUrl,
+    recordUrl: recordUrl ? recordUrl : null,
+    imageUrl: imageUrl ? imageUrl : null,
+    fileUrl: fileUrl ? fileUrl : null,
     chatbot,
     from,
   });

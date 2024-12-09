@@ -11,6 +11,8 @@ import archiveRouter from "./archive.router";
 import groupChatRouter from "./groupsChat.router";
 import usersRouter from "./users.router";
 import statisticsRouter from "./statistics.router";
+import termsAndPolicyRouter from "./termsAndPolicy.router";
+import appLinksRouter from "./appLinks.router";
 
 import { protect } from "../controllers/authentication.controller";
 
@@ -28,5 +30,7 @@ export default class Routes {
     app.use("/api/v1/bookmarks", protect, bookmarksRouter);
     app.use("/api/v1/groupschat", protect, groupChatRouter);
     app.use("/api/v1/statistics", protect, statisticsRouter);
+    app.use("/api/v1/terms-and-policy", protect, termsAndPolicyRouter);
+    app.use("/api/v1/app-links", protect, appLinksRouter);
   }
 }

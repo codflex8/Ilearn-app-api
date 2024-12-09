@@ -1,4 +1,11 @@
 import { z } from "zod";
+export enum MessageType {
+  messages = "messages",
+  images = "images",
+  records = "records",
+  files = "files",
+  links = "links",
+}
 
 export const groupsChatUsersValidator = z.object({
   usersIds: z.array(z.string()),

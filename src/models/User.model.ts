@@ -19,6 +19,7 @@ import { Bookmark } from "./Bookmarks.model";
 import { GroupsChat } from "./GroupsChat.model";
 import { GroupsChatUsers } from "./GroupsChatUsers.model";
 import { getServerIPAddress } from "../utils/getServerIpAddress";
+import { Notification } from "./Notification.model";
 
 @Entity()
 export class User extends BaseModel {
@@ -76,6 +77,12 @@ export class User extends BaseModel {
   // firebase tokens for notifcations
   @Column({ type: "simple-array" })
   fcms: string[];
+
+  @OneToMany(() => Notification, (not) => not.user, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
+  notifications: Notification;
 
   @OneToMany(() => Category, (category) => category.user, {
     onDelete: "CASCADE",

@@ -7,6 +7,7 @@ import { GenericResponse } from "../utils/GenericResponse";
 import {
   addGroupChatValidator,
   GroupChatRoles,
+  MessageType,
 } from "../utils/validators/GroupsChatValidator";
 import { User } from "../models/User.model";
 import { In } from "typeorm";
@@ -15,14 +16,11 @@ import ApiError from "../utils/ApiError";
 import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
 import { containsLink } from "../utils/extractLing";
 import Websocket from "../websocket/websocket";
-
-enum MessageType {
-  messages = "messages",
-  images = "images",
-  records = "records",
-  files = "files",
-  links = "links",
-}
+import { Notification } from "../models/Notification.model";
+import {
+  sendAndCreateNotification,
+  sendNotification,
+} from "../utils/sendNotification";
 
 interface GroupsChatQuery extends BaseQuery {
   name?: string;
@@ -116,7 +114,18 @@ export const joinGroup = asyncHandler(
       relations: { user: true },
     });
     console.log("groupAdminnnnn", groupAdmin);
-    //ToDo: send notification to group admin
+    // send notification to group admin
+    await sendAndCreateNotification({
+      title: "join group chat request",
+      message: `user:${user.username} request to join group chat`,
+      user: groupAdmin.user,
+      group: groupChat,
+      data: {
+        message: `user:${user.username} request to join group chat`,
+        groupChat,
+      },
+      fcmTokens: groupAdmin.user.fcms,
+    });
     res.status(200).json({ message: "join request sent to group admin" });
   }
 );

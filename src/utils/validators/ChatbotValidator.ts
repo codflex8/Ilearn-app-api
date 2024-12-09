@@ -1,5 +1,6 @@
 import { z, ZodRawShape } from "zod";
 import { BaseQuery } from "./BaseQuery";
+import { MessageType } from "./GroupsChatValidator";
 
 export interface ChatbotsQuery extends BaseQuery {
   name: string;
@@ -7,6 +8,7 @@ export interface ChatbotsQuery extends BaseQuery {
   categoryId: string;
   fromDate: Date;
   toDate: Date;
+  messageType: MessageType;
 }
 
 export enum MessageFrom {

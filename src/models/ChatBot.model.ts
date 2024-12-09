@@ -10,6 +10,7 @@ import { BaseModel } from "./BaseModel";
 import { ChatbotMessages } from "./ChatBotMessages.model";
 import { Book } from "./Books.model";
 import { User } from "./User.model";
+import { MessageType } from "../utils/validators/GroupsChatValidator";
 
 @Entity()
 export class Chatbot extends BaseModel {
@@ -59,6 +60,7 @@ export class Chatbot extends BaseModel {
     categoryId,
     fromDate,
     toDate,
+    messageType,
   }: {
     userId: string;
     name?: string;
@@ -66,6 +68,7 @@ export class Chatbot extends BaseModel {
     categoryId?: string;
     fromDate?: Date | string;
     toDate?: Date | string;
+    messageType?: MessageType;
   }) {
     let querable = Chatbot.getRepository()
       .createQueryBuilder("chatbot")
@@ -108,6 +111,21 @@ export class Chatbot extends BaseModel {
           toDate,
         });
       }
+    }
+
+    if (messageType) {
+      if (messageType === MessageType.images) {
+        querable = querable.andWhere("messages.imageUrl Is Not Null");
+      }
+      if (messageType === MessageType.records) {
+        querable = querable.andWhere("messages.recordUrl Is Not Null");
+      }
+      if (messageType === MessageType.files) {
+        querable = querable.andWhere("messages.fileUrl Is Not Null");
+      }
+      // if (messageType === MessageType.links) {
+      //   querable = querable.andWhere("messages.isLink = 1");
+      // }
     }
 
     return querable.orderBy("chatbot.createdAt", "DESC");

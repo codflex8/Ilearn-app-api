@@ -23,7 +23,11 @@ export class ChatbotMessages extends BaseModel {
   recordUrl: string;
 
   @Column({ nullable: true })
+  fileUrl: string;
+
+  @Column({ nullable: true })
   imageUrl: string;
+
   fullImageUrl: string = null;
 
   @AfterLoad()

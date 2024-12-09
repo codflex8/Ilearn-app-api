@@ -4,6 +4,7 @@
       "typeRoots" : ["./src/types", "./node_modules/@types"],
       "module": "commonjs",
       "strict": true,
+      "resolveJsonModule":true,
       "strictPropertyInitialization": false,
       "strictNullChecks": false,
       "noImplicitAny": false,
