@@ -21,6 +21,7 @@ class AppServer {
         this.config(app);
     }
     config(app) {
+        app.use("/public", express_1.default.static(path_1.default.join(__dirname, "public")));
         i18next_1.default
             .use(i18next_fs_backend_1.default) // Connects the file system backend
             .use(i18next_http_middleware_1.default.LanguageDetector) // Enables automatic language detection
@@ -50,7 +51,6 @@ class AppServer {
             next();
         });
         // app.use(morgan());
-        app.use("/public", express_1.default.static(path_1.default.join(__dirname, "public")));
         app.get("/", (req, res, next) => {
             return res.send("hello worldddd");
         });
