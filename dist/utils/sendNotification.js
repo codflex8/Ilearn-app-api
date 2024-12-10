@@ -31,8 +31,14 @@ const sendNotification = async ({ title, data, fcmTokens }) => {
     }
 };
 exports.sendNotification = sendNotification;
-const sendAndCreateNotification = async ({ title, data, fcmTokens, message, user, group, }) => {
-    await Notification_model_1.Notification.createNewNotification({ message, user, group });
+const sendAndCreateNotification = async ({ title, data, fcmTokens, message, users, group, fromUser, }) => {
+    await Notification_model_1.Notification.createNewNotification({
+        message,
+        users,
+        group,
+        fromUser,
+        title,
+    });
     await (0, exports.sendNotification)({ title, data, fcmTokens });
 };
 exports.sendAndCreateNotification = sendAndCreateNotification;

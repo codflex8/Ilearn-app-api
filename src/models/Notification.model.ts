@@ -22,20 +22,28 @@ export class Notification extends BaseModel {
   group: GroupsChat;
 
   public static async createNewNotification({
+    title,
     message,
-    user,
+    users,
     group,
+    fromUser,
   }: {
+    title: string;
     message: string;
-    user: User;
+    users: User[];
     group?: GroupsChat;
+    fromUser?: User;
   }) {
-    const newNotification = await this.create({
-      message,
-      user,
-      group,
-    });
-    newNotification.save();
-    return newNotification;
+    const newNotifications = users.map((user) =>
+      this.create({
+        title,
+        message,
+        user,
+        group,
+        fromUser,
+      })
+    );
+    Notification.save(newNotifications);
+    return newNotifications;
   }
 }

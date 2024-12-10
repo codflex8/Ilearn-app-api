@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const addBookValidator = z.object({
   name: z.string(),
-  categoryId: z.string(),
+  categoryId: z.string().optional(),
   localPath: z.string().optional().nullable(),
   // imageUrl: z.string().optional().nullable(),
   fileUrl: z.string().optional().nullable(),

@@ -1,6 +1,8 @@
 import admin from "firebase-admin";
 import serviceAccount from "../../firebaseAccountKey.json";
 import { Notification } from "../models/Notification.model";
+import { User } from "../models/User.model";
+import { GroupsChat } from "../models/GroupsChat.model";
 
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -32,9 +34,24 @@ export const sendAndCreateNotification = async ({
   data,
   fcmTokens,
   message,
-  user,
+  users,
   group,
+  fromUser,
+}: {
+  title: string;
+  data: any;
+  fcmTokens: string[];
+  message: string;
+  users: User[];
+  group: GroupsChat;
+  fromUser?: User;
 }) => {
-  await Notification.createNewNotification({ message, user, group });
+  await Notification.createNewNotification({
+    message,
+    users,
+    group,
+    fromUser,
+    title,
+  });
   await sendNotification({ title, data, fcmTokens });
 };

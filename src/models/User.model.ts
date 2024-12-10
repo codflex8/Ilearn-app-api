@@ -75,8 +75,8 @@ export class User extends BaseModel {
   intensePoints: number;
 
   // firebase tokens for notifcations
-  @Column({ type: "simple-array" })
-  fcms: string[];
+  @Column({ nullable: true })
+  fcm: string;
 
   @OneToMany(() => Notification, (not) => not.user, {
     onDelete: "CASCADE",

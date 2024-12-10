@@ -85,4 +85,5 @@ router.post(
   validateData(socialMediaAuthValidator),
   twitterAuthSignIn
 );
+
 export default router;

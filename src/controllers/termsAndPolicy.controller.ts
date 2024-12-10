@@ -2,25 +2,47 @@ import expressAsync from "express-async-handler";
 import { Request, Response, NextFunction } from "express";
 import { PolicyAndTerms } from "../models/PolicyAndTerms.model";
 
-export const getTermsAndPolicy = expressAsync(
+export const getTerms = expressAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const termsAndPolicy = await PolicyAndTerms.findOne({ where: {} });
-    res.status(200).json({ termsAndPolicy });
+    const terms = await PolicyAndTerms.findOne({ where: {} });
+    res.status(200).json({ terms: terms?.terms });
   }
 );
 
-export const addTermsAndPolicy = expressAsync(
+export const addTerms = expressAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { policy, terms } = req.body;
-    let termsAndPolicy: PolicyAndTerms = await PolicyAndTerms.findOne({
+    const { terms: newTerms } = req.body;
+    let terms: PolicyAndTerms = await PolicyAndTerms.findOne({
       where: {},
     });
-    if (!termsAndPolicy) {
-      termsAndPolicy = new PolicyAndTerms();
+    if (!terms) {
+      terms = new PolicyAndTerms();
     }
-    termsAndPolicy.policy = policy;
-    termsAndPolicy.terms = terms;
-    await termsAndPolicy.save();
-    res.status(200).json({ termsAndPolicy });
+    terms.terms = newTerms;
+    await terms.save();
+    res.status(200).json({ terms });
+  }
+);
+
+export const getPolicy = expressAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const policy = await PolicyAndTerms.findOne({ where: {} });
+    res.status(200).json({ policy: policy?.policy });
+  }
+);
+
+export const addPolicy = expressAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { policy: newPolicy, terms } = req.body;
+    let policy: PolicyAndTerms = await PolicyAndTerms.findOne({
+      where: {},
+    });
+    if (!policy) {
+      policy = new PolicyAndTerms();
+    }
+    policy.policy = newPolicy;
+    policy.terms = terms;
+    await policy.save();
+    res.status(200).json({ policy: policy?.policy });
   }
 );

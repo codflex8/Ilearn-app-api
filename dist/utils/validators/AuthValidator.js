@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.socialMediaAuthValidator = exports.resetPasswordValidator = exports.verifyForgetPasswordValidator = exports.forgetPasswordValidator = exports.signUpValidator = exports.signInValidator = exports.GenderEnum = void 0;
+exports.addFcmValidation = exports.socialMediaAuthValidator = exports.resetPasswordValidator = exports.verifyForgetPasswordValidator = exports.forgetPasswordValidator = exports.signUpValidator = exports.signInValidator = exports.GenderEnum = void 0;
 const zod_1 = require("zod");
 var GenderEnum;
 (function (GenderEnum) {
@@ -29,5 +29,8 @@ exports.resetPasswordValidator = zod_1.z.object({
 });
 exports.socialMediaAuthValidator = zod_1.z.object({
     token: zod_1.z.string(),
+});
+exports.addFcmValidation = zod_1.z.object({
+    fcm: zod_1.z.string(),
 });
 //# sourceMappingURL=AuthValidator.js.map

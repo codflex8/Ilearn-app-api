@@ -1,0 +1,8 @@
+{
+    "IncorrectEmailPasswod":"Incorrect email or password",
+    "notLogin":"You are not login, Please login to get access this route",
+    "userNotExist":"The user that belong to this token does no longer exist",
+    "passwordChanged":"User recently changed his password. please login again..",
+    "emailNotExist":"There is no user with that email {{email}}"
+
+}

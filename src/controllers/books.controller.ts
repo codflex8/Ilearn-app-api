@@ -77,6 +77,7 @@ export const addBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, image, fileUrl, link, content, categoryId, localPath } =
       req.body;
+    console.log("categoryIdddddd", categoryId);
     const fileData = req.files["file"]?.[0];
     httpLogger.info("upload new book", { fileData });
     console.log("fileDataaaaaaa", fileData);
@@ -96,11 +97,17 @@ export const addBook = asyncHandler(
         s3Key: fileData.key,
         localPath,
       });
-      const category = await Category.getUserCategoryById(user.id, categoryId);
-      if (!category) {
-        throw new ApiError("category not found", 400);
+      if (categoryId) {
+        const category = await Category.getUserCategoryById(
+          user.id,
+          categoryId
+        );
+        if (!category) {
+          throw new ApiError("category not found", 400);
+        }
+        book.category = category;
       }
-      book.category = category;
+
       await book.save();
       delete book.user;
       delete book.category;
@@ -122,6 +129,9 @@ export const updateBook = asyncHandler(
     const { name, image, fileUrl, link, content, categoryId, localPath } =
       req.body;
     const book = await Book.getUserBookById(user.id, id);
+    if (!book) {
+      return next(new ApiError("book not found", 400));
+    }
     book.name = name;
     if (image) book.imageUrl = image;
     if (fileUrl) book.fileUrl = fileUrl;
@@ -143,7 +153,7 @@ export const setLocalPath = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const { localPath } = req.body;
-    const book = await Book.getUserBookById(user.id, id);
+    const book = await Book.getUserBookById(user.id, id, false);
     if (!book) {
       return next(new ApiError("book not found", 400));
     }

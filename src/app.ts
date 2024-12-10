@@ -1,4 +1,7 @@
 import express, { Application, NextFunction, Request, Response } from "express";
+import i18next from "i18next";
+import Backend from "i18next-fs-backend";
+import middleware from "i18next-http-middleware";
 import { dataSource } from "./models/dataSource";
 import Routes from "./routes";
 import cors from "cors";
@@ -16,7 +19,27 @@ export default class AppServer {
   }
 
   private config(app: Application) {
+    i18next
+      .use(Backend) // Connects the file system backend
+      .use(middleware.LanguageDetector) // Enables automatic language detection
+      .init({
+        backend: {
+          loadPath: path.join(
+            process.cwd(),
+            "src/locales",
+            "{{lng}}",
+            "{{ns}}.json"
+          ), // Path to translation files
+        },
+        detection: {
+          order: ["querystring", "cookie"], // Priority: URL query string first, then cookies
+          caches: ["cookie"], // Cache detected language in cookies
+        },
+        fallbackLng: "en", // Default language when no language is detected
+        preload: ["en", "ru"], // Preload these languages at startup
+      });
     dotenv.config();
+    app.use(middleware.handle(i18next));
     app.use(cors());
     app.use(express.json({ limit: "100mb" }));
     app.use(express.urlencoded({ limit: "100mb", extended: true }));

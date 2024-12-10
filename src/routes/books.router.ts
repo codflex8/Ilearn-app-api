@@ -32,12 +32,12 @@ router.put(
   "/:id",
   upload.single("image"),
   validateData(addBookValidator),
-  setLocalPath
+  updateBook
 );
 router.post(
   "/:id/local-path",
   validateData(setLocalPathValidation),
-  updateBook
+  setLocalPath
 );
 router.delete("/:id", deleteBook);
 

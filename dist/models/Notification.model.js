@@ -8,21 +8,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var Notification_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Notification = void 0;
 const typeorm_1 = require("typeorm");
 const BaseModel_1 = require("./BaseModel");
 const User_model_1 = require("./User.model");
 const GroupsChat_model_1 = require("./GroupsChat.model");
-let Notification = class Notification extends BaseModel_1.BaseModel {
-    static async createNewNotification({ message, user, group, }) {
-        const newNotification = await this.create({
+let Notification = Notification_1 = class Notification extends BaseModel_1.BaseModel {
+    static async createNewNotification({ title, message, users, group, fromUser, }) {
+        const newNotifications = users.map((user) => this.create({
+            title,
             message,
             user,
             group,
-        });
-        newNotification.save();
-        return newNotification;
+            fromUser,
+        }));
+        Notification_1.save(newNotifications);
+        return newNotifications;
     }
 };
 exports.Notification = Notification;
@@ -47,7 +50,7 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => GroupsChat_model_1.GroupsChat),
     __metadata("design:type", GroupsChat_model_1.GroupsChat)
 ], Notification.prototype, "group", void 0);
-exports.Notification = Notification = __decorate([
+exports.Notification = Notification = Notification_1 = __decorate([
     (0, typeorm_1.Entity)()
 ], Notification);
 //# sourceMappingURL=Notification.model.js.map

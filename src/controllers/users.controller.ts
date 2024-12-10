@@ -32,3 +32,12 @@ export const getUsers = asyncHandler(
       .json(new GenericResponse<User>(Number(page), take, count, users));
   }
 );
+
+export const addFcmToUser = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    user.fcm = req.body.fcm;
+    await user.save();
+    res.status(200).json({ user });
+  }
+);

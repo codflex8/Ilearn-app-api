@@ -63,6 +63,7 @@ exports.getBookById = (0, express_async_handler_1.default)(async (req, res, next
 exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) => {
     var _a;
     const { name, image, fileUrl, link, content, categoryId, localPath } = req.body;
+    console.log("categoryIdddddd", categoryId);
     const fileData = (_a = req.files["file"]) === null || _a === void 0 ? void 0 : _a[0];
     logger_1.httpLogger.info("upload new book", { fileData });
     console.log("fileDataaaaaaa", fileData);
@@ -82,11 +83,13 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
             s3Key: fileData.key,
             localPath,
         });
-        const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
-        if (!category) {
-            throw new ApiError_1.default("category not found", 400);
+        if (categoryId) {
+            const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
+            if (!category) {
+                throw new ApiError_1.default("category not found", 400);
+            }
+            book.category = category;
         }
-        book.category = category;
         await book.save();
         delete book.user;
         delete book.category;
@@ -105,6 +108,9 @@ exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next)
     const user = req.user;
     const { name, image, fileUrl, link, content, categoryId, localPath } = req.body;
     const book = await Books_model_1.Book.getUserBookById(user.id, id);
+    if (!book) {
+        return next(new ApiError_1.default("book not found", 400));
+    }
     book.name = name;
     if (image)
         book.imageUrl = image;
@@ -127,7 +133,7 @@ exports.setLocalPath = (0, express_async_handler_1.default)(async (req, res, nex
     const { id } = req.params;
     const user = req.user;
     const { localPath } = req.body;
-    const book = await Books_model_1.Book.getUserBookById(user.id, id);
+    const book = await Books_model_1.Book.getUserBookById(user.id, id, false);
     if (!book) {
         return next(new ApiError_1.default("book not found", 400));
     }

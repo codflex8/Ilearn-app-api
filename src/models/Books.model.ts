@@ -97,14 +97,14 @@ export class Book extends BaseModel {
     }
   }
 
-  static getUserBookById(userId: string, bookId: string) {
+  static getUserBookById(userId: string, bookId: string, withCategory = true) {
     return this.findOne({
       where: {
         id: bookId,
         user: { id: userId },
       },
       relations: {
-        category: true,
+        category: withCategory,
       },
     });
   }

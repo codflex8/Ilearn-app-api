@@ -4,6 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const i18next_1 = __importDefault(require("i18next"));
+const i18next_fs_backend_1 = __importDefault(require("i18next-fs-backend"));
+const i18next_http_middleware_1 = __importDefault(require("i18next-http-middleware"));
 const dataSource_1 = require("./models/dataSource");
 const routes_1 = __importDefault(require("./routes"));
 const cors_1 = __importDefault(require("cors"));
@@ -18,7 +21,22 @@ class AppServer {
         this.config(app);
     }
     config(app) {
+        i18next_1.default
+            .use(i18next_fs_backend_1.default) // Connects the file system backend
+            .use(i18next_http_middleware_1.default.LanguageDetector) // Enables automatic language detection
+            .init({
+            backend: {
+                loadPath: path_1.default.join(process.cwd(), "src/locales", "{{lng}}", "{{ns}}.json"), // Path to translation files
+            },
+            detection: {
+                order: ["querystring", "cookie"], // Priority: URL query string first, then cookies
+                caches: ["cookie"], // Cache detected language in cookies
+            },
+            fallbackLng: "en", // Default language when no language is detected
+            preload: ["en", "ru"], // Preload these languages at startup
+        });
         dotenv_1.default.config();
+        app.use(i18next_http_middleware_1.default.handle(i18next_1.default));
         app.use((0, cors_1.default)());
         app.use(express_1.default.json({ limit: "100mb" }));
         app.use(express_1.default.urlencoded({ limit: "100mb", extended: true }));

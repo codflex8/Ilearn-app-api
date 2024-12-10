@@ -87,16 +87,19 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
     });
     console.log("groupAdminnnnn", groupAdmin);
     // send notification to group admin
+    const message = `user:${user.username} request to join group chat`;
     await (0, sendNotification_1.sendAndCreateNotification)({
         title: "join group chat request",
-        message: `user:${user.username} request to join group chat`,
-        user: groupAdmin.user,
+        message,
+        users: [groupAdmin.user],
+        fromUser: user,
         group: groupChat,
         data: {
-            message: `user:${user.username} request to join group chat`,
+            message,
             groupChat,
+            fromUser: user,
         },
-        fcmTokens: groupAdmin.user.fcms,
+        fcmTokens: [groupAdmin.user.fcm],
     });
     res.status(200).json({ message: "join request sent to group admin" });
 });
@@ -235,11 +238,17 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
             id: (0, typeorm_1.In)(filterdUserIds),
         },
     });
-    const usersGroupChat = users.map((user) => GroupsChatUsers_model_1.GroupsChatUsers.create({
-        user,
-        groupChat,
-        role: GroupsChatValidator_1.GroupChatRoles.Member,
-    }));
+    const usersFcm = [];
+    const usersGroupChat = users.map((user) => {
+        if (user.fcm) {
+            usersFcm.push(user.fcm);
+        }
+        return GroupsChatUsers_model_1.GroupsChatUsers.create({
+            user,
+            groupChat,
+            role: GroupsChatValidator_1.GroupChatRoles.Member,
+        });
+    });
     await GroupsChatUsers_model_1.GroupsChatUsers.save(usersGroupChat);
     const groupChatUsers = await User_model_1.User.find({
         where: {
@@ -260,6 +269,19 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
         },
     });
     websocket_1.default.sendNewGroupUpdate(groupChat);
+    const message = `user: ${user.username} added you to group chat ${groupChat.name}`;
+    await (0, sendNotification_1.sendAndCreateNotification)({
+        title: "add to group chat",
+        message,
+        users,
+        group: groupChat,
+        data: {
+            message,
+            groupChat,
+            fromUser: user,
+        },
+        fcmTokens: usersFcm,
+    });
     res.status(200).json({ users: groupChatUsers });
 });
 exports.removeUsersfromGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {

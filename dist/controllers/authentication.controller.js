@@ -72,20 +72,16 @@ exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => 
     const user = await User_model_1.User.findOneBy({ email: (0, typeorm_1.Equal)(req.body.email) });
     console.log("getServerIPAddress", (0, getServerIpAddress_1.getServerIPAddress)());
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-        return next(new ApiError_1.default("Incorrect email or password", 401));
+        return next(new ApiError_1.default(req.t("IncorrectEmailPasswod"), 401));
     }
     const token = (0, createToken_1.createToken)(user.id);
     const refreshToken = (0, createToken_1.createRefreshToken)(user.id);
-    if (req.body.fcm) {
-        user.fcms = [...user.fcms, req.body.fcm];
-        await user.save();
-    }
     delete user.password;
     res.status(200).json({ user, token, refreshToken });
 });
 exports.signOut = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
-    user.fcms = user.fcms.filter((token) => token !== req.body.fcm);
+    user.fcm = null;
     await user.save();
     res.status(200).json({ message: "logout success" });
 });

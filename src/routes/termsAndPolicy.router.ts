@@ -1,14 +1,22 @@
 import { Router } from "express";
 import {
-  addTermsAndPolicy,
-  getTermsAndPolicy,
+  addTerms,
+  getTerms,
+  addPolicy,
+  getPolicy,
 } from "../controllers/termsAndPolicy.controller";
 import { validateData } from "../middleware/validationMiddleware";
-import { addTermAndPolicyValidator } from "../utils/validators/termsAndPolicyValidator";
+import {
+  addPolicyValidator,
+  addTermValidator,
+} from "../utils/validators/termsAndPolicyValidator";
 
 const router = Router();
 
-router.get("/", getTermsAndPolicy);
-router.post("/", validateData(addTermAndPolicyValidator), addTermsAndPolicy);
+router.get("/terms", getTerms);
+router.post("/terms", validateData(addTermValidator), addTerms);
+
+router.get("/policy", getPolicy);
+router.post("/policy", validateData(addPolicyValidator), addPolicy);
 
 export default router;

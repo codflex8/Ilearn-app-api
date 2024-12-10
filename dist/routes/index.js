@@ -32,7 +32,7 @@ class Routes {
         app.use("/api/v1/bookmarks", authentication_controller_1.protect, bookmarks_router_1.default);
         app.use("/api/v1/groupschat", authentication_controller_1.protect, groupsChat_router_1.default);
         app.use("/api/v1/statistics", authentication_controller_1.protect, statistics_router_1.default);
-        app.use("/api/v1/terms-and-policy", authentication_controller_1.protect, termsAndPolicy_router_1.default);
+        app.use("/api/v1", authentication_controller_1.protect, termsAndPolicy_router_1.default);
         app.use("/api/v1/app-links", authentication_controller_1.protect, appLinks_router_1.default);
     }
 }

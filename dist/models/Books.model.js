@@ -33,14 +33,14 @@ let Book = Book_1 = class Book extends BaseModel_1.BaseModel {
             this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + "/public/default/book.jpg";
         }
     }
-    static getUserBookById(userId, bookId) {
+    static getUserBookById(userId, bookId, withCategory = true) {
         return this.findOne({
             where: {
                 id: bookId,
                 user: { id: userId },
             },
             relations: {
-                category: true,
+                category: withCategory,
             },
         });
     }

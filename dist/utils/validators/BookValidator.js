@@ -4,7 +4,7 @@ exports.setLocalPathValidation = exports.addBookValidator = void 0;
 const zod_1 = require("zod");
 exports.addBookValidator = zod_1.z.object({
     name: zod_1.z.string(),
-    categoryId: zod_1.z.string(),
+    categoryId: zod_1.z.string().optional(),
     localPath: zod_1.z.string().optional().nullable(),
     // imageUrl: z.string().optional().nullable(),
     fileUrl: zod_1.z.string().optional().nullable(),

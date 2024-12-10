@@ -132,9 +132,9 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "intensePoints", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "simple-array" }),
-    __metadata("design:type", Array)
-], User.prototype, "fcms", void 0);
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "fcm", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Notification_model_1.Notification, (not) => not.user, {
         onDelete: "CASCADE",

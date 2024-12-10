@@ -33,3 +33,7 @@ export const resetPasswordValidator = z.object({
 export const socialMediaAuthValidator = z.object({
   token: z.string(),
 });
+
+export const addFcmValidation = z.object({
+  fcm: z.string(),
+});

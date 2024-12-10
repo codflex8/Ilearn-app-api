@@ -16,11 +16,7 @@ import ApiError from "../utils/ApiError";
 import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
 import { containsLink } from "../utils/extractLing";
 import Websocket from "../websocket/websocket";
-import { Notification } from "../models/Notification.model";
-import {
-  sendAndCreateNotification,
-  sendNotification,
-} from "../utils/sendNotification";
+import { sendAndCreateNotification } from "../utils/sendNotification";
 
 interface GroupsChatQuery extends BaseQuery {
   name?: string;
@@ -115,16 +111,19 @@ export const joinGroup = asyncHandler(
     });
     console.log("groupAdminnnnn", groupAdmin);
     // send notification to group admin
+    const message = `user:${user.username} request to join group chat`;
     await sendAndCreateNotification({
       title: "join group chat request",
-      message: `user:${user.username} request to join group chat`,
-      user: groupAdmin.user,
+      message,
+      users: [groupAdmin.user],
+      fromUser: user,
       group: groupChat,
       data: {
-        message: `user:${user.username} request to join group chat`,
+        message,
         groupChat,
+        fromUser: user,
       },
-      fcmTokens: groupAdmin.user.fcms,
+      fcmTokens: [groupAdmin.user.fcm],
     });
     res.status(200).json({ message: "join request sent to group admin" });
   }
@@ -307,14 +306,18 @@ export const addUsersToGroupChat = asyncHandler(
         id: In(filterdUserIds),
       },
     });
-    const usersGroupChat = users.map((user) =>
-      GroupsChatUsers.create({
+
+    const usersFcm: string[] = [];
+    const usersGroupChat = users.map((user) => {
+      if (user.fcm) {
+        usersFcm.push(user.fcm);
+      }
+      return GroupsChatUsers.create({
         user,
         groupChat,
         role: GroupChatRoles.Member,
-      })
-    );
-
+      });
+    });
     await GroupsChatUsers.save(usersGroupChat);
 
     const groupChatUsers = await User.find({
@@ -336,6 +339,19 @@ export const addUsersToGroupChat = asyncHandler(
       },
     });
     Websocket.sendNewGroupUpdate(groupChat);
+    const message = `user: ${user.username} added you to group chat ${groupChat.name}`;
+    await sendAndCreateNotification({
+      title: "add to group chat",
+      message,
+      users,
+      group: groupChat,
+      data: {
+        message,
+        groupChat,
+        fromUser: user,
+      },
+      fcmTokens: usersFcm,
+    });
     res.status(200).json({ users: groupChatUsers });
   }
 );

@@ -59,14 +59,10 @@ export const signIn = asyncHandler(
     const user = await User.findOneBy({ email: Equal(req.body.email) });
     console.log("getServerIPAddress", getServerIPAddress());
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-      return next(new ApiError("Incorrect email or password", 401));
+      return next(new ApiError(req.t("IncorrectEmailPasswod"), 401));
     }
     const token = createToken(user.id);
     const refreshToken = createRefreshToken(user.id);
-    if (req.body.fcm) {
-      user.fcms = [...user.fcms, req.body.fcm];
-      await user.save();
-    }
     delete user.password;
     res.status(200).json({ user, token, refreshToken });
   }
@@ -75,7 +71,7 @@ export const signIn = asyncHandler(
 export const signOut = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    user.fcms = user.fcms.filter((token) => token !== req.body.fcm);
+    user.fcm = null;
     await user.save();
     res.status(200).json({ message: "logout success" });
   }

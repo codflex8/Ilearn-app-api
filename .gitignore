@@ -9,7 +9,9 @@ npm-shrinkwrap.json
 .nyc_output
 coverage
 
-/src/public/*
+/src/public/images/*
+/src/public/audio/*
+/src/public/documents/*
 
 # Benchmarking
 benchmarks/graphs
