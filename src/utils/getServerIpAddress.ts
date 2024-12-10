@@ -8,10 +8,10 @@ export function getServerIPAddress() {
     for (const iface of interfaces) {
       // Find the IPv4 address that is not internal (not localhost)
       if (iface.family === "IPv4" && !iface.internal) {
-        return `https://${iface.address}`; // Server's public IP address
+        return `http://${iface.address}`; // Server's public IP address
       }
     }
   }
 
-  return "https://127.0.0.1"; // Fallback to localhost if no public IP is found
+  return "http://127.0.0.1"; // Fallback to localhost if no public IP is found
 }
