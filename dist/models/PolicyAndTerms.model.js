@@ -16,11 +16,11 @@ let PolicyAndTerms = class PolicyAndTerms extends BaseModel_1.BaseModel {
 };
 exports.PolicyAndTerms = PolicyAndTerms;
 __decorate([
-    (0, typeorm_1.Column)({ type: "longtext" }),
+    (0, typeorm_1.Column)({ type: "longtext", nullable: true }),
     __metadata("design:type", String)
 ], PolicyAndTerms.prototype, "policy", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "longtext" }),
+    (0, typeorm_1.Column)({ type: "longtext", nullable: true }),
     __metadata("design:type", String)
 ], PolicyAndTerms.prototype, "terms", void 0);
 exports.PolicyAndTerms = PolicyAndTerms = __decorate([

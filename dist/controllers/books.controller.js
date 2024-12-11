@@ -63,10 +63,8 @@ exports.getBookById = (0, express_async_handler_1.default)(async (req, res, next
 exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) => {
     var _a;
     const { name, image, fileUrl, link, content, categoryId, localPath } = req.body;
-    console.log("categoryIdddddd", categoryId);
     const fileData = (_a = req.files["file"]) === null || _a === void 0 ? void 0 : _a[0];
     logger_1.httpLogger.info("upload new book", { fileData });
-    console.log("fileDataaaaaaa", fileData);
     try {
         if (!fileData) {
             console.log("fileData", fileData);

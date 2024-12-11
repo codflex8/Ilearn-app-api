@@ -48,7 +48,7 @@ exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => 
         },
     });
     if (isUserExist) {
-        return next(new ApiError_1.default("email is used by other user", 409));
+        return next(new ApiError_1.default(req.t("emailUsed"), 409));
     }
     // 1- Create user
     const cryptedPassword = await (0, bcryptPassword_1.default)(password);
@@ -102,7 +102,7 @@ const refreshToken = (req, res, next) => {
         if (!currentUser)
             return res.status(401).json({ message: "Invalid refresh token" });
         try {
-            verifyUserChangePassword(currentUser, decoded);
+            verifyUserChangePassword(currentUser, decoded, req.t);
         }
         catch (error) {
             return next(error);
@@ -119,15 +119,15 @@ exports.protect = (0, express_async_handler_1.default)(async (req, res, next) =>
         token = req.headers.authorization.split(" ")[1];
     }
     if (!token) {
-        return next(new ApiError_1.default("You are not login, Please login to get access this route", 401));
+        return next(new ApiError_1.default(req.t("notLogin"), 401));
     }
     // 2) Verify token (no change happens, expired token)
     const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(token);
     if (!currentUser) {
-        return next(new ApiError_1.default("The user that belong to this token does no longer exist", 401));
+        return next(new ApiError_1.default(req.t("userNotExist"), 401));
     }
     try {
-        verifyUserChangePassword(currentUser, decoded);
+        verifyUserChangePassword(currentUser, decoded, req.t);
     }
     catch (error) {
         return next(error);
@@ -140,13 +140,13 @@ exports.protect = (0, express_async_handler_1.default)(async (req, res, next) =>
     req.user = currentUser;
     next();
 });
-const verifyUserChangePassword = (currentUser, decoded) => {
+const verifyUserChangePassword = (currentUser, decoded, t) => {
     // 4) Check if user change his password after token created
     if (currentUser.passwordChangedAt) {
         const passChangedTimestamp = currentUser.passwordChangedAt.getTime() / 1000;
         // Password changed after token created (Error)
         if (decoded.iat && passChangedTimestamp > decoded.iat) {
-            throw new ApiError_1.default("User recently changed his password. please login again..", 401);
+            throw new ApiError_1.default(t("passwordChanged"), 401);
         }
     }
 };
@@ -154,7 +154,7 @@ exports.forgotPassword = (0, express_async_handler_1.default)(async (req, res, n
     // 1) Get user by email
     const user = await User_model_1.User.findOne({ where: { email: (0, typeorm_1.Equal)(req.body.email) } });
     if (!user) {
-        return next(new ApiError_1.default(`There is no user with that email ${req.body.email}`, 404));
+        return next(new ApiError_1.default(req.t("emailNotExist", { email: req.body.email }), 404));
     }
     // 2) If user exist, Generate hash reset random 6 digits and save it in db
     const resetCode = (0, generateCode_1.default)();
@@ -193,13 +193,13 @@ exports.verifyPassResetCode = (0, express_async_handler_1.default)(async (req, r
         },
     });
     if (!user) {
-        return next(new ApiError_1.default("Reset code invalid or expired", 400));
+        return next(new ApiError_1.default(req.t("expireResetCode"), 400));
     }
     const timeDiff = Date.now() - Number(user.passwordResetExpires);
     const oneMinutesInMilliesecond = 60000;
     if (timeDiff > oneMinutesInMilliesecond ||
         user.passwordResetCode != req.body.resetCode) {
-        return next(new ApiError_1.default("Reset code invalid or expired", 400));
+        return next(new ApiError_1.default(req.t("invalidResetCode"), 400));
     }
     // 2) Reset code valid
     user.passwordResetVerified = true;
@@ -212,11 +212,11 @@ exports.resetPassword = (0, express_async_handler_1.default)(async (req, res, ne
     // 1) Get user based on email
     const user = await User_model_1.User.findOne({ where: { email: (0, typeorm_1.Equal)(req.body.email) } });
     if (!user) {
-        return next(new ApiError_1.default(`There is no user with email ${req.body.email}`, 404));
+        return next(new ApiError_1.default(req.t("emailNotExist"), 404));
     }
     // 2) Check if reset code verified
     if (!user.passwordResetVerified) {
-        return next(new ApiError_1.default("Reset code not verified", 400));
+        return next(new ApiError_1.default(req.t("invalidResetCode"), 400));
     }
     const cryptedPassword = await (0, bcryptPassword_1.default)(req.body.password);
     user.password = cryptedPassword;
