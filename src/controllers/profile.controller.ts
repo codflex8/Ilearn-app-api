@@ -30,6 +30,7 @@ export const updateProfileData = asyncHandler(
       booksGoal,
       examsGoal,
       intensePoints,
+      language,
     } = req.body;
     const isEmailExist = await User.findOne({
       where: {
@@ -59,6 +60,7 @@ export const updateProfileData = asyncHandler(
     user.booksGoal = booksGoal;
     user.examsGoal = examsGoal;
     user.intensePoints = intensePoints;
+    if (language) user.language = language;
     await user.save();
     res.status(200).json({ user });
   }

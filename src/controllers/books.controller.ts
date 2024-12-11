@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { Book } from "../models/Books.model";
-import { FindOptionsWhere, ILike, IsNull, Not } from "typeorm";
+import { Brackets, FindOptionsWhere, ILike, IsNull, Not } from "typeorm";
 import { Category } from "../models/Categories.model";
 import { GenericResponse } from "../utils/GenericResponse";
 import { getPaginationData } from "../utils/getPaginationData";
@@ -14,50 +14,91 @@ export const getBooks = asyncHandler(
     const { page, pageSize, categoryId, name, forArchive } = req.query;
     const user = req.user;
     const { take, skip } = getPaginationData({ page, pageSize });
-    let condition: FindOptionsWhere<Book> = {
-      user: {
-        id: user.id,
-      },
-    };
+    const queryBuilder = Book.createQueryBuilder("book")
+      .leftJoinAndSelect("book.chatbots", "chatbot")
+      .leftJoinAndSelect("book.quizes", "quiz")
+      .leftJoinAndSelect("book.category", "category") // Ensure relations are available
+      .where("book.userId = :userId", { userId: user.id });
 
+    // Apply dynamic conditions
     if (name) {
-      condition = { ...condition, name: ILike(`%${name}%`) };
-    }
-    if (categoryId) {
-      condition = {
-        ...condition,
-        category: {
-          id: categoryId.toString(),
-        },
-      };
+      queryBuilder.andWhere("book.name ILIKE :name", { name: `%${name}%` });
     }
 
-    const [books, count] = await Book.findAndCount({
-      where: forArchive
-        ? [
-            {
-              ...condition,
-              quizes: {
-                id: Not(IsNull()),
-              },
-            },
-            {
-              ...condition,
-              chatbots: {
-                id: Not(IsNull()),
-              },
-            },
-          ]
-        : condition,
-      skip,
-      take,
-      // relations: {
-      //   category: true,
-      // },
-      order: {
-        createdAt: "DESC",
-      },
-    });
+    if (categoryId) {
+      queryBuilder.andWhere("category.id = :categoryId", {
+        categoryId: categoryId.toString(),
+      });
+    }
+
+    if (forArchive) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where("quiz.id IS NOT NULL").orWhere("chatbot.id IS NOT NULL");
+        })
+      );
+    }
+
+    // Apply pagination and ordering
+    if (forArchive) {
+      queryBuilder
+        .addOrderBy("quiz.createdAt", "DESC")
+        .orderBy("chatbot.createdAt", "DESC"); // First order by chatbot.createdAt
+    } else {
+      queryBuilder.orderBy("book.createdAt", "DESC");
+    }
+    queryBuilder
+      .skip(skip)
+      .take(take)
+      .select("book")
+      .addSelect(["chatbot.createdAt", "quiz.createdAt", "category.id"]); // Then order by quiz.createdAt
+
+    // Execute the query
+    const [books, count] = await queryBuilder.getManyAndCount();
+    // let condition: FindOptionsWhere<Book> = {
+    //   user: {
+    //     id: user.id,
+    //   },
+    // };
+
+    // if (name) {
+    //   condition = { ...condition, name: ILike(`%${name}%`) };
+    // }
+    // if (categoryId) {
+    //   condition = {
+    //     ...condition,
+    //     category: {
+    //       id: categoryId.toString(),
+    //     },
+    //   };
+    // }
+
+    // const [books, count] = await Book.findAndCount({
+    //   where: forArchive
+    //     ? [
+    //         {
+    //           ...condition,
+    //           quizes: {
+    //             id: Not(IsNull()),
+    //           },
+    //         },
+    //         {
+    //           ...condition,
+    //           chatbots: {
+    //             id: Not(IsNull()),
+    //           },
+    //         },
+    //       ]
+    //     : condition,
+    //   skip,
+    //   take,
+    //   // relations: {
+    //   //   category: true,
+    //   // },
+    //   order: {
+    //     createdAt: "DESC",
+    //   },
+    // });
     res
       .status(200)
       .json(new GenericResponse<Book>(Number(page), take, count, books));

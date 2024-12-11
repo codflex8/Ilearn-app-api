@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { GenderEnum } from "./AuthValidator";
+import { GenderEnum, LanguageEnum } from "./AuthValidator";
 
 export const updateProfileValidator = z.object({
   username: z.string(),
@@ -7,6 +7,7 @@ export const updateProfileValidator = z.object({
   phoneNumber: z.string().optional().nullable(),
   birthDate: z.string().optional().nullable(),
   gender: z.nativeEnum(GenderEnum).optional().nullable(),
+  language: z.nativeEnum(LanguageEnum).optional().nullable(),
   booksGoal: z.preprocess(
     (val) => (typeof val === "string" ? parseFloat(val) : val),
     z.number().optional().nullable().default(10)

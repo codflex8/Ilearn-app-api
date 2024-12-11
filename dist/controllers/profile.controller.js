@@ -14,7 +14,7 @@ exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res
             id: req.user.id,
         },
     });
-    const { phoneNumber, email, username, birthDate, gender, image, booksGoal, examsGoal, intensePoints, } = req.body;
+    const { phoneNumber, email, username, birthDate, gender, image, booksGoal, examsGoal, intensePoints, language, } = req.body;
     const isEmailExist = await User_model_1.User.findOne({
         where: {
             email: (0, typeorm_1.Equal)(email),
@@ -43,6 +43,8 @@ exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res
     user.booksGoal = booksGoal;
     user.examsGoal = examsGoal;
     user.intensePoints = intensePoints;
+    if (language)
+        user.language = language;
     await user.save();
     res.status(200).json({ user });
 });

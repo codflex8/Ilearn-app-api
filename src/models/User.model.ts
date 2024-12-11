@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import { Category } from "./Categories.model";
 import { Book } from "./Books.model";
-import { GenderEnum } from "../utils/validators/AuthValidator";
+import { GenderEnum, LanguageEnum } from "../utils/validators/AuthValidator";
 import { BaseModel } from "./BaseModel";
 import { Chatbot } from "./ChatBot.model";
 import { Quiz } from "./Quiz.model";
@@ -77,6 +77,9 @@ export class User extends BaseModel {
   // firebase tokens for notifcations
   @Column({ nullable: true })
   fcm: string;
+
+  @Column({ type: "enum", nullable: true, enum: LanguageEnum })
+  language: LanguageEnum;
 
   @OneToMany(() => Notification, (not) => not.user, {
     onDelete: "CASCADE",

@@ -136,6 +136,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "fcm", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: "enum", nullable: true, enum: AuthValidator_1.LanguageEnum }),
+    __metadata("design:type", String)
+], User.prototype, "language", void 0);
+__decorate([
     (0, typeorm_1.OneToMany)(() => Notification_model_1.Notification, (not) => not.user, {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",

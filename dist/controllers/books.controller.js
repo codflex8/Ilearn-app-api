@@ -17,39 +17,83 @@ exports.getBooks = (0, express_async_handler_1.default)(async (req, res, next) =
     const { page, pageSize, categoryId, name, forArchive } = req.query;
     const user = req.user;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
-    let condition = {
-        user: {
-            id: user.id,
-        },
-    };
+    const queryBuilder = Books_model_1.Book.createQueryBuilder("book")
+        .leftJoinAndSelect("book.chatbots", "chatbot")
+        .leftJoinAndSelect("book.quizes", "quiz")
+        .leftJoinAndSelect("book.category", "category") // Ensure relations are available
+        .where("book.userId = :userId", { userId: user.id });
+    // Apply dynamic conditions
     if (name) {
-        condition = Object.assign(Object.assign({}, condition), { name: (0, typeorm_1.ILike)(`%${name}%`) });
+        queryBuilder.andWhere("book.name ILIKE :name", { name: `%${name}%` });
     }
     if (categoryId) {
-        condition = Object.assign(Object.assign({}, condition), { category: {
-                id: categoryId.toString(),
-            } });
+        queryBuilder.andWhere("category.id = :categoryId", {
+            categoryId: categoryId.toString(),
+        });
     }
-    const [books, count] = await Books_model_1.Book.findAndCount({
-        where: forArchive
-            ? [
-                Object.assign(Object.assign({}, condition), { quizes: {
-                        id: (0, typeorm_1.Not)((0, typeorm_1.IsNull)()),
-                    } }),
-                Object.assign(Object.assign({}, condition), { chatbots: {
-                        id: (0, typeorm_1.Not)((0, typeorm_1.IsNull)()),
-                    } }),
-            ]
-            : condition,
-        skip,
-        take,
-        // relations: {
-        //   category: true,
-        // },
-        order: {
-            createdAt: "DESC",
-        },
-    });
+    if (forArchive) {
+        queryBuilder.andWhere(new typeorm_1.Brackets((qb) => {
+            qb.where("quiz.id IS NOT NULL").orWhere("chatbot.id IS NOT NULL");
+        }));
+    }
+    // Apply pagination and ordering
+    if (forArchive) {
+        queryBuilder
+            .addOrderBy("quiz.createdAt", "DESC")
+            .orderBy("chatbot.createdAt", "DESC"); // First order by chatbot.createdAt
+    }
+    else {
+        queryBuilder.orderBy("book.createdAt", "DESC");
+    }
+    queryBuilder
+        .skip(skip)
+        .take(take)
+        .select("book")
+        .addSelect(["chatbot.createdAt", "quiz.createdAt", "category.id"]); // Then order by quiz.createdAt
+    // Execute the query
+    const [books, count] = await queryBuilder.getManyAndCount();
+    // let condition: FindOptionsWhere<Book> = {
+    //   user: {
+    //     id: user.id,
+    //   },
+    // };
+    // if (name) {
+    //   condition = { ...condition, name: ILike(`%${name}%`) };
+    // }
+    // if (categoryId) {
+    //   condition = {
+    //     ...condition,
+    //     category: {
+    //       id: categoryId.toString(),
+    //     },
+    //   };
+    // }
+    // const [books, count] = await Book.findAndCount({
+    //   where: forArchive
+    //     ? [
+    //         {
+    //           ...condition,
+    //           quizes: {
+    //             id: Not(IsNull()),
+    //           },
+    //         },
+    //         {
+    //           ...condition,
+    //           chatbots: {
+    //             id: Not(IsNull()),
+    //           },
+    //         },
+    //       ]
+    //     : condition,
+    //   skip,
+    //   take,
+    //   // relations: {
+    //   //   category: true,
+    //   // },
+    //   order: {
+    //     createdAt: "DESC",
+    //   },
+    // });
     res
         .status(200)
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, books));
