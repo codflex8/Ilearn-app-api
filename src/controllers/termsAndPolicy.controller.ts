@@ -5,7 +5,7 @@ import { PolicyAndTerms } from "../models/PolicyAndTerms.model";
 export const getTerms = expressAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const terms = await PolicyAndTerms.findOne({ where: {} });
-    res.status(200).json({ terms: terms?.terms });
+    res.status(200).json({ terms: terms?.terms ?? "" });
   }
 );
 
@@ -27,7 +27,7 @@ export const addTerms = expressAsync(
 export const getPolicy = expressAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const policy = await PolicyAndTerms.findOne({ where: {} });
-    res.status(200).json({ policy: policy?.policy });
+    res.status(200).json({ policy: policy?.policy ?? "" });
   }
 );
 
@@ -43,6 +43,6 @@ export const addPolicy = expressAsync(
     policy.policy = newPolicy;
     policy.terms = terms;
     await policy.save();
-    res.status(200).json({ policy: policy?.policy });
+    res.status(200).json({ policy: policy?.policy ?? "" });
   }
 );

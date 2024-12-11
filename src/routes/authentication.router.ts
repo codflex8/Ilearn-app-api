@@ -5,6 +5,7 @@ import {
   forgotPassword,
   googleAuthSignIn,
   googleAuthSignUp,
+  protect,
   refreshToken,
   resetPassword,
   signIn,
@@ -34,7 +35,7 @@ router.post(
   signup
 );
 router.post("/signin", validateData(signInValidator), signIn);
-router.post("/signout", signOut);
+router.post("/signout", protect, signOut);
 
 router.post("/refreshToken", refreshToken);
 router.post(
