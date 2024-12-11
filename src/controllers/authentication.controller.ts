@@ -30,7 +30,7 @@ export const signup = asyncHandler(
       },
     });
     if (isUserExist) {
-      return next(new ApiError("email is used by other user", 409));
+      return next(new ApiError(req.t("emailUsed"), 409));
     }
     // 1- Create user
     const cryptedPassword = await bcryptPassword(password);
@@ -104,7 +104,7 @@ export const refreshToken = (
         return res.status(401).json({ message: "Invalid refresh token" });
 
       try {
-        verifyUserChangePassword(currentUser, decoded);
+        verifyUserChangePassword(currentUser, decoded, req.t);
       } catch (error: any) {
         return next(error);
       }
@@ -124,26 +124,16 @@ export const protect = asyncHandler(
       token = req.headers.authorization.split(" ")[1];
     }
     if (!token) {
-      return next(
-        new ApiError(
-          "You are not login, Please login to get access this route",
-          401
-        )
-      );
+      return next(new ApiError(req.t("notLogin"), 401));
     }
 
     // 2) Verify token (no change happens, expired token)
     const { currentUser, decoded } = await getUserFromToken(token);
     if (!currentUser) {
-      return next(
-        new ApiError(
-          "The user that belong to this token does no longer exist",
-          401
-        )
-      );
+      return next(new ApiError(req.t("userNotExist"), 401));
     }
     try {
-      verifyUserChangePassword(currentUser, decoded);
+      verifyUserChangePassword(currentUser, decoded, req.t);
     } catch (error: any) {
       return next(error);
     }
@@ -158,16 +148,13 @@ export const protect = asyncHandler(
   }
 );
 
-const verifyUserChangePassword = (currentUser: User, decoded) => {
+const verifyUserChangePassword = (currentUser: User, decoded, t) => {
   // 4) Check if user change his password after token created
   if (currentUser.passwordChangedAt) {
     const passChangedTimestamp = currentUser.passwordChangedAt.getTime() / 1000;
     // Password changed after token created (Error)
     if (decoded.iat && passChangedTimestamp > decoded.iat) {
-      throw new ApiError(
-        "User recently changed his password. please login again..",
-        401
-      );
+      throw new ApiError(t("passwordChanged"), 401);
     }
   }
 };
@@ -177,7 +164,7 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ where: { email: Equal(req.body.email) } });
   if (!user) {
     return next(
-      new ApiError(`There is no user with that email ${req.body.email}`, 404)
+      new ApiError(req.t("emailNotExist", { email: req.body.email }), 404)
     );
   }
   // 2) If user exist, Generate hash reset random 6 digits and save it in db
@@ -221,7 +208,7 @@ export const verifyPassResetCode = asyncHandler(async (req, res, next) => {
     },
   });
   if (!user) {
-    return next(new ApiError("Reset code invalid or expired", 400));
+    return next(new ApiError(req.t("expireResetCode"), 400));
   }
   const timeDiff = Date.now() - Number(user.passwordResetExpires);
 
@@ -230,7 +217,7 @@ export const verifyPassResetCode = asyncHandler(async (req, res, next) => {
     timeDiff > oneMinutesInMilliesecond ||
     user.passwordResetCode != req.body.resetCode
   ) {
-    return next(new ApiError("Reset code invalid or expired", 400));
+    return next(new ApiError(req.t("invalidResetCode"), 400));
   }
 
   // 2) Reset code valid
@@ -246,14 +233,12 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   // 1) Get user based on email
   const user = await User.findOne({ where: { email: Equal(req.body.email) } });
   if (!user) {
-    return next(
-      new ApiError(`There is no user with email ${req.body.email}`, 404)
-    );
+    return next(new ApiError(req.t("emailNotExist"), 404));
   }
 
   // 2) Check if reset code verified
   if (!user.passwordResetVerified) {
-    return next(new ApiError("Reset code not verified", 400));
+    return next(new ApiError(req.t("invalidResetCode"), 400));
   }
   const cryptedPassword = await bcryptPassword(req.body.password);
   user.password = cryptedPassword;

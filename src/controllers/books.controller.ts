@@ -77,10 +77,8 @@ export const addBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, image, fileUrl, link, content, categoryId, localPath } =
       req.body;
-    console.log("categoryIdddddd", categoryId);
     const fileData = req.files["file"]?.[0];
     httpLogger.info("upload new book", { fileData });
-    console.log("fileDataaaaaaa", fileData);
     try {
       if (!fileData) {
         console.log("fileData", fileData);

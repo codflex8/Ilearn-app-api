@@ -3,9 +3,9 @@ import { BaseModel } from "./BaseModel";
 
 @Entity()
 export class PolicyAndTerms extends BaseModel {
-  @Column({ type: "longtext" })
+  @Column({ type: "longtext", nullable: true })
   policy: string;
 
-  @Column({ type: "longtext" })
+  @Column({ type: "longtext", nullable: true })
   terms: string;
 }
