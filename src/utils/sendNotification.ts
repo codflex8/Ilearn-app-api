@@ -14,6 +14,7 @@ admin.initializeApp({
 
 export const sendNotification = async ({ title, data, fcmTokens }) => {
   try {
+    console.log("fcmTokensssssss", fcmTokens);
     const payload = {
       notification: {
         title: title,
