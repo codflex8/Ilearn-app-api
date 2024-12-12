@@ -60,7 +60,6 @@ const questionValidatorWithRefine = (
 //     message: "aiAnswerIndex required",
 //   }
 // );
-373151;
 const addQuestionObject = z.object({
   question: z.string(),
   type: z.nativeEnum(QuestionType),
