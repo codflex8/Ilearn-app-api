@@ -35,7 +35,11 @@ export const getUsers = asyncHandler(
 
 export const addFcmToUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user;
+    const user = await User.findOne({
+      where: {
+        id: req.user.id,
+      },
+    });
     user.fcm = req.body.fcm;
     await user.save();
     res.status(200).json({ user });

@@ -35,7 +35,11 @@ exports.getUsers = (0, express_async_handler_1.default)(async (req, res, next) =
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, users));
 });
 exports.addFcmToUser = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const user = req.user;
+    const user = await User_model_1.User.findOne({
+        where: {
+            id: req.user.id,
+        },
+    });
     user.fcm = req.body.fcm;
     await user.save();
     res.status(200).json({ user });
