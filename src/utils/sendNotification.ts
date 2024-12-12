@@ -18,7 +18,7 @@ export const sendNotification = async ({ title, data, fcmTokens }) => {
     const payload = {
       notification: {
         title: title,
-        body: data,
+        body: "test test testtt",
       },
       tokens: fcmTokens,
     };
