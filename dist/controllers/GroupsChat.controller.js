@@ -63,6 +63,33 @@ exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, 
     await groupChatUser.save();
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
     groupChat.isAcceptJoin(user.id, true);
+    // send nofitification to admin
+    const groupAdmin = await GroupsChatUsers_model_1.GroupsChatUsers.findOne({
+        where: {
+            groupChat: {
+                id,
+            },
+            role: GroupsChatValidator_1.GroupChatRoles.Admin,
+        },
+        relations: { user: true },
+    });
+    const message = req.t("user_accept_join_group", {
+        username: user.username,
+        name: groupChat.name,
+    });
+    await (0, sendNotification_1.sendAndCreateNotification)({
+        title: message,
+        message,
+        users: [groupAdmin.user],
+        fromUser: user,
+        group: groupChat,
+        data: {
+            message,
+            groupChat,
+            fromUser: user,
+        },
+        fcmTokens: [groupAdmin.user.fcm],
+    });
     res.status(200).json({ groupChat });
 });
 exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) => {

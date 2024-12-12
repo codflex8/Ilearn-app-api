@@ -85,6 +85,33 @@ export const acceptJoinGroup = asyncHandler(
     await groupChatUser.save();
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
     groupChat.isAcceptJoin(user.id, true);
+    // send nofitification to admin
+    const groupAdmin = await GroupsChatUsers.findOne({
+      where: {
+        groupChat: {
+          id,
+        },
+        role: GroupChatRoles.Admin,
+      },
+      relations: { user: true },
+    });
+    const message = req.t("user_accept_join_group", {
+      username: user.username,
+      name: groupChat.name,
+    });
+    await sendAndCreateNotification({
+      title: message,
+      message,
+      users: [groupAdmin.user],
+      fromUser: user,
+      group: groupChat,
+      data: {
+        message,
+        groupChat,
+        fromUser: user,
+      },
+      fcmTokens: [groupAdmin.user.fcm],
+    });
     res.status(200).json({ groupChat });
   }
 );
