@@ -22,7 +22,7 @@ exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res
         },
     });
     if (isEmailExist) {
-        return next(new ApiError_1.default("email is used by other user", 409));
+        return next(new ApiError_1.default(req.t("email_is_used_by_other_user"), 409));
     }
     const isPhoneNumberExist = await User_model_1.User.findOne({
         where: {
@@ -31,7 +31,7 @@ exports.updateProfileData = (0, express_async_handler_1.default)(async (req, res
         },
     });
     if (isPhoneNumberExist) {
-        return next(new ApiError_1.default("phone number is used by other user", 409));
+        return next(new ApiError_1.default(req.t("phone_number_is_used_by_other_user"), 409));
     }
     user.email = email;
     user.username = username;

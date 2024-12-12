@@ -72,7 +72,7 @@ exports.addBookmark = (0, express_async_handler_1.default)(async (req, res, next
             },
         });
         if (!chatbotMessage) {
-            return next(new ApiError_1.default("chatbot message not found", 400));
+            return next(new ApiError_1.default(req.t("chatbot_message_not_found"), 400));
         }
         handleChatbotMessagesBookmark(chatbotMessage, user);
     }
@@ -88,11 +88,11 @@ exports.addBookmark = (0, express_async_handler_1.default)(async (req, res, next
             },
         });
         if (!question) {
-            return next(new ApiError_1.default("question not found", 400));
+            return next(new ApiError_1.default(req.t("question_not_found"), 400));
         }
         await handleQuestionBookmark(question, user);
     }
-    res.status(200).json({ message: "toggle bookmark Success" });
+    res.status(200).json({ message: req.t("toggle_bookmark_success") });
 });
 const handleChatbotMessagesBookmark = async (chatbotMessage, user) => {
     const bookmark = await Bookmarks_model_1.Bookmark.findOne({

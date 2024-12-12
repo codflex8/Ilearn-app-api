@@ -19,6 +19,7 @@ export const chatbotEvents = (socket: Socket) => {
         errorHandler: (error) => {
           if (callback) callback({ message: error.message });
         },
+        translate: socket.t,
       });
     } catch (error: any) {
       if (callback) callback({ message: error.message });

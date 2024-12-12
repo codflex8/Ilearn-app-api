@@ -112,7 +112,7 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
     try {
         if (!fileData) {
             console.log("fileData", fileData);
-            return next(new ApiError_1.default("somthing wrong with file data", 400));
+            return next(new ApiError_1.default(req.t("something_wrong_with_file_data"), 400));
         }
         const user = req.user;
         const book = Books_model_1.Book.create({
@@ -128,7 +128,7 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
         if (categoryId) {
             const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
             if (!category) {
-                throw new ApiError_1.default("category not found", 400);
+                throw new ApiError_1.default(req.t("category_not_found"), 400);
             }
             book.category = category;
         }
@@ -151,7 +151,7 @@ exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next)
     const { name, image, fileUrl, link, content, categoryId, localPath } = req.body;
     const book = await Books_model_1.Book.getUserBookById(user.id, id);
     if (!book) {
-        return next(new ApiError_1.default("book not found", 400));
+        return next(new ApiError_1.default(req.t("book_not_found"), 400));
     }
     book.name = name;
     if (image)
@@ -165,7 +165,7 @@ exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next)
     book.content = content;
     const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
     if (!category) {
-        return next(new ApiError_1.default("category not found", 400));
+        return next(new ApiError_1.default(req.t("category_not_found"), 400));
     }
     book.category = category;
     await book.save();
@@ -177,7 +177,7 @@ exports.setLocalPath = (0, express_async_handler_1.default)(async (req, res, nex
     const { localPath } = req.body;
     const book = await Books_model_1.Book.getUserBookById(user.id, id, false);
     if (!book) {
-        return next(new ApiError_1.default("book not found", 400));
+        return next(new ApiError_1.default(req.t("book_not_found"), 400));
     }
     book.localPath = localPath;
     await book.save();
@@ -198,6 +198,6 @@ exports.deleteBook = (0, express_async_handler_1.default)(async (req, res, next)
         await book.remove();
         await (0, uploadToAws_1.deleteS3File)(book.s3Key);
     }
-    res.status(200).json({ message: "delete success" });
+    res.status(200).json({ message: req.t("delete_success") });
 });
 //# sourceMappingURL=books.controller.js.map

@@ -76,6 +76,6 @@ export const deleteCategory = asyncHandler(
     const user = req.user;
     const category = await Category.getUserCategoryById(user.id, id);
     await category?.remove();
-    res.status(200).json({ message: "delete success" });
+    res.status(200).json({ message: req.t("delete_success") });
   }
 );

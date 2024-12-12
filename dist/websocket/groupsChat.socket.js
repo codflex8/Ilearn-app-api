@@ -24,13 +24,18 @@ const groupsChatEvents = (socket) => {
         const user = socket.user;
         if (!groupChatId) {
             if (callback)
-                callback({ success: false, error: "groupcaht id  is required" });
+                callback({
+                    success: false,
+                    error: socket.t("group_chat_id_is_required"),
+                });
         }
         const isGroupChatExit = await GroupsChat_model_1.GroupsChat.isGroupChatExist(groupChatId, user.id);
         if (!isGroupChatExit) {
             if (callback)
                 callback({
-                    message: `there is not groupchat with this groupchatId ${groupChatId}`,
+                    message: socket.t("no_group_chat_with_group_chat_id", {
+                        groupChatId,
+                    }),
                 });
             return;
         }
@@ -46,7 +51,10 @@ const groupsChatEvents = (socket) => {
         const user = socket.user;
         if (!groupChatId) {
             if (callback)
-                callback({ success: false, error: "groupcaht id  is required" });
+                callback({
+                    success: false,
+                    error: socket.t("group_chat_id_is_required"),
+                });
             return;
         }
         const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
@@ -62,7 +70,9 @@ const groupsChatEvents = (socket) => {
         if (!groupChat) {
             if (callback)
                 callback({
-                    message: `there is not groupchat with this groupchatId ${groupChatId}`,
+                    message: socket.t("no_group_chat_with_group_chat_id", {
+                        groupChatId,
+                    }),
                 });
             return;
         }
@@ -97,13 +107,16 @@ const groupsChatEvents = (socket) => {
             const user = socket.user;
             const groupchatExist = await GroupsChat_model_1.GroupsChat.isGroupChatExist(groupChatId, user === null || user === void 0 ? void 0 : user.id);
             if (!groupchatExist) {
-                throw new ApiError_1.default("group chat not found", 400);
+                throw new ApiError_1.default(socket.t("group_chat_not_found"), 400);
             }
             socket.leave(groupChatId);
             websocket_1.default.removeUserFromRoom(groupChatId, user);
             websocket_1.default.sendActiveRoomsToAllUsers();
             if (callback)
-                callback({ success: true, message: `leave room: ${groupChatId}` });
+                callback({
+                    success: true,
+                    message: socket.t("leave_room", { groupChatId }),
+                });
         }
         catch (error) {
             if (callback)
@@ -115,6 +128,7 @@ const groupsChatEvents = (socket) => {
             (0, schemaValidator_1.default)(GroupsChatValidator_1.newGroupChatMessageValidator, data);
             const { groupChatId, message } = data;
             const user = socket.user;
+            const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, groupChatId);
             // const isUserInGroupChat = Websocket.getroomUsers(groupChatId)?.find(
             //   (u) => u.id === user.id
             // );
@@ -123,10 +137,22 @@ const groupsChatEvents = (socket) => {
             //   groupchatUsers.map((user) => user.id)
             // );
             logger_1.httpLogger.info(`new message from ${user.username}, message: ${message},`);
-            const newMessage = await (0, GroupsChat_controller_1.addNewMessage)({ message, groupChatId, user });
+            const newMessage = await (0, GroupsChat_controller_1.addNewMessage)({
+                message,
+                groupChatId,
+                user,
+                translate: socket.t,
+            });
             socket
                 .to(groupChatId)
                 .emit("new-message", { message: newMessage, groupChatId });
+            const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(groupChatId);
+            (0, GroupsChat_controller_1.sendNewMessageByNotification)({
+                message: newMessage,
+                groupChat: groupChat,
+                users: notActiveUsers,
+                translate: socket.t,
+            });
         }
         catch (error) {
             if (callback)
@@ -137,9 +163,9 @@ const groupsChatEvents = (socket) => {
         try {
             const { groupChatId, messageId } = data;
             const user = socket.user;
-            const isGroupchatExist = await GroupsChat_model_1.GroupsChat.isGroupChatExist(groupChatId, user.id);
+            const isGroupchatExist = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, groupChatId);
             if (!isGroupchatExist) {
-                throw new ApiError_1.default("groupchat not found", 400);
+                throw new ApiError_1.default(socket.t("group_chat_not_found"), 400);
             }
             const getMessage = await GroupsChatMessages_model_1.GroupsChatMessages.getRepository()
                 .createQueryBuilder("message")
@@ -165,11 +191,18 @@ const groupsChatEvents = (socket) => {
             //   },
             // });
             if (!getMessage) {
-                throw new ApiError_1.default("message not found", 400);
+                throw new ApiError_1.default(socket.t("message_not_found"), 400);
             }
             socket
                 .to(groupChatId)
                 .emit("new-media-message", { message: getMessage, groupChatId });
+            const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(groupChatId);
+            (0, GroupsChat_controller_1.sendNewMessageByNotification)({
+                message: getMessage,
+                groupChat: isGroupchatExist,
+                users: notActiveUsers,
+                translate: socket.t,
+            });
         }
         catch (error) {
             if (callback)
@@ -179,12 +212,12 @@ const groupsChatEvents = (socket) => {
     socket.on("read-messages", async ({ messagesIds, groupChatId, }, callback) => {
         try {
             if (!groupChatId) {
-                throw new ApiError_1.default("groupchat Id required", 400);
+                throw new ApiError_1.default(socket.t("group_chat_id_required"), 400);
             }
             const user = socket.user;
             const isExist = await GroupsChat_model_1.GroupsChat.isGroupChatExist(groupChatId, user.id);
             if (!isExist)
-                throw new ApiError_1.default("groupchat not found", 400);
+                throw new ApiError_1.default(socket.t("group_chat_not_found"), 400);
             (0, GroupsChat_controller_1.readMessages)({ chatId: groupChatId, messagesIds, userId: user.id });
         }
         catch (error) {
@@ -198,22 +231,30 @@ const groupsChatEvents = (socket) => {
             const user = socket.user;
             const sharedGroup = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, sharedGroupId);
             if (!sharedGroup) {
-                throw new ApiError_1.default("sharedGroupId not found", 400);
+                throw new ApiError_1.default(socket.t("shared_group_id_not_found"), 400);
             }
             const toGroupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, toGroupId);
             if (!toGroupChat) {
-                throw new ApiError_1.default("toGroupChat not found", 400);
+                throw new ApiError_1.default(socket.t("to_group_chat_not_found"), 400);
             }
             const newMessage = await (0, GroupsChat_controller_1.addNewMessage)({
                 user,
                 groupChatId: toGroupChat.id,
                 sharedGroup,
+                translate: socket.t,
             });
             console.log("call setimageeee");
             (_a = newMessage.sharedGroup) === null || _a === void 0 ? void 0 : _a.setFullImageUrl();
             socket.to(toGroupId).emit("new-message", {
                 message: newMessage,
                 groupChatId: toGroupChat.id,
+            });
+            const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(toGroupChat.id);
+            (0, GroupsChat_controller_1.sendNewMessageByNotification)({
+                message: newMessage,
+                groupChat: toGroupChat,
+                users: notActiveUsers,
+                translate: socket.t,
             });
             // .emit("share-group", { newMessage });
         }

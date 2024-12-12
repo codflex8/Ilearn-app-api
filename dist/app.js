@@ -30,11 +30,11 @@ class AppServer {
                 loadPath: path_1.default.join(process.cwd(), "src/locales", "{{lng}}", "{{ns}}.json"), // Path to translation files
             },
             detection: {
-                order: ["querystring", "cookie"], // Priority: URL query string first, then cookies
-                caches: ["cookie"], // Cache detected language in cookies
+                order: ["header"], // Detect language from HTTP headers
+                caches: false, // Disable caching if you don't want cookies or query strings involved
             },
             fallbackLng: "en", // Default language when no language is detected
-            preload: ["en", "ru"], // Preload these languages at startup
+            preload: ["en", "ar"], // Preload these languages at startup
         });
         dotenv_1.default.config();
         app.use(i18next_http_middleware_1.default.handle(i18next_1.default));

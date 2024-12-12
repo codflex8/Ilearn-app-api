@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserRooms = exports.readMessages = exports.addNewMessage = exports.newGroupChatMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.joinGroup = exports.acceptJoinGroup = exports.getGroupsChat = void 0;
+exports.getUserRooms = exports.readMessages = exports.sendNewMessageByNotification = exports.addNewMessage = exports.newGroupChatMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.joinGroup = exports.acceptJoinGroup = exports.getGroupsChat = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const GroupsChat_model_1 = require("../models/GroupsChat.model");
 const getPaginationData_1 = require("../utils/getPaginationData");
@@ -57,7 +57,7 @@ exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, 
         },
     });
     if (!groupChatUser) {
-        return next(new ApiError_1.default("can not find groupChat", 400));
+        return next(new ApiError_1.default(req.t("cannot_find_group_chat"), 400));
     }
     groupChatUser.acceptJoin = true;
     await groupChatUser.save();
@@ -74,7 +74,7 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
         },
     });
     if (!groupChat) {
-        return next(new ApiError_1.default("groupchat not found", 400));
+        return next(new ApiError_1.default(req.t("group_chat_not_found"), 400));
     }
     const groupAdmin = await GroupsChatUsers_model_1.GroupsChatUsers.findOne({
         where: {
@@ -87,9 +87,11 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
     });
     console.log("groupAdminnnnn", groupAdmin);
     // send notification to group admin
-    const message = `user:${user.username} request to join group chat`;
+    const message = req.t("user_request_to_join_group_chat", {
+        username: user.username,
+    });
     await (0, sendNotification_1.sendAndCreateNotification)({
-        title: "join group chat request",
+        title: req.t("join_group_chat_request"),
         message,
         users: [groupAdmin.user],
         fromUser: user,
@@ -101,7 +103,9 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
         },
         fcmTokens: [groupAdmin.user.fcm],
     });
-    res.status(200).json({ message: "join request sent to group admin" });
+    res
+        .status(200)
+        .json({ message: req.t("join_request_sent_to_group_admin") });
 });
 exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { name, usersIds, image } = req.body;
@@ -142,7 +146,7 @@ exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, 
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
     if (!groupChat) {
-        return next(new ApiError_1.default("groupchat not found", 400));
+        return next(new ApiError_1.default(req.t("group_chat_not_found"), 400));
     }
     let querable = GroupsChatMessages_model_1.GroupsChatMessages.getRepository()
         .createQueryBuilder("messages")
@@ -227,7 +231,7 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
     const { usersIds } = req.body;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
     if (!groupChat) {
-        return next(new ApiError_1.default("groupchat not found", 400));
+        return next(new ApiError_1.default(req.t("group_chat_not_found"), 400));
     }
     const isAdmin = isUserGroupAdmin(user, groupChat === null || groupChat === void 0 ? void 0 : groupChat.userGroupsChats);
     if (!isAdmin)
@@ -290,7 +294,7 @@ exports.removeUsersfromGroupChat = (0, express_async_handler_1.default)(async (r
     const user = req.user;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
     if (!groupChat) {
-        return next(new ApiError_1.default("groupchat not found", 400));
+        return next(new ApiError_1.default(req.t("group_chat_not_found"), 400));
     }
     const deletedRows = await GroupsChatUsers_model_1.GroupsChatUsers.find({
         where: {
@@ -313,7 +317,7 @@ exports.leaveGroupChat = (0, express_async_handler_1.default)(async (req, res, n
     const user = req.user;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
     if (!groupChat) {
-        return next(new ApiError_1.default("groupchat not found", 400));
+        return next(new ApiError_1.default(req.t("group_chat_not_found"), 400));
     }
     const deletedRows = await GroupsChatUsers_model_1.GroupsChatUsers.find({
         where: {
@@ -335,7 +339,7 @@ exports.newGroupChatMessage = (0, express_async_handler_1.default)(async (req, r
     const { message, file, image, record } = req.body;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
     if (!groupChat) {
-        return next(new ApiError_1.default("groupchat not found", 400));
+        return next(new ApiError_1.default(req.t("group_chat_not_found"), 400));
     }
     const newMessage = await (0, exports.addNewMessage)({
         message,
@@ -344,11 +348,12 @@ exports.newGroupChatMessage = (0, express_async_handler_1.default)(async (req, r
         fileUrl: file,
         imageUrl: image,
         recordUrl: record,
+        translate: req.t,
     });
     res.status(201).json({ message: "messages added successfuly", newMessage });
 });
-const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, recordUrl, sharedGroup, }) => {
-    const groupChat = await checkGroupChatExist(groupChatId, user.id);
+const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, recordUrl, sharedGroup, translate, }) => {
+    const groupChat = await checkGroupChatExist(groupChatId, user.id, translate);
     const isLink = (0, extractLing_1.containsLink)(message);
     const newMessage = GroupsChatMessages_model_1.GroupsChatMessages.create({
         from: user,
@@ -371,6 +376,23 @@ const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, re
     return newMessage;
 };
 exports.addNewMessage = addNewMessage;
+const sendNewMessageByNotification = async ({ message, groupChat, users, translate, }) => {
+    const notificationMessage = translate("new_groupcaht_message");
+    await (0, sendNotification_1.sendAndCreateNotification)({
+        title: translate("new_groupcaht_message"),
+        message: "",
+        users: users,
+        // fromUser: user,
+        group: groupChat,
+        data: {
+            // message,
+            message,
+            // fromUser: user,
+        },
+        fcmTokens: users.map((u) => u.fcm),
+    });
+};
+exports.sendNewMessageByNotification = sendNewMessageByNotification;
 const readMessages = async ({ messagesIds, userId, chatId, }) => {
     const updateMessages = await GroupsChatMessages_model_1.GroupsChatMessages.update({
         id: (0, typeorm_1.In)(messagesIds),
@@ -393,7 +415,7 @@ const readMessages = async ({ messagesIds, userId, chatId, }) => {
     });
 };
 exports.readMessages = readMessages;
-const checkGroupChatExist = async (groupChatId, userId) => {
+const checkGroupChatExist = async (groupChatId, userId, translate) => {
     const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
         where: {
             id: groupChatId,
@@ -405,7 +427,7 @@ const checkGroupChatExist = async (groupChatId, userId) => {
         },
     });
     if (!groupChat) {
-        throw new ApiError_1.default("groupchat not found", 400);
+        throw new ApiError_1.default(translate("group_chat_not_found"), 400);
     }
     return groupChat;
 };

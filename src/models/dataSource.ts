@@ -9,6 +9,9 @@ export const dataSource = new DataSource({
   password: dbConfig.PASSWORD,
   port: Number(dbConfig.port),
   // pool: { ...dbConfig.pool },
+  extra: {
+    connectionLimit: 10, // Number of connections in the pool
+  },
   type: "mysql",
   synchronize: false,
   entities: [path.join(__dirname, "./*.model.{js,ts}")],

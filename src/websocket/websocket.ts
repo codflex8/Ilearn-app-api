@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { User } from "../models/User.model";
 import { getUserRooms } from "../controllers/GroupsChat.controller";
 import { GroupsChat } from "../models/GroupsChat.model";
+import { In, Not } from "typeorm";
 
 const WEBSOCKET_CORS = {
   origin: "*",
@@ -46,6 +47,16 @@ class Websocket extends Server {
 
   public static getroomUsers(roomId: string): User[] {
     return this.rooms[roomId]?.users ?? [];
+  }
+
+  public static async getRoomNotActiveUsers(roomId: string) {
+    const excludeUSersIds = this.getroomUsers(roomId);
+    return await User.find({
+      where: {
+        id: Not(In(excludeUSersIds)),
+      },
+      select: ["id", "fcm"],
+    });
   }
 
   // public static getroomById(roomId: string): User[] {

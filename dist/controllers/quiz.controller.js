@@ -58,7 +58,7 @@ exports.addQuize = (0, express_async_handler_1.default)(async (req, res, next) =
         },
     });
     if (!books.length) {
-        return next(new ApiError_1.default("can not find any book of booksIds", 400));
+        return next(new ApiError_1.default(req.t("cannot_find_any_book_of_books_ids"), 400));
     }
     const newQuiz = Quiz_model_1.Quiz.create({
         name,
@@ -90,7 +90,7 @@ exports.updateQuiz = (0, express_async_handler_1.default)(async (req, res, next)
     const { name, questionsType, quizLevel, questions, mark, booksIds } = req.body;
     const quiz = await Quiz_model_1.Quiz.getUserQuizById(user.id, id);
     if (!quiz) {
-        return next(new ApiError_1.default("quiz not found", 400));
+        return next(new ApiError_1.default(req.t("quiz_not_found"), 400));
     }
     const books = await Books_model_1.Book.find({
         where: {
@@ -210,7 +210,7 @@ exports.addQuestionHanlder = (0, express_async_handler_1.default)(async (req, re
         },
     });
     if (!quiz)
-        return next(new ApiError_1.default("quiz not found", 400));
+        return next(new ApiError_1.default(req.t("quiz_not_found"), 400));
     const newQuestion = addQuestion({
         question,
         type,

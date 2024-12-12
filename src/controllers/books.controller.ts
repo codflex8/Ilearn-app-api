@@ -123,7 +123,7 @@ export const addBook = asyncHandler(
     try {
       if (!fileData) {
         console.log("fileData", fileData);
-        return next(new ApiError("somthing wrong with file data", 400));
+        return next(new ApiError(req.t("something_wrong_with_file_data"), 400));
       }
       const user = req.user;
       const book = Book.create({
@@ -142,7 +142,7 @@ export const addBook = asyncHandler(
           categoryId
         );
         if (!category) {
-          throw new ApiError("category not found", 400);
+          throw new ApiError(req.t("category_not_found"), 400);
         }
         book.category = category;
       }
@@ -169,7 +169,7 @@ export const updateBook = asyncHandler(
       req.body;
     const book = await Book.getUserBookById(user.id, id);
     if (!book) {
-      return next(new ApiError("book not found", 400));
+      return next(new ApiError(req.t("book_not_found"), 400));
     }
     book.name = name;
     if (image) book.imageUrl = image;
@@ -179,7 +179,7 @@ export const updateBook = asyncHandler(
     book.content = content;
     const category = await Category.getUserCategoryById(user.id, categoryId);
     if (!category) {
-      return next(new ApiError("category not found", 400));
+      return next(new ApiError(req.t("category_not_found"), 400));
     }
     book.category = category;
     await book.save();
@@ -194,7 +194,7 @@ export const setLocalPath = asyncHandler(
     const { localPath } = req.body;
     const book = await Book.getUserBookById(user.id, id, false);
     if (!book) {
-      return next(new ApiError("book not found", 400));
+      return next(new ApiError(req.t("book_not_found"), 400));
     }
     book.localPath = localPath;
     await book.save();
@@ -218,6 +218,6 @@ export const deleteBook = asyncHandler(
       await book.remove();
       await deleteS3File(book.s3Key);
     }
-    res.status(200).json({ message: "delete success" });
+    res.status(200).json({ message: req.t("delete_success") });
   }
 );

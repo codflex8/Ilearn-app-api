@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const socket_io_1 = require("socket.io");
+const User_model_1 = require("../models/User.model");
+const typeorm_1 = require("typeorm");
 const WEBSOCKET_CORS = {
     origin: "*",
     // methods: ["GET", "POST"],
@@ -30,6 +32,15 @@ class Websocket extends socket_io_1.Server {
     static getroomUsers(roomId) {
         var _a, _b;
         return (_b = (_a = this.rooms[roomId]) === null || _a === void 0 ? void 0 : _a.users) !== null && _b !== void 0 ? _b : [];
+    }
+    static async getRoomNotActiveUsers(roomId) {
+        const excludeUSersIds = this.getroomUsers(roomId);
+        return await User_model_1.User.find({
+            where: {
+                id: (0, typeorm_1.Not)((0, typeorm_1.In)(excludeUSersIds)),
+            },
+            select: ["id", "fcm"],
+        });
     }
     // public static getroomById(roomId: string): User[] {
     //   return this.rooms[roomId];

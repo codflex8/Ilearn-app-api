@@ -39,7 +39,7 @@ export const updateProfileData = asyncHandler(
       },
     });
     if (isEmailExist) {
-      return next(new ApiError("email is used by other user", 409));
+      return next(new ApiError(req.t("email_is_used_by_other_user"), 409));
     }
     const isPhoneNumberExist = await User.findOne({
       where: {
@@ -48,7 +48,9 @@ export const updateProfileData = asyncHandler(
       },
     });
     if (isPhoneNumberExist) {
-      return next(new ApiError("phone number is used by other user", 409));
+      return next(
+        new ApiError(req.t("phone_number_is_used_by_other_user"), 409)
+      );
     }
 
     user.email = email;

@@ -48,7 +48,7 @@ exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => 
         },
     });
     if (isUserExist) {
-        return next(new ApiError_1.default(req.t("emailUsed"), 409));
+        return next(new ApiError_1.default(req.t("this_email_signed_up_already"), 409));
     }
     // 1- Create user
     const cryptedPassword = await (0, bcryptPassword_1.default)(password);
@@ -119,12 +119,12 @@ exports.protect = (0, express_async_handler_1.default)(async (req, res, next) =>
         token = req.headers.authorization.split(" ")[1];
     }
     if (!token) {
-        return next(new ApiError_1.default(req.t("notLogin"), 401));
+        return next(new ApiError_1.default(req.t("unauthorized"), 401));
     }
     // 2) Verify token (no change happens, expired token)
     const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(token);
     if (!currentUser) {
-        return next(new ApiError_1.default(req.t("userNotExist"), 401));
+        return next(new ApiError_1.default(req.t("unauthorized"), 401));
     }
     try {
         verifyUserChangePassword(currentUser, decoded, req.t);
@@ -193,13 +193,13 @@ exports.verifyPassResetCode = (0, express_async_handler_1.default)(async (req, r
         },
     });
     if (!user) {
-        return next(new ApiError_1.default(req.t("expireResetCode"), 400));
+        return next(new ApiError_1.default(req.t("expired_code_please_try_again"), 400));
     }
     const timeDiff = Date.now() - Number(user.passwordResetExpires);
     const oneMinutesInMilliesecond = 60000;
     if (timeDiff > oneMinutesInMilliesecond ||
         user.passwordResetCode != req.body.resetCode) {
-        return next(new ApiError_1.default(req.t("invalidResetCode"), 400));
+        return next(new ApiError_1.default(req.t("invalid_reset_code_please_login_again"), 400));
     }
     // 2) Reset code valid
     user.passwordResetVerified = true;
@@ -216,7 +216,7 @@ exports.resetPassword = (0, express_async_handler_1.default)(async (req, res, ne
     }
     // 2) Check if reset code verified
     if (!user.passwordResetVerified) {
-        return next(new ApiError_1.default(req.t("invalidResetCode"), 400));
+        return next(new ApiError_1.default(req.t("inva"), 400));
     }
     const cryptedPassword = await (0, bcryptPassword_1.default)(req.body.password);
     user.password = cryptedPassword;
@@ -256,9 +256,9 @@ exports.googleAuthSignUp = (0, express_async_handler_1.default)(async (req, res,
     });
     if (isUserExist) {
         if (email === isUserExist.email && !isUserExist.googleId) {
-            return next(new ApiError_1.default("this email signed up already", 409));
+            return next(new ApiError_1.default(req.t("this_email_signed_up_already"), 409));
         }
-        return next(new ApiError_1.default("user already signed up", 409));
+        return next(new ApiError_1.default(req.t("user_already_signed_up"), 409));
     }
     const newUser = await createSocialMediaUser({
         email,
@@ -268,7 +268,7 @@ exports.googleAuthSignUp = (0, express_async_handler_1.default)(async (req, res,
     });
     const authToken = (0, createToken_1.createToken)(newUser.id);
     res.status(201).json({
-        message: "google signup success",
+        message: req.t("google_signup_success"),
         user: newUser,
         token: authToken,
     });
@@ -278,7 +278,7 @@ exports.googleAuthSignIn = (0, express_async_handler_1.default)(async (req, res,
     const userData = await (0, socialMediaAuth_1.verifyGoogleAuth)(token);
     const user = await User_model_1.User.getPublicUserDataByEmail({ email: userData.email });
     if (!user) {
-        return next(new ApiError_1.default("user email not exist", 409));
+        return next(new ApiError_1.default(req.t("user_email_not_exist"), 409));
     }
     const authToken = (0, createToken_1.createToken)(user.id);
     res.status(201).json({ user, token: authToken });
@@ -298,9 +298,9 @@ exports.facebookAuthSignUp = (0, express_async_handler_1.default)(async (req, re
     });
     if (isUserExist) {
         if (email === isUserExist.email && !isUserExist.facebookId) {
-            return next(new ApiError_1.default("this email signed up already", 409));
+            return next(new ApiError_1.default(req.t("this_email_signed_up_already"), 409));
         }
-        return next(new ApiError_1.default("user already signed up", 409));
+        return next(new ApiError_1.default(req.t("user_already_signed_up"), 409));
     }
     const newUser = await createSocialMediaUser({
         email,
@@ -310,7 +310,7 @@ exports.facebookAuthSignUp = (0, express_async_handler_1.default)(async (req, re
     });
     const authToken = (0, createToken_1.createToken)(newUser.id);
     res.status(201).json({
-        message: "facebook signup success",
+        message: req.t("facebook_signup_success"),
         user: newUser,
         token: authToken,
     });
@@ -320,7 +320,7 @@ exports.facebookAuthSignIn = (0, express_async_handler_1.default)(async (req, re
     const { userId } = await (0, socialMediaAuth_1.getFacebookUserData)(token);
     const user = await User_model_1.User.getPublicUserDataByEmail({ facebookId: userId });
     if (!user) {
-        return next(new ApiError_1.default("user  not signed up", 409));
+        return next(new ApiError_1.default(req.t("user_not_signed_up"), 400));
     }
     const authToken = (0, createToken_1.createToken)(user.id);
     res.status(201).json({ user, token: authToken });
@@ -340,9 +340,9 @@ exports.twitterAuthSignUp = (0, express_async_handler_1.default)(async (req, res
     });
     if (isUserExist) {
         if (email === isUserExist.email && !isUserExist.twitterId) {
-            return next(new ApiError_1.default("this email signed up already", 409));
+            return next(new ApiError_1.default(req.t("this_email_signed_up_already"), 409));
         }
-        return next(new ApiError_1.default("user already signed up", 409));
+        return next(new ApiError_1.default(req.t("user_already_signed_up"), 409));
     }
     const newUser = await createSocialMediaUser({
         email,
@@ -352,7 +352,7 @@ exports.twitterAuthSignUp = (0, express_async_handler_1.default)(async (req, res
     });
     const authToken = (0, createToken_1.createToken)(newUser.id);
     res.status(201).json({
-        message: "twitter signup success",
+        message: req.t("twitter_signup_success"),
         user: newUser,
         token: authToken,
     });
@@ -362,7 +362,7 @@ exports.twitterAuthSignIn = (0, express_async_handler_1.default)(async (req, res
     const userData = await (0, socialMediaAuth_1.getTwitterUserData)(token);
     const user = await User_model_1.User.getPublicUserDataByEmail({ email: userData.email });
     if (!user) {
-        return next(new ApiError_1.default("user email not exist", 409));
+        return next(new ApiError_1.default(req.t("user_email_not_exist"), 409));
     }
     const authToken = (0, createToken_1.createToken)(user.id);
     res.status(201).json({ user, token: authToken });

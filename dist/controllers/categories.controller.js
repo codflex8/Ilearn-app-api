@@ -63,6 +63,6 @@ exports.deleteCategory = (0, express_async_handler_1.default)(async (req, res, n
     const user = req.user;
     const category = await Categories_model_1.Category.getUserCategoryById(user.id, id);
     await (category === null || category === void 0 ? void 0 : category.remove());
-    res.status(200).json({ message: "delete success" });
+    res.status(200).json({ message: req.t("delete_success") });
 });
 //# sourceMappingURL=categories.controller.js.map

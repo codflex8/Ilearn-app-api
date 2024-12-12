@@ -50,7 +50,7 @@ exports.addChatbots = (0, express_async_handler_1.default)(async (req, res, next
         },
     });
     if (books.length !== booksIds.length) {
-        return next(new ApiError_1.default("Not all books are found", 400));
+        return next(new ApiError_1.default(req.t("not_all_books_are_found"), 400));
     }
     const chatbot = await ChatBot_model_1.Chatbot.create({
         name,
@@ -66,7 +66,7 @@ exports.updateChatbot = (0, express_async_handler_1.default)(async (req, res, ne
     const user = req.user;
     const chatbot = await ChatBot_model_1.Chatbot.getUserChatbotById(user.id, id);
     if (!chatbot) {
-        next(new ApiError_1.default("chatbot not found", 404));
+        next(new ApiError_1.default(req.t("chatbot_not_found"), 404));
     }
     const books = await Books_model_1.Book.find({
         where: {
@@ -86,7 +86,7 @@ exports.deleteChatbot = (0, express_async_handler_1.default)(async (req, res, ne
     const { id } = req.params;
     const chatbot = await ChatBot_model_1.Chatbot.getUserChatbotById(user.id, id);
     if (!chatbot) {
-        next(new ApiError_1.default("chatbot not found", 404));
+        next(new ApiError_1.default(req.t("chatbot_not_found"), 404));
     }
     await chatbot.remove();
     res.status(200).json({ message: "delete success" });
@@ -105,7 +105,7 @@ exports.getChatbotMessages = (0, express_async_handler_1.default)(async (req, re
         },
     });
     if (!chatbot) {
-        next(new ApiError_1.default("chatbot not found", 404));
+        next(new ApiError_1.default(req.t("chatbot_not_found"), 404));
     }
     let condition = {
         chatbot: {
@@ -154,6 +154,7 @@ exports.addMessageHandler = (0, express_async_handler_1.default)(async (req, res
         userId: user.id,
         fileUrl: file,
         errorHandler: next,
+        translate: req.t,
     });
     res.status(201).json({ message: newMessage });
 });
@@ -163,7 +164,7 @@ exports.addBooksToChatbot = (0, express_async_handler_1.default)(async (req, res
     const user = req.user;
     const chatbot = await ChatBot_model_1.Chatbot.getUserChatbotById(user.id, id);
     if (!chatbot) {
-        next(new ApiError_1.default("chatbot not found", 404));
+        next(new ApiError_1.default(req.t("chatbot_not_found"), 404));
     }
     const books = await Books_model_1.Book.find({
         where: {
@@ -177,7 +178,7 @@ exports.addBooksToChatbot = (0, express_async_handler_1.default)(async (req, res
     await chatbot.save();
     res.status(200).json({ chatbot });
 });
-const addMessage = async ({ chatbotId, message, recordUrl, imageUrl, from, userId, fileUrl, errorHandler, }) => {
+const addMessage = async ({ chatbotId, message, recordUrl, imageUrl, from, userId, fileUrl, errorHandler, translate, }) => {
     const chatbot = await ChatBot_model_1.Chatbot.findOne({
         where: {
             id: (0, typeorm_1.Equal)(chatbotId),
@@ -187,7 +188,7 @@ const addMessage = async ({ chatbotId, message, recordUrl, imageUrl, from, userI
         },
     });
     if (!chatbot) {
-        errorHandler(new ApiError_1.default("chatbot not found", 404));
+        errorHandler(new ApiError_1.default(translate("chatbot_not_found"), 404));
     }
     const newMessage = ChatBotMessages_model_1.ChatbotMessages.create({
         message,

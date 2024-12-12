@@ -30,7 +30,7 @@ export const signup = asyncHandler(
       },
     });
     if (isUserExist) {
-      return next(new ApiError(req.t("emailUsed"), 409));
+      return next(new ApiError(req.t("this_email_signed_up_already"), 409));
     }
     // 1- Create user
     const cryptedPassword = await bcryptPassword(password);
@@ -124,13 +124,13 @@ export const protect = asyncHandler(
       token = req.headers.authorization.split(" ")[1];
     }
     if (!token) {
-      return next(new ApiError(req.t("notLogin"), 401));
+      return next(new ApiError(req.t("unauthorized"), 401));
     }
 
     // 2) Verify token (no change happens, expired token)
     const { currentUser, decoded } = await getUserFromToken(token);
     if (!currentUser) {
-      return next(new ApiError(req.t("userNotExist"), 401));
+      return next(new ApiError(req.t("unauthorized"), 401));
     }
     try {
       verifyUserChangePassword(currentUser, decoded, req.t);
@@ -208,7 +208,7 @@ export const verifyPassResetCode = asyncHandler(async (req, res, next) => {
     },
   });
   if (!user) {
-    return next(new ApiError(req.t("expireResetCode"), 400));
+    return next(new ApiError(req.t("expired_code_please_try_again"), 400));
   }
   const timeDiff = Date.now() - Number(user.passwordResetExpires);
 
@@ -217,7 +217,9 @@ export const verifyPassResetCode = asyncHandler(async (req, res, next) => {
     timeDiff > oneMinutesInMilliesecond ||
     user.passwordResetCode != req.body.resetCode
   ) {
-    return next(new ApiError(req.t("invalidResetCode"), 400));
+    return next(
+      new ApiError(req.t("invalid_reset_code_please_login_again"), 400)
+    );
   }
 
   // 2) Reset code valid
@@ -238,7 +240,7 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
 
   // 2) Check if reset code verified
   if (!user.passwordResetVerified) {
-    return next(new ApiError(req.t("invalidResetCode"), 400));
+    return next(new ApiError(req.t("inva"), 400));
   }
   const cryptedPassword = await bcryptPassword(req.body.password);
   user.password = cryptedPassword;
@@ -296,9 +298,9 @@ export const googleAuthSignUp = asyncHandler(async (req, res, next) => {
   });
   if (isUserExist) {
     if (email === isUserExist.email && !isUserExist.googleId) {
-      return next(new ApiError("this email signed up already", 409));
+      return next(new ApiError(req.t("this_email_signed_up_already"), 409));
     }
-    return next(new ApiError("user already signed up", 409));
+    return next(new ApiError(req.t("user_already_signed_up"), 409));
   }
   const newUser = await createSocialMediaUser({
     email,
@@ -308,7 +310,7 @@ export const googleAuthSignUp = asyncHandler(async (req, res, next) => {
   });
   const authToken = createToken(newUser.id);
   res.status(201).json({
-    message: "google signup success",
+    message: req.t("google_signup_success"),
     user: newUser,
     token: authToken,
   });
@@ -320,7 +322,7 @@ export const googleAuthSignIn = asyncHandler(async (req, res, next) => {
 
   const user = await User.getPublicUserDataByEmail({ email: userData.email });
   if (!user) {
-    return next(new ApiError("user email not exist", 409));
+    return next(new ApiError(req.t("user_email_not_exist"), 409));
   }
 
   const authToken = createToken(user.id);
@@ -344,9 +346,9 @@ export const facebookAuthSignUp = asyncHandler(async (req, res, next) => {
   });
   if (isUserExist) {
     if (email === isUserExist.email && !isUserExist.facebookId) {
-      return next(new ApiError("this email signed up already", 409));
+      return next(new ApiError(req.t("this_email_signed_up_already"), 409));
     }
-    return next(new ApiError("user already signed up", 409));
+    return next(new ApiError(req.t("user_already_signed_up"), 409));
   }
   const newUser = await createSocialMediaUser({
     email,
@@ -356,7 +358,7 @@ export const facebookAuthSignUp = asyncHandler(async (req, res, next) => {
   });
   const authToken = createToken(newUser.id);
   res.status(201).json({
-    message: "facebook signup success",
+    message: req.t("facebook_signup_success"),
     user: newUser,
     token: authToken,
   });
@@ -368,7 +370,7 @@ export const facebookAuthSignIn = asyncHandler(async (req, res, next) => {
 
   const user = await User.getPublicUserDataByEmail({ facebookId: userId });
   if (!user) {
-    return next(new ApiError("user  not signed up", 409));
+    return next(new ApiError(req.t("user_not_signed_up"), 400));
   }
 
   const authToken = createToken(user.id);
@@ -390,9 +392,9 @@ export const twitterAuthSignUp = asyncHandler(async (req, res, next) => {
   });
   if (isUserExist) {
     if (email === isUserExist.email && !isUserExist.twitterId) {
-      return next(new ApiError("this email signed up already", 409));
+      return next(new ApiError(req.t("this_email_signed_up_already"), 409));
     }
-    return next(new ApiError("user already signed up", 409));
+    return next(new ApiError(req.t("user_already_signed_up"), 409));
   }
   const newUser = await createSocialMediaUser({
     email,
@@ -402,7 +404,7 @@ export const twitterAuthSignUp = asyncHandler(async (req, res, next) => {
   });
   const authToken = createToken(newUser.id);
   res.status(201).json({
-    message: "twitter signup success",
+    message: req.t("twitter_signup_success"),
     user: newUser,
     token: authToken,
   });
@@ -414,7 +416,7 @@ export const twitterAuthSignIn = asyncHandler(async (req, res, next) => {
 
   const user = await User.getPublicUserDataByEmail({ email: userData.email });
   if (!user) {
-    return next(new ApiError("user email not exist", 409));
+    return next(new ApiError(req.t("user_email_not_exist"), 409));
   }
 
   const authToken = createToken(user.id);

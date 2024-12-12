@@ -13,6 +13,7 @@ const groupsChat_socket_1 = require("./websocket/groupsChat.socket");
 const getUserFromToken_1 = require("./utils/getUserFromToken");
 const ApiError_1 = __importDefault(require("./utils/ApiError"));
 const logger_1 = require("./utils/logger");
+const i18next_1 = __importDefault(require("i18next"));
 const app = (0, express_1.default)();
 new app_1.default(app);
 const httpServer = (0, http_1.createServer)(app);
@@ -22,6 +23,12 @@ const server = httpServer.listen(process.env.PORT || 3000, () => {
 });
 io.use(async (socket, callback) => {
     try {
+        const userLng = socket.handshake.headers["accept-language"] || "en"; // Default to 'en' if not provided
+        console.log("userLngggg", userLng, socket.handshake.headers);
+        // Optionally, you can store the language in the socket instance
+        // socket.language = userLng;
+        // Use i18next with the user's language
+        socket.t = i18next_1.default.getFixedT(userLng);
         if (socket.client.request.headers.authorization &&
             socket.client.request.headers.authorization.split(" ")[1]) {
             const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(socket.client.request.headers.authorization.split(" ")[1], true);

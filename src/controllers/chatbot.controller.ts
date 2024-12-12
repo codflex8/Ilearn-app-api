@@ -13,6 +13,7 @@ import {
   MessageFrom,
 } from "../utils/validators/ChatbotValidator";
 import { MessageType } from "../utils/validators/GroupsChatValidator";
+import { TFunction } from "i18next";
 
 interface IAddMessage extends IChatbotMessage {
   recordUrl?: string;
@@ -22,6 +23,7 @@ interface IAddMessage extends IChatbotMessage {
   // chatbotId: string;
   userId: string;
   errorHandler: (error: Error) => void;
+  translate: TFunction;
 }
 
 export const getChatbots = asyncHandler(
@@ -83,7 +85,7 @@ export const addChatbots = asyncHandler(
       },
     });
     if (books.length !== booksIds.length) {
-      return next(new ApiError("Not all books are found", 400));
+      return next(new ApiError(req.t("not_all_books_are_found"), 400));
     }
     const chatbot = await Chatbot.create({
       name,
@@ -103,7 +105,7 @@ export const updateChatbot = asyncHandler(
     const user = req.user;
     const chatbot = await Chatbot.getUserChatbotById(user.id, id);
     if (!chatbot) {
-      next(new ApiError("chatbot not found", 404));
+      next(new ApiError(req.t("chatbot_not_found"), 404));
     }
     const books = await Book.find({
       where: {
@@ -127,7 +129,7 @@ export const deleteChatbot = asyncHandler(
     const chatbot = await Chatbot.getUserChatbotById(user.id, id);
 
     if (!chatbot) {
-      next(new ApiError("chatbot not found", 404));
+      next(new ApiError(req.t("chatbot_not_found"), 404));
     }
     await chatbot.remove();
     res.status(200).json({ message: "delete success" });
@@ -149,7 +151,7 @@ export const getChatbotMessages = asyncHandler(
       },
     });
     if (!chatbot) {
-      next(new ApiError("chatbot not found", 404));
+      next(new ApiError(req.t("chatbot_not_found"), 404));
     }
     let condition: FindOptionsWhere<ChatbotMessages> = {
       chatbot: {
@@ -211,6 +213,7 @@ export const addMessageHandler = asyncHandler(
       userId: user.id,
       fileUrl: file,
       errorHandler: next,
+      translate: req.t,
     });
     res.status(201).json({ message: newMessage });
   }
@@ -223,7 +226,7 @@ export const addBooksToChatbot = asyncHandler(
     const user = req.user;
     const chatbot = await Chatbot.getUserChatbotById(user.id, id);
     if (!chatbot) {
-      next(new ApiError("chatbot not found", 404));
+      next(new ApiError(req.t("chatbot_not_found"), 404));
     }
     const books = await Book.find({
       where: {
@@ -248,6 +251,7 @@ export const addMessage = async ({
   userId,
   fileUrl,
   errorHandler,
+  translate,
 }: IAddMessage) => {
   const chatbot = await Chatbot.findOne({
     where: {
@@ -258,7 +262,7 @@ export const addMessage = async ({
     },
   });
   if (!chatbot) {
-    errorHandler(new ApiError("chatbot not found", 404));
+    errorHandler(new ApiError(translate("chatbot_not_found"), 404));
   }
   const newMessage = ChatbotMessages.create({
     message,

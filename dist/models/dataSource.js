@@ -14,6 +14,9 @@ exports.dataSource = new typeorm_1.DataSource({
     password: db_config_1.default.PASSWORD,
     port: Number(db_config_1.default.port),
     // pool: { ...dbConfig.pool },
+    extra: {
+        connectionLimit: 10, // Number of connections in the pool
+    },
     type: "mysql",
     synchronize: false,
     entities: [path_1.default.join(__dirname, "./*.model.{js,ts}")],

@@ -82,7 +82,9 @@ export const addQuize = asyncHandler(
       },
     });
     if (!books.length) {
-      return next(new ApiError("can not find any book of booksIds", 400));
+      return next(
+        new ApiError(req.t("cannot_find_any_book_of_books_ids"), 400)
+      );
     }
     const newQuiz = Quiz.create({
       name,
@@ -120,7 +122,7 @@ export const updateQuiz = asyncHandler(
       req.body;
     const quiz = await Quiz.getUserQuizById(user.id, id);
     if (!quiz) {
-      return next(new ApiError("quiz not found", 400));
+      return next(new ApiError(req.t("quiz_not_found"), 400));
     }
     const books = await Book.find({
       where: {
@@ -295,7 +297,7 @@ export const addQuestionHanlder = asyncHandler(
         },
       },
     });
-    if (!quiz) return next(new ApiError("quiz not found", 400));
+    if (!quiz) return next(new ApiError(req.t("quiz_not_found"), 400));
     const newQuestion = addQuestion({
       question,
       type,
