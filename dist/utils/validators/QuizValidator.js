@@ -52,13 +52,14 @@ const questionValidatorWithRefine = (questionObject) => questionObject.refine((d
 //     message: "aiAnswerIndex required",
 //   }
 // );
+373151;
 const addQuestionObject = zod_1.z.object({
     question: zod_1.z.string(),
     type: zod_1.z.nativeEnum(QuestionType),
     userAnswerIndex: zod_1.z.number().optional().nullable(),
     correctAnswerIndex: zod_1.z.number().optional().nullable(),
     aiAnswer: zod_1.z.string(),
-    userAnswer: zod_1.z.string(),
+    userAnswer: zod_1.z.string().optional().nullable(),
     answers: zod_1.z.array(zod_1.z.string()),
     isBookmarked: zod_1.z.boolean().optional().nullable(),
     // answers: z.array(addAnswerValidator),
