@@ -20,8 +20,9 @@ const sendNotification = async ({ title, data, fcmTokens }) => {
         const payload = {
             notification: {
                 title: title,
-                body: JSON.stringify(data),
+                // body: JSON.stringify(data),
             },
+            data,
             tokens: fcmTokens,
         };
         const response = await firebase_admin_1.default.messaging().sendEachForMulticast(payload);

@@ -3,6 +3,7 @@ import serviceAccount from "../../firebaseAccountKey.json";
 import { Notification } from "../models/Notification.model";
 import { User } from "../models/User.model";
 import { GroupsChat } from "../models/GroupsChat.model";
+import { MulticastMessage } from "firebase-admin/lib/messaging/messaging-api";
 
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -15,11 +16,12 @@ admin.initializeApp({
 export const sendNotification = async ({ title, data, fcmTokens }) => {
   try {
     console.log("fcmTokensssssss", { fcmTokens, data, title });
-    const payload = {
+    const payload: MulticastMessage = {
       notification: {
         title: title,
-        body: JSON.stringify(data),
+        // body: JSON.stringify(data),
       },
+      data,
       tokens: fcmTokens,
     };
 
