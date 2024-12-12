@@ -107,8 +107,8 @@ export const acceptJoinGroup = asyncHandler(
       group: groupChat,
       data: {
         message,
-        groupChat: groupChat.name,
-        fromUser: user.username,
+        // groupChat: groupChat.name,
+        // fromUser: user.username,
       },
       fcmTokens: [groupAdmin.user.fcm],
     });

@@ -16,7 +16,7 @@ firebase_admin_1.default.initializeApp({
 });
 const sendNotification = async ({ title, data, fcmTokens }) => {
     try {
-        console.log("fcmTokensssssss", fcmTokens, data);
+        console.log("fcmTokensssssss", { fcmTokens, data, title });
         const payload = {
             notification: {
                 title: title,
