@@ -85,8 +85,8 @@ exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, 
         group: groupChat,
         data: {
             message,
-            // groupChat: groupChat.name,
-            // fromUser: user.username,
+            groupChat: groupChat,
+            fromUser: user,
         },
         fcmTokens: [groupAdmin.user.fcm],
     });
