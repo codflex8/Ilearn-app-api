@@ -23,8 +23,8 @@ const sendNotification = async ({ title, data, fcmTokens }) => {
             },
             tokens: fcmTokens,
         };
-        // const response = await admin.messaging().send(payload);
-        // console.log("Successfully sent message:", response);
+        const response = await firebase_admin_1.default.messaging().sendEachForMulticast(payload);
+        console.log("Successfully sent message:", response);
     }
     catch (error) {
         console.error("Error sending message:", error);

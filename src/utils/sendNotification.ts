@@ -22,8 +22,8 @@ export const sendNotification = async ({ title, data, fcmTokens }) => {
       tokens: fcmTokens,
     };
 
-    // const response = await admin.messaging().send(payload);
-    // console.log("Successfully sent message:", response);
+    const response = await admin.messaging().sendEachForMulticast(payload);
+    console.log("Successfully sent message:", response);
   } catch (error) {
     console.error("Error sending message:", error);
   }
