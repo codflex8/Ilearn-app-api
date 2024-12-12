@@ -85,8 +85,8 @@ exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, 
         group: groupChat,
         data: {
             message,
-            groupChat,
-            fromUser: user,
+            groupChat: groupChat.name,
+            fromUser: user.username,
         },
         fcmTokens: [groupAdmin.user.fcm],
     });
@@ -125,8 +125,8 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
         group: groupChat,
         data: {
             message,
-            groupChat,
-            fromUser: user,
+            groupChat: groupChat.name,
+            fromUser: user.username,
         },
         fcmTokens: [groupAdmin.user.fcm],
     });
@@ -308,8 +308,8 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
         group: groupChat,
         data: {
             message,
-            groupChat,
-            fromUser: user,
+            groupChat: groupChat.name,
+            fromUser: user.username,
         },
         fcmTokens: usersFcm,
     });
@@ -413,7 +413,7 @@ const sendNewMessageByNotification = async ({ message, groupChat, users, transla
         group: groupChat,
         data: {
             // message,
-            message,
+            message: message.message,
             // fromUser: user,
         },
         fcmTokens: users.map((u) => u.fcm),

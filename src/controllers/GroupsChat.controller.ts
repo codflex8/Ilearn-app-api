@@ -107,8 +107,8 @@ export const acceptJoinGroup = asyncHandler(
       group: groupChat,
       data: {
         message,
-        groupChat,
-        fromUser: user,
+        groupChat: groupChat.name,
+        fromUser: user.username,
       },
       fcmTokens: [groupAdmin.user.fcm],
     });
@@ -150,8 +150,8 @@ export const joinGroup = asyncHandler(
       group: groupChat,
       data: {
         message,
-        groupChat,
-        fromUser: user,
+        groupChat: groupChat.name,
+        fromUser: user.username,
       },
       fcmTokens: [groupAdmin.user.fcm],
     });
@@ -379,8 +379,8 @@ export const addUsersToGroupChat = asyncHandler(
       group: groupChat,
       data: {
         message,
-        groupChat,
-        fromUser: user,
+        groupChat: groupChat.name,
+        fromUser: user.username,
       },
       fcmTokens: usersFcm,
     });
@@ -535,7 +535,7 @@ export const sendNewMessageByNotification = async ({
     group: groupChat,
     data: {
       // message,
-      message,
+      message: message.message,
       // fromUser: user,
     },
     fcmTokens: users.map((u) => u.fcm),
