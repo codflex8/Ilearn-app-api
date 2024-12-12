@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserRooms = exports.readMessages = exports.sendNewMessageByNotification = exports.addNewMessage = exports.newGroupChatMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.joinGroup = exports.acceptJoinGroup = exports.getGroupsChat = void 0;
+exports.getUserRooms = exports.readMessages = exports.sendNewMessageByNotification = exports.addNewMessage = exports.newGroupChatMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.joinGroup = exports.acceptJoinRequest = exports.acceptJoinGroup = exports.getGroupsChat = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const GroupsChat_model_1 = require("../models/GroupsChat.model");
 const getPaginationData_1 = require("../utils/getPaginationData");
@@ -17,6 +17,7 @@ const GroupsChatMessages_model_1 = require("../models/GroupsChatMessages.model")
 const extractLing_1 = require("../utils/extractLing");
 const websocket_1 = __importDefault(require("../websocket/websocket"));
 const sendNotification_1 = require("../utils/sendNotification");
+const Notification_model_1 = require("../models/Notification.model");
 exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
     const { page, pageSize, name } = req.query;
@@ -73,26 +74,69 @@ exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, 
         },
         relations: { user: true },
     });
-    const message = req.t("user_accept_join_group", {
+    const title = req.t("user_accept_join_title");
+    const body = req.t("user_accept_join_group", {
         username: user.username,
         name: groupChat.name,
     });
     await (0, sendNotification_1.sendAndCreateNotification)({
-        title: message,
-        message,
+        title,
+        body,
         users: [groupAdmin.user],
         fromUser: user,
         group: groupChat,
         data: {
             groupChat: groupChat.name,
             groupChatId: groupChat.id,
+            groupChatImageUrl: groupChat.fullImageUrl,
             fromUser: user.username,
             fromUserId: user.id,
             fromUserImageUrl: user.fullImageUrl,
         },
         fcmTokens: [groupAdmin.user.fcm],
+        type: Notification_model_1.NotificationType.UserAcceptJoinGroup,
     });
     res.status(200).json({ groupChat });
+});
+exports.acceptJoinRequest = (0, express_async_handler_1.default)(async (req, res, next) => {
+    var _a;
+    const user = req.user;
+    const { userId } = req.body;
+    const { id } = req.params;
+    const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
+        where: {
+            id: (0, typeorm_1.Equal)(id),
+            userGroupsChats: {
+                user: {
+                    id: user.id,
+                },
+            },
+        },
+        relations: {
+            userGroupsChats: true,
+        },
+    });
+    console.log("groupChatgroupChat", groupChat);
+    if (!groupChat) {
+        throw new ApiError_1.default(req.t("group_chat_not_found"), 400);
+    }
+    if (!(groupChat === null || groupChat === void 0 ? void 0 : groupChat.userGroupsChats[0]) ||
+        ((_a = groupChat.userGroupsChats[0]) === null || _a === void 0 ? void 0 : _a.role) !== GroupsChatValidator_1.GroupChatRoles.Admin) {
+        throw new ApiError_1.default(req.t("you_are_not_group_admin"), 400);
+    }
+    const addedUser = await User_model_1.User.findOne({
+        where: {
+            id: userId,
+        },
+    });
+    const newGroupChatUser = await GroupsChatUsers_model_1.GroupsChatUsers.create({
+        user: addedUser,
+        groupChat,
+        acceptJoin: true,
+        role: GroupsChatValidator_1.GroupChatRoles.Member,
+    });
+    await newGroupChatUser.save();
+    res.status(200).json({ message: req.t("success") });
 });
 exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
@@ -116,21 +160,25 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
     });
     console.log("groupAdminnnnn", groupAdmin);
     // send notification to group admin
-    const message = req.t("user_request_to_join_group_chat", {
+    const body = req.t("user_request_to_join_group_chat", {
         username: user.username,
     });
     await (0, sendNotification_1.sendAndCreateNotification)({
         title: req.t("join_group_chat_request"),
-        message,
+        body,
         users: [groupAdmin.user],
         fromUser: user,
         group: groupChat,
         data: {
-            message,
             groupChat: groupChat.name,
+            groupChatId: groupChat.id,
+            groupChatImageUrl: groupChat.fullImageUrl,
             fromUser: user.username,
+            fromUserId: user.id,
+            fromUserImageUrl: user.fullImageUrl,
         },
         fcmTokens: [groupAdmin.user.fcm],
+        type: Notification_model_1.NotificationType.JoinGroupRequest,
     });
     res
         .status(200)
@@ -302,18 +350,25 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
         },
     });
     websocket_1.default.sendNewGroupUpdate(groupChat);
-    const message = `user: ${user.username} added you to group chat ${groupChat.name}`;
+    const body = req.t("user_added_to_group_chat", {
+        username: user.username,
+        groupChatName: groupChat.name,
+    });
     await (0, sendNotification_1.sendAndCreateNotification)({
-        title: "add to group chat",
-        message,
+        title: req.t("add_to_group_chat"),
+        body,
         users,
         group: groupChat,
         data: {
-            message,
             groupChat: groupChat.name,
+            groupChatId: groupChat.id,
+            groupChatImageUrl: groupChat.fullImageUrl,
             fromUser: user.username,
+            fromUserId: user.id,
+            fromUserImageUrl: user.fullImageUrl,
         },
         fcmTokens: usersFcm,
+        type: Notification_model_1.NotificationType.UserAddedTOGroupChat,
     });
     res.status(200).json({ users: groupChatUsers });
 });
@@ -406,19 +461,22 @@ const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, re
 };
 exports.addNewMessage = addNewMessage;
 const sendNewMessageByNotification = async ({ message, groupChat, users, translate, }) => {
-    const notificationMessage = translate("new_groupcaht_message");
+    const body = translate("new_groupcaht_message");
     await (0, sendNotification_1.sendAndCreateNotification)({
         title: translate("new_groupcaht_message"),
-        message: "",
+        body,
         users: users,
         // fromUser: user,
         group: groupChat,
         data: {
-            // message,
+            groupChat: groupChat.name,
+            groupChatId: groupChat.id,
+            groupChatImageUrl: groupChat.fullImageUrl,
             message: message.message,
             // fromUser: user,
         },
         fcmTokens: users.map((u) => u.fcm),
+        type: Notification_model_1.NotificationType.NewGroupChatMessage,
     });
 };
 exports.sendNewMessageByNotification = sendNewMessageByNotification;

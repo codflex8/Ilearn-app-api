@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GroupChatRoles = exports.newGroupChatMessageValidator = exports.updateGroupChatValidator = exports.addGroupChatValidator = exports.groupsChatUsersValidator = exports.MessageType = void 0;
+exports.GroupChatRoles = exports.newGroupChatMessageValidator = exports.updateGroupChatValidator = exports.addGroupChatValidator = exports.acceptJoinRequestValidator = exports.groupsChatUsersValidator = exports.MessageType = void 0;
 const zod_1 = require("zod");
 var MessageType;
 (function (MessageType) {
@@ -12,6 +12,9 @@ var MessageType;
 })(MessageType || (exports.MessageType = MessageType = {}));
 exports.groupsChatUsersValidator = zod_1.z.object({
     usersIds: zod_1.z.array(zod_1.z.string()),
+});
+exports.acceptJoinRequestValidator = zod_1.z.object({
+    userId: zod_1.z.string(),
 });
 exports.addGroupChatValidator = zod_1.z.object({
     name: zod_1.z.string(),

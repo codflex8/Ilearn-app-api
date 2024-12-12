@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   acceptJoinGroup,
+  acceptJoinRequest,
   addUsersToGroupChat,
   createGroupChat,
   getGroupChatById,
@@ -15,6 +16,7 @@ import {
 import { upload } from "../middleware/uploadFiles";
 import { validateData } from "../middleware/validationMiddleware";
 import {
+  acceptJoinRequestValidator,
   addGroupChatValidator,
   groupsChatUsersValidator,
   newGroupChatMessageValidator,
@@ -64,6 +66,11 @@ router.delete(
 
 router.post("/:id/join-group", joinGroup);
 router.post("/:id/accept-join", acceptJoinGroup);
+router.post(
+  "/:id/accept-user-join",
+  validateData(acceptJoinRequestValidator),
+  acceptJoinRequest
+);
 
 router.post("/:id/leave", leaveGroupChat);
 

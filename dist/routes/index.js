@@ -17,6 +17,7 @@ const users_router_1 = __importDefault(require("./users.router"));
 const statistics_router_1 = __importDefault(require("./statistics.router"));
 const termsAndPolicy_router_1 = __importDefault(require("./termsAndPolicy.router"));
 const appLinks_router_1 = __importDefault(require("./appLinks.router"));
+const notifications_router_1 = __importDefault(require("./notifications.router"));
 const authentication_controller_1 = require("../controllers/authentication.controller");
 class Routes {
     constructor(app) {
@@ -34,6 +35,7 @@ class Routes {
         app.use("/api/v1/statistics", authentication_controller_1.protect, statistics_router_1.default);
         app.use("/api/v1", authentication_controller_1.protect, termsAndPolicy_router_1.default);
         app.use("/api/v1/app-links", authentication_controller_1.protect, appLinks_router_1.default);
+        app.use("/api/v1/notifications", notifications_router_1.default);
     }
 }
 exports.default = Routes;

@@ -10,19 +10,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var Notification_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Notification = void 0;
+exports.Notification = exports.NotificationType = void 0;
 const typeorm_1 = require("typeorm");
 const BaseModel_1 = require("./BaseModel");
 const User_model_1 = require("./User.model");
 const GroupsChat_model_1 = require("./GroupsChat.model");
+var NotificationType;
+(function (NotificationType) {
+    NotificationType["JoinGroupRequest"] = "JoinGroupRequest";
+    NotificationType["UserAcceptJoinGroup"] = "UserAcceptJoinGroup";
+    NotificationType["AdminAcceptJoinGroupRequest"] = "AdminAcceptJoinGroupRequest";
+    NotificationType["NewGroupChatMessage"] = "NewGroupChatMessage";
+    NotificationType["StatisticsReminder"] = "StatisticsReminder";
+    NotificationType["UserAddedTOGroupChat"] = "UserAddedTOGroupChat";
+})(NotificationType || (exports.NotificationType = NotificationType = {}));
 let Notification = Notification_1 = class Notification extends BaseModel_1.BaseModel {
-    static async createNewNotification({ title, message, users, group, fromUser, }) {
+    static async createNewNotification({ title, body, data, users, group, fromUser, type, }) {
         const newNotifications = users.map((user) => this.create({
             title,
-            message,
+            body,
             user,
             group,
             fromUser,
+            data,
+            type,
         }));
         Notification_1.save(newNotifications);
         return newNotifications;
@@ -34,9 +45,17 @@ __decorate([
     __metadata("design:type", String)
 ], Notification.prototype, "title", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: "enum", enum: NotificationType, nullable: true }),
+    __metadata("design:type", String)
+], Notification.prototype, "type", void 0);
+__decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Notification.prototype, "message", void 0);
+], Notification.prototype, "body", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "json" }),
+    __metadata("design:type", Object)
+], Notification.prototype, "data", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => User_model_1.User),
     __metadata("design:type", User_model_1.User)

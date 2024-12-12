@@ -23,6 +23,7 @@ router.post("/:id/users", (0, validationMiddleware_1.validateData)(GroupsChatVal
 router.delete("/:id/users", (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.groupsChatUsersValidator), GroupsChat_controller_1.removeUsersfromGroupChat);
 router.post("/:id/join-group", GroupsChat_controller_1.joinGroup);
 router.post("/:id/accept-join", GroupsChat_controller_1.acceptJoinGroup);
+router.post("/:id/accept-user-join", (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.acceptJoinRequestValidator), GroupsChat_controller_1.acceptJoinRequest);
 router.post("/:id/leave", GroupsChat_controller_1.leaveGroupChat);
 exports.default = router;
 //# sourceMappingURL=groupsChat.router.js.map

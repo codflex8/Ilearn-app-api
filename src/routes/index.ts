@@ -13,6 +13,7 @@ import usersRouter from "./users.router";
 import statisticsRouter from "./statistics.router";
 import termsAndPolicyRouter from "./termsAndPolicy.router";
 import appLinksRouter from "./appLinks.router";
+import notificationRouter from "./notifications.router";
 
 import { protect } from "../controllers/authentication.controller";
 
@@ -32,5 +33,6 @@ export default class Routes {
     app.use("/api/v1/statistics", protect, statisticsRouter);
     app.use("/api/v1", protect, termsAndPolicyRouter);
     app.use("/api/v1/app-links", protect, appLinksRouter);
+    app.use("/api/v1/notifications", notificationRouter);
   }
 }

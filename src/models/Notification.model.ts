@@ -3,13 +3,28 @@ import { BaseModel } from "./BaseModel";
 import { User } from "./User.model";
 import { GroupsChat } from "./GroupsChat.model";
 
+export enum NotificationType {
+  JoinGroupRequest = "JoinGroupRequest",
+  UserAcceptJoinGroup = "UserAcceptJoinGroup",
+  AdminAcceptJoinGroupRequest = "AdminAcceptJoinGroupRequest",
+  NewGroupChatMessage = "NewGroupChatMessage",
+  StatisticsReminder = "StatisticsReminder",
+  UserAddedTOGroupChat = "UserAddedTOGroupChat",
+}
+
 @Entity()
 export class Notification extends BaseModel {
   @Column()
   title: string;
 
+  @Column({ type: "enum", enum: NotificationType, nullable: true })
+  type: NotificationType;
+
   @Column()
-  message: string;
+  body: string;
+
+  @Column({ type: "json" })
+  data: Record<string, string>;
 
   @ManyToOne(() => User)
   user: User;
@@ -23,24 +38,30 @@ export class Notification extends BaseModel {
 
   public static async createNewNotification({
     title,
-    message,
+    body,
+    data,
     users,
     group,
     fromUser,
+    type,
   }: {
     title: string;
-    message: string;
+    body: string;
     users: User[];
     group?: GroupsChat;
     fromUser?: User;
+    data: Record<string, string>;
+    type: NotificationType;
   }) {
     const newNotifications = users.map((user) =>
       this.create({
         title,
-        message,
+        body,
         user,
         group,
         fromUser,
+        data,
+        type,
       })
     );
     Notification.save(newNotifications);

@@ -1,9 +1,10 @@
 import admin from "firebase-admin";
 import serviceAccount from "../../firebaseAccountKey.json";
-import { Notification } from "../models/Notification.model";
+import { Notification, NotificationType } from "../models/Notification.model";
 import { User } from "../models/User.model";
 import { GroupsChat } from "../models/GroupsChat.model";
 import { MulticastMessage } from "firebase-admin/lib/messaging/messaging-api";
+import { httpLogger } from "./logger";
 
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -13,21 +14,39 @@ admin.initializeApp({
   }),
 });
 
-export const sendNotification = async ({ title, data, fcmTokens }) => {
+interface ISendNotification {
+  title: string;
+  data: Record<string, string>;
+  body: string;
+  fcmTokens: string[];
+}
+
+export const sendNotification = async ({
+  title,
+  data,
+  fcmTokens,
+  body,
+}: ISendNotification) => {
   try {
     console.log("fcmTokensssssss", { fcmTokens, data, title });
     const payload: MulticastMessage = {
       notification: {
         title: title,
-        // body: JSON.stringify(data),
+        body,
       },
       data,
       tokens: fcmTokens,
     };
 
     const response = await admin.messaging().sendEachForMulticast(payload);
-    console.log("Successfully sent message:", response);
-    console.log("success", response.responses[0], response.responses[0].error);
+    console.log(
+      "Successfully sent message:",
+      response.responses.filter((res) => res.success)
+    );
+    console.log(
+      "Successfully sent message",
+      response.responses.filter((res) => !res.success)
+    );
   } catch (error) {
     console.error("Error sending message:", error);
   }
@@ -37,25 +56,33 @@ export const sendAndCreateNotification = async ({
   title,
   data,
   fcmTokens,
-  message,
+  body,
   users,
   group,
   fromUser,
+  type,
 }: {
-  title: string;
-  data: any;
-  fcmTokens: string[];
-  message: string;
+  // title: string;
+  // data: Record<string, string>;
+  // body: string;
+  // fcmTokens: string[];
   users: User[];
   group: GroupsChat;
   fromUser?: User;
-}) => {
+  type: NotificationType;
+} & ISendNotification) => {
   await Notification.createNewNotification({
-    message,
+    title,
     users,
     group,
     fromUser,
-    title,
+    body,
+    data,
+    type,
   });
-  await sendNotification({ title, data, fcmTokens });
+  if (fcmTokens.length) {
+    await sendNotification({ title, data, fcmTokens, body });
+  } else {
+    httpLogger.error("fcm array is empty", { fcmTokens });
+  }
 };

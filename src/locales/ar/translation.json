@@ -1,4 +1,6 @@
 {
+  "success": "تم بنجاح",
+  "user_accept_join_title":"المستخدم قبل الانضمام للمجموعة",
   "user_accept_join_group":"المستخدم {{username}} قبل الانضمام للمجموعة {{name}}",
    "new_groupcaht_message":"رسالة دردشة جديدة",
   "user_not_signed_up":"لا يوجد حساب لهذا المستخدم",

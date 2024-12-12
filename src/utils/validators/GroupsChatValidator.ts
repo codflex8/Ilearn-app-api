@@ -11,6 +11,10 @@ export const groupsChatUsersValidator = z.object({
   usersIds: z.array(z.string()),
 });
 
+export const acceptJoinRequestValidator = z.object({
+  userId: z.string(),
+});
+
 export const addGroupChatValidator = z.object({
   name: z.string(),
   usersIds: z.array(z.string()).nullable().default([]),
