@@ -20,7 +20,7 @@ const sendNotification = async ({ title, data, fcmTokens }) => {
         const payload = {
             notification: {
                 title: title,
-                body: "test test testtt",
+                body: JSON.stringify(data),
             },
             tokens: fcmTokens,
         };
