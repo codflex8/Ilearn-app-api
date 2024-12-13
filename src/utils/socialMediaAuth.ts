@@ -95,7 +95,7 @@ export const getTwitterUserData = async (accessToken: string): Promise<any> => {
       response.data.data.id
     );
   } catch (error: any) {
-    console.error("Error fetching Twitter user data:", error.message);
+    console.error("Error fetching Twitter user data:", error);
     throw new ApiError(
       "somthing wrong with token, Unable to fetch user data from twitter",
       400

@@ -83,7 +83,7 @@ const getTwitterUserData = async (accessToken) => {
         return new SocialMediaUserData(response.data.data.name, response.data.data.profileImage, response.data.data.email, response.data.data.id);
     }
     catch (error) {
-        console.error("Error fetching Twitter user data:", error.message);
+        console.error("Error fetching Twitter user data:", error);
         throw new ApiError_1.default("somthing wrong with token, Unable to fetch user data from twitter", 400);
     }
 };
