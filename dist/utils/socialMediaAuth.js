@@ -71,11 +71,15 @@ const getTwitterUserData = async (accessToken) => {
     const userUrl = "https://api.twitter.com/2/users/me";
     try {
         const response = await axios_1.default.get(userUrl, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-            params: {
-                "user.fields": "id,name,username,profile_image_url,email",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-type": "application/json",
             },
+            // params: {
+            //   "user.fields": "id,name,username,profile_image_url,email",
+            // },
         });
+        console.log("twitter responseee", response.data);
         return new SocialMediaUserData(response.data.data.name, response.data.data.profileImage, response.data.data.email, response.data.data.id);
     }
     catch (error) {
