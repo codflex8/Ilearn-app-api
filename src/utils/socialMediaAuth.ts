@@ -14,25 +14,26 @@ export class SocialMediaUserData {
 const client = new OAuth2Client();
 export const verifyGoogleAuth = async (token: string) => {
   try {
-    // const response = await axios.get(
-    //   "https://oauth2.googleapis.com/tokeninfo?",
-    //   {
-    //     params: {
-    //       id_token: token,
-    //     },
-    //   }
-    // );
+    const response = await axios.get(
+      "https://www.googleapis.com/oauth2/v3/userinfo?",
+      {
+        params: {
+          access_token: token,
+        },
+      }
+    );
     // console.log(response.data.data);
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
-      // Or, if multiple clients access the backend:
-      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-    });
-    const payload = ticket.getPayload();
-    const userid = payload["sub"];
-    const { email, name, picture, locale } = payload;
-    return new SocialMediaUserData(name, picture, email, userid);
+    console.log("tokennnnnn", token);
+    // const ticket = await client.verifyIdToken({
+    //   idToken: token,
+    //   audience: process.env.GOOGLE_CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+    //   // Or, if multiple clients access the backend:
+    //   //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+    // });
+    // const payload = ticket.getPayload();
+    // const userid = payload["sub"];
+    const { email, name, picture, sub } = response.data;
+    return new SocialMediaUserData(name, picture, email, sub);
     // If the request specified a Google Workspace domain:
     // const domain = payload['hd'];
   } catch (error: any) {
