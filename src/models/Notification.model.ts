@@ -36,6 +36,9 @@ export class Notification extends BaseModel {
   @ManyToOne(() => GroupsChat)
   group: GroupsChat;
 
+  @Column({ type: "boolean", default: false })
+  seen: boolean;
+
   public static async createNewNotification({
     title,
     body,
@@ -66,5 +69,16 @@ export class Notification extends BaseModel {
     );
     Notification.save(newNotifications);
     return newNotifications;
+  }
+
+  public static async getUnseenNotifications(userId: string) {
+    return await Notification.count({
+      where: {
+        seen: false,
+        user: {
+          id: userId,
+        },
+      },
+    });
   }
 }

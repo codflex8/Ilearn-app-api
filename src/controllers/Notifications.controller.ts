@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import asyncHandler from "express-async-handler";
 import { getPaginationData } from "../utils/getPaginationData";
 import { Notification, NotificationType } from "../models/Notification.model";
-import { Equal, FindOptionsWhere } from "typeorm";
+import { FindOptionsWhere, In } from "typeorm";
 import { GenericResponse } from "../utils/GenericResponse";
 import { BaseQuery } from "../utils/validators/BaseQuery";
+import Websocket from "../websocket/websocket";
 
 interface INotificationQuery extends BaseQuery {
   type: NotificationType;
@@ -45,5 +46,15 @@ export const getNotifications = asyncHandler(
           notifications
         )
       );
+    const notificationsIds = notifications.map((notif) => notif.id);
+    await Notification.update(
+      {
+        id: In(notificationsIds),
+      },
+      {
+        seen: true,
+      }
+    );
+    Websocket.sendNotificationsCount(user.id);
   }
 );

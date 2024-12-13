@@ -3,6 +3,7 @@ import { User } from "../models/User.model";
 import { getUserRooms } from "../controllers/GroupsChat.controller";
 import { GroupsChat } from "../models/GroupsChat.model";
 import { In, Not } from "typeorm";
+import { Notification } from "../models/Notification.model";
 
 const WEBSOCKET_CORS = {
   origin: "*",
@@ -57,6 +58,17 @@ class Websocket extends Server {
       },
       select: ["id", "fcm"],
     });
+  }
+
+  public static async sendNotificationsCount(userId: string) {
+    const unseenNotificationsCount = await Notification.getUnseenNotifications(
+      userId
+    );
+    const userSocketId = this.usersSockets[userId];
+    if (userSocketId)
+      this.io
+        .to(userSocketId)
+        .emit("unseen-notifications", { count: unseenNotificationsCount });
   }
 
   // public static getroomById(roomId: string): User[] {

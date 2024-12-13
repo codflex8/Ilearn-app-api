@@ -94,3 +94,5 @@ const getReportsStartAndEndDate = (date: Date, reportType: ReportType) => {
   console.log("dayEnd, dayStart", startDate, endDate);
   return { startDate, endDate };
 };
+
+export const usersStatisticsReminder = () => {};

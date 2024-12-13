@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProfileStatistics = exports.getHomeStatistcs = void 0;
+exports.usersStatisticsReminder = exports.getProfileStatistics = exports.getHomeStatistcs = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Dates_1 = require("../utils/Dates");
 const Books_model_1 = require("../models/Books.model");
@@ -77,4 +77,6 @@ const getReportsStartAndEndDate = (date, reportType) => {
     console.log("dayEnd, dayStart", startDate, endDate);
     return { startDate, endDate };
 };
+const usersStatisticsReminder = () => { };
+exports.usersStatisticsReminder = usersStatisticsReminder;
 //# sourceMappingURL=statistics.controller.js.map

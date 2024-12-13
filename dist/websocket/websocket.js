@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const socket_io_1 = require("socket.io");
 const User_model_1 = require("../models/User.model");
 const typeorm_1 = require("typeorm");
+const Notification_model_1 = require("../models/Notification.model");
 const WEBSOCKET_CORS = {
     origin: "*",
     // methods: ["GET", "POST"],
@@ -41,6 +42,14 @@ class Websocket extends socket_io_1.Server {
             },
             select: ["id", "fcm"],
         });
+    }
+    static async sendNotificationsCount(userId) {
+        const unseenNotificationsCount = await Notification_model_1.Notification.getUnseenNotifications(userId);
+        const userSocketId = this.usersSockets[userId];
+        if (userSocketId)
+            this.io
+                .to(userSocketId)
+                .emit("unseen-notifications", { count: unseenNotificationsCount });
     }
     // public static getroomById(roomId: string): User[] {
     //   return this.rooms[roomId];

@@ -10,6 +10,8 @@ import { getUserFromToken } from "./utils/getUserFromToken";
 import ApiError from "./utils/ApiError";
 import { httpLogger } from "./utils/logger";
 import i18next from "i18next";
+import cron from "node-cron";
+import { usersStatisticsReminder } from "./controllers/statistics.controller";
 
 const app = express();
 
@@ -59,6 +61,7 @@ io.on("connection", async (socket: Socket) => {
   chatbotEvents(socket);
   groupsChatEvents(socket);
 
+  Websocket.sendNotificationsCount(socket.user.id);
   socket.on("error", (err) => {
     console.error(`Socket error from ${socket.id}:`, err.message);
   });
@@ -67,6 +70,12 @@ io.on("connection", async (socket: Socket) => {
     console.log("user disconnect");
     Websocket.removeUser(socket.user);
   });
+});
+
+cron.schedule("0 20 * * 4", () => {
+  const logMessage = `Job executed on: ${new Date().toISOString()}\n`;
+  httpLogger.info(logMessage);
+  usersStatisticsReminder();
 });
 
 process.on("unhandledRejection", (err: Error) => {

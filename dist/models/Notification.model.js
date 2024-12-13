@@ -38,6 +38,16 @@ let Notification = Notification_1 = class Notification extends BaseModel_1.BaseM
         Notification_1.save(newNotifications);
         return newNotifications;
     }
+    static async getUnseenNotifications(userId) {
+        return await Notification_1.count({
+            where: {
+                seen: false,
+                user: {
+                    id: userId,
+                },
+            },
+        });
+    }
 };
 exports.Notification = Notification;
 __decorate([
@@ -69,6 +79,10 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => GroupsChat_model_1.GroupsChat),
     __metadata("design:type", GroupsChat_model_1.GroupsChat)
 ], Notification.prototype, "group", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "boolean", default: false }),
+    __metadata("design:type", Boolean)
+], Notification.prototype, "seen", void 0);
 exports.Notification = Notification = Notification_1 = __decorate([
     (0, typeorm_1.Entity)()
 ], Notification);
