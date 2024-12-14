@@ -45,7 +45,7 @@ class AppServer {
             logger_1.httpLogger.info("new request", {
                 path: req.path,
                 body: req.body,
-                // headers: req.headers,
+                headers: req.headers,
                 query: req.query,
             });
             next();

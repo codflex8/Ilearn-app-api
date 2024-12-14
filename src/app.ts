@@ -49,7 +49,7 @@ export default class AppServer {
       httpLogger.info("new request", {
         path: req.path,
         body: req.body,
-        // headers: req.headers,
+        headers: req.headers,
         query: req.query,
       });
 
