@@ -135,7 +135,18 @@ exports.acceptJoinRequest = (0, express_async_handler_1.default)(async (req, res
         acceptJoin: true,
         role: GroupsChatValidator_1.GroupChatRoles.Member,
     });
+    const notification = await Notification_model_1.Notification.findOne({
+        where: {
+            user: { id: user.id },
+            fromUser: { id: userId },
+            group: { id },
+        },
+    });
+    if (notification) {
+        notification.acceptRequest = true;
+    }
     await newGroupChatUser.save();
+    await notification.save();
     res.status(200).json({ message: req.t("success") });
 });
 exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) => {
@@ -212,9 +223,12 @@ exports.getGroupChatById = (0, express_async_handler_1.default)(async (req, res,
     const { id } = req.params;
     const user = req.user;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
+    const groupChatGuest = await GroupsChat_model_1.GroupsChat.findOne({
+        where: { id },
+    });
     if (groupChat)
         groupChat.isAcceptJoin(user.id, true);
-    res.status(200).json({ groupChat });
+    res.status(200).json({ groupChat: groupChat ? groupChat : groupChatGuest });
 });
 exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;

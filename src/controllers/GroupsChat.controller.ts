@@ -18,7 +18,7 @@ import { containsLink } from "../utils/extractLing";
 import Websocket from "../websocket/websocket";
 import { sendAndCreateNotification } from "../utils/sendNotification";
 import { TFunction } from "i18next";
-import { NotificationType } from "../models/Notification.model";
+import { Notification, NotificationType } from "../models/Notification.model";
 
 interface GroupsChatQuery extends BaseQuery {
   name?: string;
@@ -161,7 +161,18 @@ export const acceptJoinRequest = asyncHandler(
       acceptJoin: true,
       role: GroupChatRoles.Member,
     });
+    const notification = await Notification.findOne({
+      where: {
+        user: { id: user.id },
+        fromUser: { id: userId },
+        group: { id },
+      },
+    });
+    if (notification) {
+      notification.acceptRequest = true;
+    }
     await newGroupChatUser.save();
+    await notification.save();
     res.status(200).json({ message: req.t("success") });
   }
 );
@@ -255,8 +266,11 @@ export const getGroupChatById = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
+    const groupChatGuest = await GroupsChat.findOne({
+      where: { id },
+    });
     if (groupChat) groupChat.isAcceptJoin(user.id, true);
-    res.status(200).json({ groupChat });
+    res.status(200).json({ groupChat: groupChat ? groupChat : groupChatGuest });
   }
 );
 

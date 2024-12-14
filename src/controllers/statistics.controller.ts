@@ -12,6 +12,9 @@ import { User } from "../models/User.model";
 import { Book } from "../models/Books.model";
 import { Between } from "typeorm";
 import { Quiz } from "../models/Quiz.model";
+import i18next from "i18next";
+import { sendAndCreateNotification } from "../utils/sendNotification";
+import { NotificationType } from "../models/Notification.model";
 // import { getWeeksInMonth } from "date-fns";
 
 enum ReportType {
@@ -95,4 +98,64 @@ const getReportsStartAndEndDate = (date: Date, reportType: ReportType) => {
   return { startDate, endDate };
 };
 
-export const usersStatisticsReminder = () => {};
+export const usersStatisticsReminder = async () => {
+  const { endDate, startDate } = getReportsStartAndEndDate(
+    new Date(),
+    ReportType.weekly
+  );
+
+  const statisticsQuery = User.getRepository()
+    .createQueryBuilder("user")
+    .leftJoin(
+      "user.books",
+      "book",
+      "book.createdAt BETWEEN :startDate AND :endDate"
+    )
+    .leftJoin(
+      "user.quizes",
+      "quiz",
+      "quiz.createdAt BETWEEN :startDate AND :endDate"
+    )
+    .select("user.id", "userId")
+    .addSelect("COUNT(DISTINCT book.id)", "booksCount")
+    .addSelect("user.booksGoal", "booksGoal")
+    .addSelect("user.booksGoal", "booksGoal")
+    .addSelect("user.username", "username")
+    .addSelect("user.fcm", "fcm")
+    .addSelect("user.language", "language")
+    .addSelect(
+      "CASE WHEN user.booksGoal > 0 THEN (COUNT(DISTINCT book.id) / user.booksGoal) * 100 ELSE 0 END",
+      "booksPercentage"
+    )
+    .addSelect("COUNT(DISTINCT quiz.id)", "examsCount")
+    .addSelect("user.examsGoal", "examsGoal")
+    .addSelect(
+      "CASE WHEN user.examsGoal > 0 THEN (COUNT(DISTINCT quiz.id) / user.examsGoal) * 100 ELSE 0 END",
+      "examsPercentage"
+    )
+    .groupBy("user.id")
+    .setParameters({ startDate, endDate });
+  const userStatistics = await statisticsQuery.getRawMany();
+
+  await Promise.all(
+    userStatistics.map(async (user) => {
+      const t = i18next.getFixedT(user.language ?? "en");
+      const title = t("weekly_reminder_title");
+      const body = t("weekly_reminder_body", {
+        booksPercentage: user.booksPercentage,
+        examsPercentage: user.examsPercentage,
+      });
+
+      await sendAndCreateNotification({
+        title,
+        body,
+        fcmTokens: [user.fcm],
+        users: [{ id: user.userId }] as User[],
+        type: NotificationType.StatisticsReminder,
+        data: {},
+      });
+    })
+  );
+
+  return userStatistics;
+};

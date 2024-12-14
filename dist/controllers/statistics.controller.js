@@ -6,8 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersStatisticsReminder = exports.getProfileStatistics = exports.getHomeStatistcs = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Dates_1 = require("../utils/Dates");
+const User_model_1 = require("../models/User.model");
 const Books_model_1 = require("../models/Books.model");
 const Quiz_model_1 = require("../models/Quiz.model");
+const i18next_1 = __importDefault(require("i18next"));
+const sendNotification_1 = require("../utils/sendNotification");
+const Notification_model_1 = require("../models/Notification.model");
 // import { getWeeksInMonth } from "date-fns";
 var ReportType;
 (function (ReportType) {
@@ -77,6 +81,44 @@ const getReportsStartAndEndDate = (date, reportType) => {
     console.log("dayEnd, dayStart", startDate, endDate);
     return { startDate, endDate };
 };
-const usersStatisticsReminder = () => { };
+const usersStatisticsReminder = async () => {
+    const { endDate, startDate } = getReportsStartAndEndDate(new Date(), ReportType.weekly);
+    const statisticsQuery = User_model_1.User.getRepository()
+        .createQueryBuilder("user")
+        .leftJoin("user.books", "book", "book.createdAt BETWEEN :startDate AND :endDate")
+        .leftJoin("user.quizes", "quiz", "quiz.createdAt BETWEEN :startDate AND :endDate")
+        .select("user.id", "userId")
+        .addSelect("COUNT(DISTINCT book.id)", "booksCount")
+        .addSelect("user.booksGoal", "booksGoal")
+        .addSelect("user.booksGoal", "booksGoal")
+        .addSelect("user.username", "username")
+        .addSelect("user.fcm", "fcm")
+        .addSelect("user.language", "language")
+        .addSelect("CASE WHEN user.booksGoal > 0 THEN (COUNT(DISTINCT book.id) / user.booksGoal) * 100 ELSE 0 END", "booksPercentage")
+        .addSelect("COUNT(DISTINCT quiz.id)", "examsCount")
+        .addSelect("user.examsGoal", "examsGoal")
+        .addSelect("CASE WHEN user.examsGoal > 0 THEN (COUNT(DISTINCT quiz.id) / user.examsGoal) * 100 ELSE 0 END", "examsPercentage")
+        .groupBy("user.id")
+        .setParameters({ startDate, endDate });
+    const userStatistics = await statisticsQuery.getRawMany();
+    await Promise.all(userStatistics.map(async (user) => {
+        var _a;
+        const t = i18next_1.default.getFixedT((_a = user.language) !== null && _a !== void 0 ? _a : "en");
+        const title = t("weekly_reminder_title");
+        const body = t("weekly_reminder_body", {
+            booksPercentage: user.booksPercentage,
+            examsPercentage: user.examsPercentage,
+        });
+        await (0, sendNotification_1.sendAndCreateNotification)({
+            title,
+            body,
+            fcmTokens: [user.fcm],
+            users: [{ id: user.userId }],
+            type: Notification_model_1.NotificationType.StatisticsReminder,
+            data: {},
+        });
+    }));
+    return userStatistics;
+};
 exports.usersStatisticsReminder = usersStatisticsReminder;
 //# sourceMappingURL=statistics.controller.js.map

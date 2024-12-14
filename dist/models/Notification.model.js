@@ -29,7 +29,7 @@ let Notification = Notification_1 = class Notification extends BaseModel_1.BaseM
         const newNotifications = users.map((user) => this.create({
             title,
             body,
-            user,
+            user: { id: user.id },
             group,
             fromUser,
             data,
@@ -83,6 +83,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: "boolean", default: false }),
     __metadata("design:type", Boolean)
 ], Notification.prototype, "seen", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "boolean", default: false }),
+    __metadata("design:type", Boolean)
+], Notification.prototype, "acceptRequest", void 0);
 exports.Notification = Notification = Notification_1 = __decorate([
     (0, typeorm_1.Entity)()
 ], Notification);

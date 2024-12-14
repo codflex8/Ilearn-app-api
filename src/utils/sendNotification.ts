@@ -40,15 +40,15 @@ export const sendNotification = async ({
 
     const response = await admin.messaging().sendEachForMulticast(payload);
     console.log(
-      "Successfully sent message:",
+      "Successfully sent Notification:",
       response.responses.filter((res) => res.success)
     );
     console.log(
-      "Successfully sent message",
+      "Failed sent Notification",
       response.responses.filter((res) => !res.success)
     );
   } catch (error) {
-    console.error("Error sending message:", error);
+    console.error("Error sending Notification:", error);
   }
 };
 
@@ -67,7 +67,7 @@ export const sendAndCreateNotification = async ({
   // body: string;
   // fcmTokens: string[];
   users: User[];
-  group: GroupsChat;
+  group?: GroupsChat;
   fromUser?: User;
   type: NotificationType;
 } & ISendNotification) => {
@@ -80,9 +80,14 @@ export const sendAndCreateNotification = async ({
     data,
     type,
   });
-  if (fcmTokens.length) {
-    await sendNotification({ title, data, fcmTokens, body });
-  } else {
-    httpLogger.error("fcm array is empty", { fcmTokens });
+  try {
+    const fcms = fcmTokens.filter((fc) => !!fc);
+    if (fcmTokens.length) {
+      await sendNotification({ title, data, fcmTokens: fcms, body });
+    } else {
+      httpLogger.error("fcm array is empty", { fcmTokens });
+    }
+  } catch (error) {
+    console.log("error sending Notification", error);
   }
 };

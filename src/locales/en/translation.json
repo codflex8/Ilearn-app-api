@@ -1,4 +1,6 @@
 { 
+  "weekly_reminder_title":"weekly reminder",
+  "weekly_reminder_body":"your weekly statistics: books percentage: {{booksPercentage}}, exams percentage: {{examsPercentage}}",
   "user_accept_join_title":"user accept join title",
   "user_accept_join_group":"user {{username}} accept join to group {{name}}",
   "new_groupcaht_message":"new group chat message",

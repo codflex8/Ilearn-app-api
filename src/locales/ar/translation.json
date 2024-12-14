@@ -1,4 +1,6 @@
 {
+  "weekly_reminder_title":"تذكير اسبوعي",
+  "weekly_reminder_body":"الاحصائيات هذا الاسبوع: نسبة الكتب: {{booksPercentage}}, نسبة الاختبارات: {{examsPercentage}}",
   "success": "تم بنجاح",
   "user_accept_join_title":"المستخدم قبل الانضمام للمجموعة",
   "user_accept_join_group":"المستخدم {{username}} قبل الانضمام للمجموعة {{name}}",

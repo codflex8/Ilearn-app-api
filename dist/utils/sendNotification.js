@@ -27,11 +27,11 @@ const sendNotification = async ({ title, data, fcmTokens, body, }) => {
             tokens: fcmTokens,
         };
         const response = await firebase_admin_1.default.messaging().sendEachForMulticast(payload);
-        console.log("Successfully sent message:", response.responses.filter((res) => res.success));
-        console.log("Successfully sent message", response.responses.filter((res) => !res.success));
+        console.log("Successfully sent Notification:", response.responses.filter((res) => res.success));
+        console.log("Failed sent Notification", response.responses.filter((res) => !res.success));
     }
     catch (error) {
-        console.error("Error sending message:", error);
+        console.error("Error sending Notification:", error);
     }
 };
 exports.sendNotification = sendNotification;
@@ -45,11 +45,17 @@ const sendAndCreateNotification = async ({ title, data, fcmTokens, body, users, 
         data,
         type,
     });
-    if (fcmTokens.length) {
-        await (0, exports.sendNotification)({ title, data, fcmTokens, body });
+    try {
+        const fcms = fcmTokens.filter((fc) => !!fc);
+        if (fcmTokens.length) {
+            await (0, exports.sendNotification)({ title, data, fcmTokens: fcms, body });
+        }
+        else {
+            logger_1.httpLogger.error("fcm array is empty", { fcmTokens });
+        }
     }
-    else {
-        logger_1.httpLogger.error("fcm array is empty", { fcmTokens });
+    catch (error) {
+        console.log("error sending Notification", error);
     }
 };
 exports.sendAndCreateNotification = sendAndCreateNotification;

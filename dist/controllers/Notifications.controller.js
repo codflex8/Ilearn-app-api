@@ -14,22 +14,50 @@ exports.getNotifications = (0, express_async_handler_1.default)(async (req, res,
     const user = req.user;
     const { page, pageSize, type } = req.query;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
-    let query = {
-        user: {
-            id: user.id,
-        },
-    };
+    const querable = Notification_model_1.Notification.getRepository()
+        .createQueryBuilder("notification")
+        .leftJoinAndSelect("notification.user", "user")
+        .leftJoinAndSelect("notification.group", "group")
+        .leftJoinAndSelect("notification.fromUser", "fromUser")
+        .where("user.id = :userId", { userId: user.id });
     if (type) {
-        query = Object.assign(Object.assign({}, query), { type });
+        querable.andWhere("notification.type");
     }
-    const [notifications, count] = await Notification_model_1.Notification.findAndCount({
-        where: query,
-        skip,
-        take,
-        order: {
-            createdAt: "DESC",
-        },
-    });
+    const [notifications, count] = await querable
+        .orderBy("user.createdAt", "DESC")
+        .skip(skip)
+        .take(take)
+        .select("notification")
+        .addSelect("user")
+        .addSelect("group")
+        .addSelect([
+        "fromUser.id",
+        "fromUser.username",
+        "fromUser.email",
+        "fromUser.imageUrl",
+    ])
+        .getManyAndCount();
+    // let query: FindOptionsWhere<Notification> = {
+    //   user: {
+    //     id: user.id,
+    //   },
+    // };
+    // if (type) {
+    //   query = { ...query, type };
+    // }
+    // const [notifications, count] = await Notification.findAndCount({
+    //   where: query,
+    //   skip,
+    //   take,
+    //   relations: {
+    //     user: true,
+    //     group: true,
+    //     fromUser: true,
+    //   },
+    //   order: {
+    //     createdAt: "DESC",
+    //   },
+    // });
     res
         .status(200)
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, notifications));

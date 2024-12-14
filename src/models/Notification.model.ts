@@ -39,6 +39,9 @@ export class Notification extends BaseModel {
   @Column({ type: "boolean", default: false })
   seen: boolean;
 
+  @Column({ type: "boolean", default: false })
+  acceptRequest: boolean;
+
   public static async createNewNotification({
     title,
     body,
@@ -60,7 +63,7 @@ export class Notification extends BaseModel {
       this.create({
         title,
         body,
-        user,
+        user: { id: user.id },
         group,
         fromUser,
         data,

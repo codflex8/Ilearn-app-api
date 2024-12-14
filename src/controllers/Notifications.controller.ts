@@ -19,23 +19,53 @@ export const getNotifications = asyncHandler(
     const user = req.user;
     const { page, pageSize, type } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
-    let query: FindOptionsWhere<Notification> = {
-      user: {
-        id: user.id,
-      },
-    };
-    if (type) {
-      query = { ...query, type };
-    }
+    const querable = Notification.getRepository()
+      .createQueryBuilder("notification")
+      .leftJoinAndSelect("notification.user", "user")
+      .leftJoinAndSelect("notification.group", "group")
+      .leftJoinAndSelect("notification.fromUser", "fromUser")
+      .where("user.id = :userId", { userId: user.id });
 
-    const [notifications, count] = await Notification.findAndCount({
-      where: query,
-      skip,
-      take,
-      order: {
-        createdAt: "DESC",
-      },
-    });
+    if (type) {
+      querable.andWhere("notification.type");
+    }
+    const [notifications, count] = await querable
+      .orderBy("user.createdAt", "DESC")
+      .skip(skip)
+      .take(take)
+      .select("notification")
+      .addSelect("user")
+      .addSelect("group")
+      .addSelect([
+        "fromUser.id",
+        "fromUser.username",
+        "fromUser.email",
+        "fromUser.imageUrl",
+      ])
+      .getManyAndCount();
+
+    // let query: FindOptionsWhere<Notification> = {
+    //   user: {
+    //     id: user.id,
+    //   },
+    // };
+    // if (type) {
+    //   query = { ...query, type };
+    // }
+
+    // const [notifications, count] = await Notification.findAndCount({
+    //   where: query,
+    //   skip,
+    //   take,
+    //   relations: {
+    //     user: true,
+    //     group: true,
+    //     fromUser: true,
+    //   },
+    //   order: {
+    //     createdAt: "DESC",
+    //   },
+    // });
     res
       .status(200)
       .json(
