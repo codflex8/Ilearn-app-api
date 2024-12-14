@@ -235,7 +235,7 @@ exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, 
     const user = req.user;
     const { page, pageSize, messageType } = req.query;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
-    const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
+    const groupChat = await GroupsChat_model_1.GroupsChat.findOne({ where: { id } });
     if (!groupChat) {
         return next(new ApiError_1.default(req.t("group_chat_not_found"), 400));
     }
