@@ -184,6 +184,7 @@ export const groupsChatEvents = (socket: Socket) => {
           translate: socket.t,
         });
       } catch (error: any) {
+        console.log(error);
         if (callback) callback({ message: error.message });
       }
     }

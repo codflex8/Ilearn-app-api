@@ -155,6 +155,7 @@ const groupsChatEvents = (socket) => {
             });
         }
         catch (error) {
+            console.log(error);
             if (callback)
                 callback({ message: error.message });
         }
