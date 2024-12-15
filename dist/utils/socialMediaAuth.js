@@ -84,6 +84,7 @@ const getTwitterUserData = async (accessToken) => {
         // });
         const userClient = new twitter_api_v2_1.TwitterApi(accessToken);
         // const userClient = twitterClient.readWrite.accessToken(accessToken);
+        console.log("send token to twitterrrr", accessToken);
         // Fetch user data
         const response = await userClient.v2.me(); // Retrieves authenticated user info
         // return userData;

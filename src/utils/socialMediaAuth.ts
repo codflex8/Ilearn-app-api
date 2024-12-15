@@ -95,7 +95,7 @@ export const getTwitterUserData = async (accessToken: string): Promise<any> => {
     // });
     const userClient = new TwitterApi(accessToken);
     // const userClient = twitterClient.readWrite.accessToken(accessToken);
-
+    console.log("send token to twitterrrr", accessToken);
     // Fetch user data
     const response = await userClient.v2.me(); // Retrieves authenticated user info
     // return userData;
