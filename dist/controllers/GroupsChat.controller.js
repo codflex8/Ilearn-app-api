@@ -225,12 +225,11 @@ exports.getGroupChatById = (0, express_async_handler_1.default)(async (req, res,
     const { id } = req.params;
     const user = req.user;
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
-    const groupChatGuest = await GroupsChat_model_1.GroupsChat.findOne({
-        where: { id },
-    });
-    if (groupChat)
-        groupChat.isAcceptJoin(user.id, true);
-    res.status(200).json({ groupChat: groupChat ? groupChat : groupChatGuest });
+    // const groupChatGuest = await GroupsChat.findOne({
+    //   where: { id },
+    // });
+    // if (groupChat) groupChat.isAcceptJoin(user.id, true);
+    res.status(200).json({ groupChat });
 });
 exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;

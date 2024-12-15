@@ -266,11 +266,11 @@ export const getGroupChatById = asyncHandler(
     const { id } = req.params;
     const user = req.user;
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
-    const groupChatGuest = await GroupsChat.findOne({
-      where: { id },
-    });
-    if (groupChat) groupChat.isAcceptJoin(user.id, true);
-    res.status(200).json({ groupChat: groupChat ? groupChat : groupChatGuest });
+    // const groupChatGuest = await GroupsChat.findOne({
+    //   where: { id },
+    // });
+    // if (groupChat) groupChat.isAcceptJoin(user.id, true);
+    res.status(200).json({ groupChat });
   }
 );
 
