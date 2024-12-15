@@ -35,16 +35,18 @@ const sendNotification = async ({ title, data, fcmTokens, body, }) => {
     }
 };
 exports.sendNotification = sendNotification;
-const sendAndCreateNotification = async ({ title, data, fcmTokens, body, users, group, fromUser, type, }) => {
-    await Notification_model_1.Notification.createNewNotification({
-        title,
-        users,
-        group,
-        fromUser,
-        body,
-        data,
-        type,
-    });
+const sendAndCreateNotification = async ({ title, data, fcmTokens, body, users, group, fromUser, type, createNotification = true, }) => {
+    if (createNotification) {
+        await Notification_model_1.Notification.createNewNotification({
+            title,
+            users,
+            group,
+            fromUser,
+            body,
+            data,
+            type,
+        });
+    }
     try {
         const fcms = fcmTokens.filter((fc) => !!fc);
         if (fcmTokens.length) {

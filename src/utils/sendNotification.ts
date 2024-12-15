@@ -61,25 +61,25 @@ export const sendAndCreateNotification = async ({
   group,
   fromUser,
   type,
+  createNotification = true,
 }: {
-  // title: string;
-  // data: Record<string, string>;
-  // body: string;
-  // fcmTokens: string[];
   users: User[];
   group?: GroupsChat;
   fromUser?: User;
   type: NotificationType;
+  createNotification?: boolean;
 } & ISendNotification) => {
-  await Notification.createNewNotification({
-    title,
-    users,
-    group,
-    fromUser,
-    body,
-    data,
-    type,
-  });
+  if (createNotification) {
+    await Notification.createNewNotification({
+      title,
+      users,
+      group,
+      fromUser,
+      body,
+      data,
+      type,
+    });
+  }
   try {
     const fcms = fcmTokens.filter((fc) => !!fc);
     if (fcmTokens.length) {

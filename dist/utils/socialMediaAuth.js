@@ -7,6 +7,7 @@ exports.getTwitterUserData = exports.getFacebookUserData = exports.verifyGoogleA
 const axios_1 = __importDefault(require("axios"));
 const google_auth_library_1 = require("google-auth-library");
 const ApiError_1 = __importDefault(require("./ApiError"));
+const twitter_api_v2_1 = require("twitter-api-v2");
 class SocialMediaUserData {
     constructor(username, imageUrl, email, userId) {
         this.username = username;
@@ -65,20 +66,29 @@ const getFacebookUserData = async (accessToken) => {
     }
 };
 exports.getFacebookUserData = getFacebookUserData;
+const twitterClient = new twitter_api_v2_1.TwitterApi({
+    appKey: "your-app-key", // Replace with your App Key
+    appSecret: "your-app-secret", // Replace with your App Secret
+});
 const getTwitterUserData = async (accessToken) => {
     const userUrl = "https://api.twitter.com/2/users/me";
     try {
-        const response = await axios_1.default.get(userUrl, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-type": "application/json",
-            },
-            // params: {
-            //   "user.fields": "id,name,username,profile_image_url,email",
-            // },
-        });
+        // const response = await axios.get(userUrl, {
+        //   headers: {
+        //     Authorization: `Bearer ${accessToken}`,
+        //     "Content-type": "application/json",
+        //   },
+        //   // params: {
+        //   //   "user.fields": "id,name,username,profile_image_url,email",
+        //   // },
+        // });
+        const userClient = new twitter_api_v2_1.TwitterApi(accessToken);
+        // const userClient = twitterClient.readWrite.accessToken(accessToken);
+        // Fetch user data
+        const response = await userClient.v2.me(); // Retrieves authenticated user info
+        // return userData;
         console.log("twitter responseee", response.data);
-        return new SocialMediaUserData(response.data.data.name, response.data.data.profileImage, response.data.data.email, response.data.data.id);
+        return new SocialMediaUserData(response.data.name, response.data.profile_image_url, null, response.data.id);
     }
     catch (error) {
         console.error("Error fetching Twitter user data:", error);

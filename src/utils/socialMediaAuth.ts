@@ -1,6 +1,7 @@
 import axios from "axios";
 import { OAuth2Client } from "google-auth-library";
 import ApiError from "./ApiError";
+import { TwitterApi } from "twitter-api-v2";
 
 export class SocialMediaUserData {
   constructor(
@@ -74,26 +75,36 @@ export const getFacebookUserData = async (
   }
 };
 
+const twitterClient = new TwitterApi({
+  appKey: "your-app-key", // Replace with your App Key
+  appSecret: "your-app-secret", // Replace with your App Secret
+});
 export const getTwitterUserData = async (accessToken: string): Promise<any> => {
   const userUrl = "https://api.twitter.com/2/users/me";
 
   try {
-    const response = await axios.get(userUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-type": "application/json",
-      },
+    // const response = await axios.get(userUrl, {
+    //   headers: {
+    //     Authorization: `Bearer ${accessToken}`,
+    //     "Content-type": "application/json",
+    //   },
 
-      // params: {
-      //   "user.fields": "id,name,username,profile_image_url,email",
-      // },
-    });
+    //   // params: {
+    //   //   "user.fields": "id,name,username,profile_image_url,email",
+    //   // },
+    // });
+    const userClient = new TwitterApi(accessToken);
+    // const userClient = twitterClient.readWrite.accessToken(accessToken);
+
+    // Fetch user data
+    const response = await userClient.v2.me(); // Retrieves authenticated user info
+    // return userData;
     console.log("twitter responseee", response.data);
     return new SocialMediaUserData(
-      response.data.data.name,
-      response.data.data.profileImage,
-      response.data.data.email,
-      response.data.data.id
+      response.data.name,
+      response.data.profile_image_url,
+      null,
+      response.data.id
     );
   } catch (error: any) {
     console.error("Error fetching Twitter user data:", error);

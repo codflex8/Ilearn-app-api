@@ -617,6 +617,7 @@ export const sendNewMessageByNotification = async ({
     },
     fcmTokens: users.map((u) => u.fcm),
     type: NotificationType.NewGroupChatMessage,
+    createNotification: false,
   });
 };
 

@@ -491,6 +491,7 @@ const sendNewMessageByNotification = async ({ message, groupChat, users, transla
         },
         fcmTokens: users.map((u) => u.fcm),
         type: Notification_model_1.NotificationType.NewGroupChatMessage,
+        createNotification: false,
     });
 };
 exports.sendNewMessageByNotification = sendNewMessageByNotification;
