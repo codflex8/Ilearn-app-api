@@ -269,7 +269,7 @@ export const getGroupChatById = asyncHandler(
     // const groupChatGuest = await GroupsChat.findOne({
     //   where: { id },
     // });
-    // if (groupChat) groupChat.isAcceptJoin(user.id, true);
+    if (groupChat) groupChat.isAcceptJoin(user.id, true);
     res.status(200).json({ groupChat });
   }
 );

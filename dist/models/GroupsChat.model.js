@@ -47,20 +47,20 @@ let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
         });
     }
     static getUserGroupChatById(userId, id) {
-        return this.getRepository()
+        return (this.getRepository()
             .createQueryBuilder("chat")
             .leftJoinAndSelect("chat.userGroupsChats", "userGroupsChats")
             .leftJoinAndSelect("userGroupsChats.user", "user")
             .where("chat.id = :id", { id })
-            .andWhere((qb) => {
-            const subQuery = qb
-                .subQuery()
-                .select("ugc.groupChat.id")
-                .from(GroupsChatUsers_model_1.GroupsChatUsers, "ugc")
-                .where("ugc.user.id = :userId", { userId })
-                .getQuery();
-            return `chat.id IN ${subQuery}`;
-        })
+            // .andWhere((qb) => {
+            //   const subQuery = qb
+            //     .subQuery()
+            //     .select("ugc.groupChat.id")
+            //     .from(GroupsChatUsers, "ugc")
+            //     .where("ugc.user.id = :userId", { userId })
+            //     .getQuery();
+            //   return `chat.id IN ${subQuery}`;
+            // })
             .select("chat")
             .addSelect("userGroupsChats")
             .addSelect([
@@ -72,7 +72,7 @@ let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
             "user.imageUrl",
             "user.birthDate",
         ])
-            .getOne();
+            .getOne());
     }
     static async getGroupChatWithMessagesData(chat, userId) {
         const messages = await GroupsChatMessages_model_1.GroupsChatMessages.find({
