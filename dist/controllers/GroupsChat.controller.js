@@ -100,7 +100,7 @@ exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, 
     res.status(200).json({ groupChat });
 });
 exports.acceptJoinRequest = (0, express_async_handler_1.default)(async (req, res, next) => {
-    var _a;
+    var _a, _b, _c, _d, _e, _f, _g;
     const user = req.user;
     const { userId } = req.body;
     const { id } = req.params;
@@ -148,6 +148,26 @@ exports.acceptJoinRequest = (0, express_async_handler_1.default)(async (req, res
     }
     await newGroupChatUser.save();
     await notification.save();
+    const body = req.t("admin_accept_join_body", {
+        name: groupChat.name,
+    });
+    await (0, sendNotification_1.sendAndCreateNotification)({
+        title: req.t("admin_accept_join_title"),
+        body,
+        users: [addedUser],
+        fromUser: user,
+        group: groupChat,
+        data: {
+            groupChat: (_b = groupChat.name) !== null && _b !== void 0 ? _b : "",
+            groupChatId: (_c = groupChat.id) !== null && _c !== void 0 ? _c : "",
+            groupChatImageUrl: (_d = groupChat.fullImageUrl) !== null && _d !== void 0 ? _d : "",
+            fromUser: (_e = user.username) !== null && _e !== void 0 ? _e : "",
+            fromUserId: (_f = user.id) !== null && _f !== void 0 ? _f : "",
+            fromUserImageUrl: (_g = user.fullImageUrl) !== null && _g !== void 0 ? _g : "",
+        },
+        fcmTokens: [addedUser.fcm],
+        type: Notification_model_1.NotificationType.AdminAcceptJoinGroupRequest,
+    });
     res.status(200).json({ message: req.t("success") });
 });
 exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) => {

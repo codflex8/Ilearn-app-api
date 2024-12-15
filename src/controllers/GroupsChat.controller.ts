@@ -173,6 +173,26 @@ export const acceptJoinRequest = asyncHandler(
     }
     await newGroupChatUser.save();
     await notification.save();
+    const body = req.t("admin_accept_join_body", {
+      name: groupChat.name,
+    });
+    await sendAndCreateNotification({
+      title: req.t("admin_accept_join_title"),
+      body,
+      users: [addedUser],
+      fromUser: user,
+      group: groupChat,
+      data: {
+        groupChat: groupChat.name ?? "",
+        groupChatId: groupChat.id ?? "",
+        groupChatImageUrl: groupChat.fullImageUrl ?? "",
+        fromUser: user.username ?? "",
+        fromUserId: user.id ?? "",
+        fromUserImageUrl: user.fullImageUrl ?? "",
+      },
+      fcmTokens: [addedUser.fcm],
+      type: NotificationType.AdminAcceptJoinGroupRequest,
+    });
     res.status(200).json({ message: req.t("success") });
   }
 );
