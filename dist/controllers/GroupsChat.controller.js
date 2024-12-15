@@ -45,6 +45,7 @@ exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, ne
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, chats));
 });
 exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, next) => {
+    var _a, _b, _c, _d, _e, _f;
     const { id } = req.params;
     const user = req.user;
     const groupChatUser = await GroupsChatUsers_model_1.GroupsChatUsers.findOne({
@@ -86,12 +87,12 @@ exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, 
         fromUser: user,
         group: groupChat,
         data: {
-            groupChat: groupChat.name,
-            groupChatId: groupChat.id,
-            groupChatImageUrl: groupChat.fullImageUrl,
-            fromUser: user.username,
-            fromUserId: user.id,
-            fromUserImageUrl: user.fullImageUrl,
+            groupChat: (_a = groupChat.name) !== null && _a !== void 0 ? _a : "",
+            groupChatId: (_b = groupChat.id) !== null && _b !== void 0 ? _b : "",
+            groupChatImageUrl: (_c = groupChat.fullImageUrl) !== null && _c !== void 0 ? _c : "",
+            fromUser: (_d = user.username) !== null && _d !== void 0 ? _d : "",
+            fromUserId: (_e = user.id) !== null && _e !== void 0 ? _e : "",
+            fromUserImageUrl: (_f = user.fullImageUrl) !== null && _f !== void 0 ? _f : "",
         },
         fcmTokens: [groupAdmin.user.fcm],
         type: Notification_model_1.NotificationType.UserAcceptJoinGroup,
@@ -150,6 +151,7 @@ exports.acceptJoinRequest = (0, express_async_handler_1.default)(async (req, res
     res.status(200).json({ message: req.t("success") });
 });
 exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) => {
+    var _a, _b, _c, _d, _e, _f;
     const user = req.user;
     const { id } = req.params;
     const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
@@ -181,12 +183,12 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
         fromUser: user,
         group: groupChat,
         data: {
-            groupChat: groupChat.name,
-            groupChatId: groupChat.id,
-            groupChatImageUrl: groupChat.fullImageUrl,
-            fromUser: user.username,
-            fromUserId: user.id,
-            fromUserImageUrl: user.fullImageUrl,
+            groupChat: (_a = groupChat.name) !== null && _a !== void 0 ? _a : "",
+            groupChatId: (_b = groupChat.id) !== null && _b !== void 0 ? _b : "",
+            groupChatImageUrl: (_c = groupChat.fullImageUrl) !== null && _c !== void 0 ? _c : "",
+            fromUser: (_d = user.username) !== null && _d !== void 0 ? _d : "",
+            fromUserId: (_e = user.id) !== null && _e !== void 0 ? _e : "",
+            fromUserImageUrl: (_f = user.fullImageUrl) !== null && _f !== void 0 ? _f : "",
         },
         fcmTokens: [groupAdmin.user.fcm],
         type: Notification_model_1.NotificationType.JoinGroupRequest,
@@ -317,6 +319,7 @@ exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, 
     res.status(200).json({ groupChat });
 });
 exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
+    var _a, _b, _c, _d, _e, _f;
     const { id } = req.params;
     const user = req.user;
     const { usersIds } = req.body;
@@ -374,12 +377,12 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
         users,
         group: groupChat,
         data: {
-            groupChat: groupChat.name,
-            groupChatId: groupChat.id,
-            groupChatImageUrl: groupChat.fullImageUrl,
-            fromUser: user.username,
-            fromUserId: user.id,
-            fromUserImageUrl: user.fullImageUrl,
+            groupChat: (_a = groupChat.name) !== null && _a !== void 0 ? _a : "",
+            groupChatId: (_b = groupChat.id) !== null && _b !== void 0 ? _b : "",
+            groupChatImageUrl: (_c = groupChat.fullImageUrl) !== null && _c !== void 0 ? _c : "",
+            fromUser: (_d = user.username) !== null && _d !== void 0 ? _d : "",
+            fromUserId: (_e = user.id) !== null && _e !== void 0 ? _e : "",
+            fromUserImageUrl: (_f = user.fullImageUrl) !== null && _f !== void 0 ? _f : "",
         },
         fcmTokens: usersFcm,
         type: Notification_model_1.NotificationType.UserAddedTOGroupChat,
@@ -475,6 +478,7 @@ const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, re
 };
 exports.addNewMessage = addNewMessage;
 const sendNewMessageByNotification = async ({ message, groupChat, users, translate, }) => {
+    var _a, _b, _c, _d;
     const body = translate("new_groupcaht_message");
     await (0, sendNotification_1.sendAndCreateNotification)({
         title: translate("new_groupcaht_message"),
@@ -483,10 +487,10 @@ const sendNewMessageByNotification = async ({ message, groupChat, users, transla
         // fromUser: user,
         group: groupChat,
         data: {
-            groupChat: groupChat.name,
-            groupChatId: groupChat.id,
-            groupChatImageUrl: groupChat.fullImageUrl,
-            message: message.message,
+            groupChat: (_a = groupChat.name) !== null && _a !== void 0 ? _a : "",
+            groupChatId: (_b = groupChat.id) !== null && _b !== void 0 ? _b : "",
+            groupChatImageUrl: (_c = groupChat.fullImageUrl) !== null && _c !== void 0 ? _c : "",
+            message: (_d = message.message) !== null && _d !== void 0 ? _d : "",
             // fromUser: user,
         },
         fcmTokens: users.map((u) => u.fcm),
