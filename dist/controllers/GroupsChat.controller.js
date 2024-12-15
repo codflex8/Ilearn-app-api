@@ -143,11 +143,11 @@ exports.acceptJoinRequest = (0, express_async_handler_1.default)(async (req, res
             group: { id },
         },
     });
+    await newGroupChatUser.save();
     if (notification) {
         notification.acceptRequest = true;
+        await notification.save();
     }
-    await newGroupChatUser.save();
-    await notification.save();
     const body = req.t("admin_accept_join_body", {
         name: groupChat.name,
     });
