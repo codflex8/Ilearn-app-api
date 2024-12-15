@@ -69,6 +69,7 @@ export const sendAndCreateNotification = async ({
   type: NotificationType;
   createNotification?: boolean;
 } & ISendNotification) => {
+  console.log("dataaa", { fcmTokens, data });
   if (createNotification) {
     await Notification.createNewNotification({
       title,

@@ -36,6 +36,7 @@ const sendNotification = async ({ title, data, fcmTokens, body, }) => {
 };
 exports.sendNotification = sendNotification;
 const sendAndCreateNotification = async ({ title, data, fcmTokens, body, users, group, fromUser, type, createNotification = true, }) => {
+    console.log("dataaa", { fcmTokens, data });
     if (createNotification) {
         await Notification_model_1.Notification.createNewNotification({
             title,
