@@ -307,7 +307,10 @@ export const createGroupChat = asyncHandler(
         fromUserId: user.id ?? "",
         fromUserImageUrl: user.fullImageUrl ?? "",
       },
-      fcmTokens: users.map((user) => user.fcm).filter((fcm) => !!fcm),
+      fcmTokens: users
+        .filter((u) => u.id !== user.id)
+        .map((user) => user.fcm)
+        .filter((fcm) => !!fcm),
       type: NotificationType.UserAddedTOGroupChat,
     });
     res.status(201).json({ newGroupChat });
