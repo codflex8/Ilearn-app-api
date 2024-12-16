@@ -266,7 +266,10 @@ exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, 
             fromUserId: (_e = user.id) !== null && _e !== void 0 ? _e : "",
             fromUserImageUrl: (_f = user.fullImageUrl) !== null && _f !== void 0 ? _f : "",
         },
-        fcmTokens: users.map((user) => user.fcm).filter((fcm) => !!fcm),
+        fcmTokens: users
+            .filter((u) => u.id !== user.id)
+            .map((user) => user.fcm)
+            .filter((fcm) => !!fcm),
         type: Notification_model_1.NotificationType.UserAddedTOGroupChat,
     });
     res.status(201).json({ newGroupChat });
