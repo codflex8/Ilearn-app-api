@@ -90,17 +90,21 @@ __decorate([
 ], Chatbot.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => ChatBotMessages_model_1.ChatbotMessages, (message) => message.chatbot, {
+        cascade: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     }),
     __metadata("design:type", Array)
 ], Chatbot.prototype, "messages", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.chatbots),
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.chatbots, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", User_model_1.User)
 ], Chatbot.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => Books_model_1.Book),
+    (0, typeorm_1.ManyToMany)(() => Books_model_1.Book, { onDelete: "CASCADE", onUpdate: "CASCADE" }),
     (0, typeorm_1.JoinTable)({
         name: "ChatbotsBooks",
         inverseJoinColumn: {

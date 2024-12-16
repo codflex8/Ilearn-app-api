@@ -23,11 +23,17 @@ export class GroupsChatUsers extends BaseModel {
   @Column({ type: "enum", enum: GroupChatRoles, nullable: true })
   role: GroupChatRoles;
 
-  @ManyToOne(() => User, (user) => user.userGroupsChats)
+  @ManyToOne(() => User, (user) => user.userGroupsChats, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   //   @JoinColumn()
   user: User;
 
-  @ManyToOne(() => GroupsChat, (chat) => chat.userGroupsChats)
+  @ManyToOne(() => GroupsChat, (chat) => chat.userGroupsChats, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   //   @JoinColumn()
   groupChat: GroupsChat;
 }

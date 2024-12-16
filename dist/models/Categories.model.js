@@ -68,7 +68,10 @@ __decorate([
     __metadata("design:type", Array)
 ], Category.prototype, "books", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.categories),
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.categories, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     (0, typeorm_1.JoinColumn)({
         name: "userId",
     }),

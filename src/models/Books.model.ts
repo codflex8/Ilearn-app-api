@@ -50,17 +50,20 @@ export class Book extends BaseModel {
   @Column({ nullable: true })
   content: string;
 
-  @ManyToOne(() => Category)
+  @ManyToOne(() => Category, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinColumn({ name: "categoryId" })
   category: Category;
 
-  @ManyToOne(() => User, (user) => user.books)
+  @ManyToOne(() => User, (user) => user.books, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn({
     name: "userId",
   })
   user: User;
 
-  @ManyToMany(() => Chatbot)
+  @ManyToMany(() => Chatbot, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinTable({
     name: "ChatbotsBooks",
     joinColumn: {
@@ -74,7 +77,11 @@ export class Book extends BaseModel {
   })
   chatbots: Chatbot[];
 
-  @ManyToMany(() => Quiz)
+  @ManyToMany(() => Quiz, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+    cascade: true,
+  })
   @JoinTable({
     name: "QuizBooks",
     joinColumn: {

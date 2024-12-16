@@ -17,6 +17,7 @@ export const getUsers = asyncHandler(
       where: condition,
       select: {
         id: true,
+        email: true,
         username: true,
         phoneNumber: true,
         imageUrl: true,
@@ -43,5 +44,14 @@ export const addFcmToUser = asyncHandler(
     user.fcm = req.body.fcm;
     await user.save();
     res.status(200).json({ user });
+  }
+);
+
+export const deleteUser = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    await User.delete(user.id);
+    // await user.save();
+    res.json({ message: "delete user success " });
   }
 );

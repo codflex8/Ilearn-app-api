@@ -86,6 +86,7 @@ let Quiz = class Quiz extends BaseModel_1.BaseModel {
             return `quiz.mark >= (${subQuery})`;
         })
             .getCount();
+        console.log("fullmarkQuizesCount", fullmarkQuizesCount);
         return {
             examsGoal,
             examsCount: fullmarkQuizesCount,
@@ -103,7 +104,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Quiz.prototype, "mark", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ type: "enum", enum: QuizValidator_1.QuestionType }),
     __metadata("design:type", String)
 ], Quiz.prototype, "questionsType", void 0);
 __decorate([
@@ -119,11 +120,15 @@ __decorate([
     __metadata("design:type", Array)
 ], Quiz.prototype, "questions", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User),
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, { onDelete: "CASCADE", onUpdate: "CASCADE" }),
     __metadata("design:type", User_model_1.User)
 ], Quiz.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => Books_model_1.Book),
+    (0, typeorm_1.ManyToMany)(() => Books_model_1.Book, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        cascade: true,
+    }),
     (0, typeorm_1.JoinTable)({
         name: "QuizBooks",
         inverseJoinColumn: {

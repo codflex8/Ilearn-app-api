@@ -7,5 +7,6 @@ const AuthValidator_1 = require("../utils/validators/AuthValidator");
 const router = (0, express_1.Router)();
 router.get("/users", users_controller_1.getUsers);
 router.post("/users/add-fcm", (0, validationMiddleware_1.validateData)(AuthValidator_1.addFcmValidation), users_controller_1.addFcmToUser);
+router.delete("/users/delete", users_controller_1.deleteUser);
 exports.default = router;
 //# sourceMappingURL=users.router.js.map

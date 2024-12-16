@@ -107,19 +107,22 @@ __decorate([
     __metadata("design:type", String)
 ], Book.prototype, "content", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Categories_model_1.Category),
+    (0, typeorm_1.ManyToOne)(() => Categories_model_1.Category, { onDelete: "CASCADE", onUpdate: "CASCADE" }),
     (0, typeorm_1.JoinColumn)({ name: "categoryId" }),
     __metadata("design:type", Categories_model_1.Category)
 ], Book.prototype, "category", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.books),
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.books, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     (0, typeorm_1.JoinColumn)({
         name: "userId",
     }),
     __metadata("design:type", User_model_1.User)
 ], Book.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => ChatBot_model_1.Chatbot),
+    (0, typeorm_1.ManyToMany)(() => ChatBot_model_1.Chatbot, { onDelete: "CASCADE", onUpdate: "CASCADE" }),
     (0, typeorm_1.JoinTable)({
         name: "ChatbotsBooks",
         joinColumn: {
@@ -134,7 +137,11 @@ __decorate([
     __metadata("design:type", Array)
 ], Book.prototype, "chatbots", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => Quiz_model_1.Quiz),
+    (0, typeorm_1.ManyToMany)(() => Quiz_model_1.Quiz, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        cascade: true,
+    }),
     (0, typeorm_1.JoinTable)({
         name: "QuizBooks",
         joinColumn: {

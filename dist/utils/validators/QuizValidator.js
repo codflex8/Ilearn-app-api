@@ -7,6 +7,7 @@ var QuestionType;
     QuestionType["MultiChoic"] = "MultiChoic";
     QuestionType["TrueFalse"] = "TrueFalse";
     QuestionType["Writing"] = "Writing";
+    QuestionType["Random"] = "random";
 })(QuestionType || (exports.QuestionType = QuestionType = {}));
 var QuizQuestionsType;
 (function (QuizQuestionsType) {

@@ -175,14 +175,15 @@ export const groupsChatEvents = (socket: Socket) => {
           .emit("new-message", { message: newMessage, groupChatId });
 
         const notActiveUsers = await Websocket.getRoomNotActiveUsers(
-          groupChatId
+          groupChatId,
+          user.id
         );
-        sendNewMessageByNotification({
-          message: newMessage,
-          groupChat: groupChat,
-          users: notActiveUsers,
-          translate: socket.t,
-        });
+        // sendNewMessageByNotification({
+        //   message: newMessage,
+        //   groupChat: groupChat,
+        //   users: notActiveUsers,
+        //   translate: socket.t,
+        // });
       } catch (error: any) {
         console.log(error);
         if (callback) callback({ message: error.message });
@@ -234,7 +235,8 @@ export const groupsChatEvents = (socket: Socket) => {
           .emit("new-media-message", { message: getMessage, groupChatId });
 
         const notActiveUsers = await Websocket.getRoomNotActiveUsers(
-          groupChatId
+          groupChatId,
+          user.id
         );
         sendNewMessageByNotification({
           message: getMessage,
@@ -310,8 +312,10 @@ export const groupsChatEvents = (socket: Socket) => {
         });
 
         const notActiveUsers = await Websocket.getRoomNotActiveUsers(
-          toGroupChat.id
+          toGroupChat.id,
+          user.id
         );
+        console.log("notActiveUsers", notActiveUsers);
         sendNewMessageByNotification({
           message: newMessage,
           groupChat: toGroupChat,

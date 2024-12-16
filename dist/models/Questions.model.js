@@ -31,7 +31,7 @@ __decorate([
     __metadata("design:type", String)
 ], Question.prototype, "type", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Quiz_model_1.Quiz),
+    (0, typeorm_1.ManyToOne)(() => Quiz_model_1.Quiz, { onDelete: "CASCADE", onUpdate: "CASCADE" }),
     __metadata("design:type", Quiz_model_1.Quiz)
 ], Question.prototype, "quiz", void 0);
 __decorate([

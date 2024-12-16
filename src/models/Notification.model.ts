@@ -26,7 +26,7 @@ export class Notification extends BaseModel {
   @Column({ type: "json" })
   data: Record<string, string>;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   user: User;
 
   @ManyToOne(() => User)

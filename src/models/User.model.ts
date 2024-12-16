@@ -82,24 +82,28 @@ export class User extends BaseModel {
   language: LanguageEnum;
 
   @OneToMany(() => Notification, (not) => not.user, {
+    cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
   notifications: Notification;
 
   @OneToMany(() => Category, (category) => category.user, {
+    cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
   categories: Category[];
 
   @OneToMany(() => Book, (book) => book.user, {
+    cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
   books: Book[];
 
   @OneToMany(() => Quiz, (quiz) => quiz.user, {
+    cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
@@ -112,12 +116,14 @@ export class User extends BaseModel {
   chatbots: Chatbot[];
 
   @OneToMany(() => Bookmark, (bookmark) => bookmark.user, {
+    cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
   bookmarks: Bookmark[];
 
   @OneToMany(() => GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.user, {
+    cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })

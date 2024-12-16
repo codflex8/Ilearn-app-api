@@ -34,13 +34,33 @@ class Websocket extends socket_io_1.Server {
         var _a, _b;
         return (_b = (_a = this.rooms[roomId]) === null || _a === void 0 ? void 0 : _a.users) !== null && _b !== void 0 ? _b : [];
     }
-    static async getRoomNotActiveUsers(roomId) {
-        const excludeUSersIds = this.getroomUsers(roomId);
+    static async getRoomNotActiveUsers(roomId, excludeId) {
+        const excludeUserIds = [
+            ...this.getroomUsers(roomId).map((u) => u.id),
+            excludeId,
+        ];
+        console.log("excludeUSersIdssssss", excludeUserIds);
+        // return User.createQueryBuilder("user")
+        //   .leftJoinAndSelect("user.userGroupsChats", "userGroupsChats")
+        //   .where("user.id NOT IN (:...excludeUserIds)", { excludeUserIds })
+        //   .andWhere("userGroupsChats.acceptJoin = :acceptJoin", {
+        //     acceptJoin: true,
+        //   })
+        //   .andWhere("userGroupsChats.id = :roomId", { roomId })
+        //   .select(["user.id", "user.fcm", "user.imageUrl", "userGroupsChats"])
+        //   .getMany();
         return await User_model_1.User.find({
             where: {
-                id: (0, typeorm_1.Not)((0, typeorm_1.In)(excludeUSersIds)),
+                id: (0, typeorm_1.Not)((0, typeorm_1.In)(excludeUserIds)),
+                userGroupsChats: {
+                    acceptJoin: true,
+                    id: roomId,
+                },
             },
-            select: ["id", "fcm"],
+            relations: {
+                userGroupsChats: true,
+            },
+            select: ["id", "fcm", "imageUrl", "userGroupsChats"],
         });
     }
     static async sendNotificationsCount(userId) {

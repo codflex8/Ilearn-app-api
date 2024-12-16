@@ -18,15 +18,19 @@ export class Chatbot extends BaseModel {
   name: string;
 
   @OneToMany(() => ChatbotMessages, (message) => message.chatbot, {
+    cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
   messages: ChatbotMessages[];
 
-  @ManyToOne(() => User, (user) => user.chatbots)
+  @ManyToOne(() => User, (user) => user.chatbots, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   user: User;
 
-  @ManyToMany(() => Book)
+  @ManyToMany(() => Book, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinTable({
     name: "ChatbotsBooks",
     inverseJoinColumn: {

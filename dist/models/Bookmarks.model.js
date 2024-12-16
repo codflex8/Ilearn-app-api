@@ -24,12 +24,16 @@ __decorate([
     __metadata("design:type", User_model_1.User)
 ], Bookmark.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => ChatBotMessages_model_1.ChatbotMessages),
+    (0, typeorm_1.OneToOne)(() => ChatBotMessages_model_1.ChatbotMessages, {
+        cascade: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", ChatBotMessages_model_1.ChatbotMessages)
 ], Bookmark.prototype, "chatbotMessage", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => Questions_model_1.Question),
+    (0, typeorm_1.OneToOne)(() => Questions_model_1.Question, { onDelete: "CASCADE", onUpdate: "CASCADE" }),
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", Questions_model_1.Question)
 ], Bookmark.prototype, "question", void 0);

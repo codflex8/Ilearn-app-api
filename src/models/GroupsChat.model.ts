@@ -40,6 +40,7 @@ export class GroupsChat extends BaseModel {
   backgroundCoverUrl: string;
 
   @OneToMany(() => GroupsChatMessages, (chat) => chat.group, {
+    cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })

@@ -41,7 +41,10 @@ export class Category extends BaseModel {
   })
   books: Book[];
 
-  @ManyToOne(() => User, (user) => user.categories)
+  @ManyToOne(() => User, (user) => user.categories, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn({
     name: "userId",
   })

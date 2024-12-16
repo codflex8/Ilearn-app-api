@@ -10,11 +10,15 @@ export class Bookmark extends BaseModel {
   @JoinColumn()
   user: User;
 
-  @OneToOne(() => ChatbotMessages)
+  @OneToOne(() => ChatbotMessages, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @JoinColumn()
   chatbotMessage: ChatbotMessages;
 
-  @OneToOne(() => Question)
+  @OneToOne(() => Question, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinColumn()
   question: Question;
 }

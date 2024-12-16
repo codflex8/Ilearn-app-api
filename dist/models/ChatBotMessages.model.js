@@ -60,7 +60,7 @@ __decorate([
     __metadata("design:type", String)
 ], ChatbotMessages.prototype, "from", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => ChatBot_model_1.Chatbot),
+    (0, typeorm_1.ManyToOne)(() => ChatBot_model_1.Chatbot, { onDelete: "CASCADE", onUpdate: "CASCADE" }),
     __metadata("design:type", ChatBot_model_1.Chatbot)
 ], ChatbotMessages.prototype, "chatbot", void 0);
 __decorate([

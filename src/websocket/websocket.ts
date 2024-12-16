@@ -50,13 +50,33 @@ class Websocket extends Server {
     return this.rooms[roomId]?.users ?? [];
   }
 
-  public static async getRoomNotActiveUsers(roomId: string) {
-    const excludeUSersIds = this.getroomUsers(roomId);
+  public static async getRoomNotActiveUsers(roomId: string, excludeId: string) {
+    const excludeUserIds = [
+      ...this.getroomUsers(roomId).map((u) => u.id),
+      excludeId,
+    ];
+    console.log("excludeUSersIdssssss", excludeUserIds);
+    // return User.createQueryBuilder("user")
+    //   .leftJoinAndSelect("user.userGroupsChats", "userGroupsChats")
+    //   .where("user.id NOT IN (:...excludeUserIds)", { excludeUserIds })
+    //   .andWhere("userGroupsChats.acceptJoin = :acceptJoin", {
+    //     acceptJoin: true,
+    //   })
+    //   .andWhere("userGroupsChats.id = :roomId", { roomId })
+    //   .select(["user.id", "user.fcm", "user.imageUrl", "userGroupsChats"])
+    //   .getMany();
     return await User.find({
       where: {
-        id: Not(In(excludeUSersIds)),
+        id: Not(In(excludeUserIds)),
+        userGroupsChats: {
+          acceptJoin: true,
+          id: roomId,
+        },
       },
-      select: ["id", "fcm"],
+      relations: {
+        userGroupsChats: true,
+      },
+      select: ["id", "fcm", "imageUrl", "userGroupsChats"],
     });
   }
 

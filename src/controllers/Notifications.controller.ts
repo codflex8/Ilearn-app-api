@@ -23,6 +23,12 @@ export const getNotifications = asyncHandler(
       .createQueryBuilder("notification")
       .leftJoinAndSelect("notification.user", "user")
       .leftJoinAndSelect("notification.group", "group")
+      .leftJoinAndSelect(
+        "group.userGroupsChats",
+        "userGroupsChats",
+        "userGroupsChats.userId = :userId",
+        { userId: user.id }
+      )
       .leftJoinAndSelect("notification.fromUser", "fromUser")
       .where("user.id = :userId", { userId: user.id });
 
@@ -36,6 +42,7 @@ export const getNotifications = asyncHandler(
       .select("notification")
       .addSelect("user")
       .addSelect("group")
+      .addSelect("userGroupsChats")
       .addSelect([
         "fromUser.id",
         "fromUser.username",
@@ -43,29 +50,8 @@ export const getNotifications = asyncHandler(
         "fromUser.imageUrl",
       ])
       .getManyAndCount();
+    notifications.map((notif) => notif.group?.isAcceptJoin(user.id, false));
 
-    // let query: FindOptionsWhere<Notification> = {
-    //   user: {
-    //     id: user.id,
-    //   },
-    // };
-    // if (type) {
-    //   query = { ...query, type };
-    // }
-
-    // const [notifications, count] = await Notification.findAndCount({
-    //   where: query,
-    //   skip,
-    //   take,
-    //   relations: {
-    //     user: true,
-    //     group: true,
-    //     fromUser: true,
-    //   },
-    //   order: {
-    //     createdAt: "DESC",
-    //   },
-    // });
     res
       .status(200)
       .json(

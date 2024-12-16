@@ -141,6 +141,7 @@ __decorate([
 ], User.prototype, "language", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Notification_model_1.Notification, (not) => not.user, {
+        cascade: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     }),
@@ -148,6 +149,7 @@ __decorate([
 ], User.prototype, "notifications", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Categories_model_1.Category, (category) => category.user, {
+        cascade: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     }),
@@ -155,6 +157,7 @@ __decorate([
 ], User.prototype, "categories", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Books_model_1.Book, (book) => book.user, {
+        cascade: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     }),
@@ -162,6 +165,7 @@ __decorate([
 ], User.prototype, "books", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Quiz_model_1.Quiz, (quiz) => quiz.user, {
+        cascade: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     }),
@@ -176,6 +180,7 @@ __decorate([
 ], User.prototype, "chatbots", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Bookmarks_model_1.Bookmark, (bookmark) => bookmark.user, {
+        cascade: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     }),
@@ -183,6 +188,7 @@ __decorate([
 ], User.prototype, "bookmarks", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => GroupsChatUsers_model_1.GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.user, {
+        cascade: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     }),

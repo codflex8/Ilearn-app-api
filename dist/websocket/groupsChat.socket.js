@@ -146,13 +146,13 @@ const groupsChatEvents = (socket) => {
             socket
                 .to(groupChatId)
                 .emit("new-message", { message: newMessage, groupChatId });
-            const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(groupChatId);
-            (0, GroupsChat_controller_1.sendNewMessageByNotification)({
-                message: newMessage,
-                groupChat: groupChat,
-                users: notActiveUsers,
-                translate: socket.t,
-            });
+            const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(groupChatId, user.id);
+            // sendNewMessageByNotification({
+            //   message: newMessage,
+            //   groupChat: groupChat,
+            //   users: notActiveUsers,
+            //   translate: socket.t,
+            // });
         }
         catch (error) {
             console.log(error);
@@ -197,7 +197,7 @@ const groupsChatEvents = (socket) => {
             socket
                 .to(groupChatId)
                 .emit("new-media-message", { message: getMessage, groupChatId });
-            const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(groupChatId);
+            const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(groupChatId, user.id);
             (0, GroupsChat_controller_1.sendNewMessageByNotification)({
                 message: getMessage,
                 groupChat: isGroupchatExist,
@@ -250,7 +250,8 @@ const groupsChatEvents = (socket) => {
                 message: newMessage,
                 groupChatId: toGroupChat.id,
             });
-            const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(toGroupChat.id);
+            const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(toGroupChat.id, user.id);
+            console.log("notActiveUsers", notActiveUsers);
             (0, GroupsChat_controller_1.sendNewMessageByNotification)({
                 message: newMessage,
                 groupChat: toGroupChat,

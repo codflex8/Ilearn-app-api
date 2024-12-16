@@ -21,7 +21,7 @@ export class Quiz extends BaseModel {
   @Column({ type: "int", nullable: true })
   mark: number;
 
-  @Column()
+  @Column({ type: "enum", enum: QuestionType })
   questionsType: QuestionType;
 
   @Column({ type: "enum", enum: QuizLevel })
@@ -34,10 +34,14 @@ export class Quiz extends BaseModel {
   })
   questions: Question[];
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   user: User;
 
-  @ManyToMany(() => Book)
+  @ManyToMany(() => Book, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+    cascade: true,
+  })
   @JoinTable({
     name: "QuizBooks",
     inverseJoinColumn: {
@@ -144,6 +148,7 @@ export class Quiz extends BaseModel {
         return `quiz.mark >= (${subQuery})`;
       })
       .getCount();
+    console.log("fullmarkQuizesCount", fullmarkQuizesCount);
     return {
       examsGoal,
       examsCount: fullmarkQuizesCount,

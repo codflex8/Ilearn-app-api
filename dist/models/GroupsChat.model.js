@@ -122,6 +122,7 @@ __decorate([
 ], GroupsChat.prototype, "backgroundCoverUrl", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => GroupsChatMessages_model_1.GroupsChatMessages, (chat) => chat.group, {
+        cascade: true,
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
     }),

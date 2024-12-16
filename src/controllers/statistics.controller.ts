@@ -153,6 +153,7 @@ export const usersStatisticsReminder = async () => {
         users: [{ id: user.userId }] as User[],
         type: NotificationType.StatisticsReminder,
         data: {},
+        createNotification: false,
       });
     })
   );

@@ -21,7 +21,10 @@ __decorate([
     __metadata("design:type", String)
 ], Answer.prototype, "answer", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Questions_model_1.Question, (question) => question.answers),
+    (0, typeorm_1.ManyToOne)(() => Questions_model_1.Question, (question) => question.answers, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
     __metadata("design:type", Questions_model_1.Question)
 ], Answer.prototype, "question", void 0);
 exports.Answer = Answer = __decorate([

@@ -41,7 +41,7 @@ export class ChatbotMessages extends BaseModel {
   @Column({ type: "enum", enum: MessageFrom })
   from: MessageFrom;
 
-  @ManyToOne(() => Chatbot)
+  @ManyToOne(() => Chatbot, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   chatbot: Chatbot;
 
   @OneToOne(() => Bookmark, (bookmark) => bookmark.chatbotMessage)

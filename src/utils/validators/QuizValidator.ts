@@ -4,6 +4,7 @@ export enum QuestionType {
   MultiChoic = "MultiChoic",
   TrueFalse = "TrueFalse",
   Writing = "Writing",
+  Random = "random",
 }
 
 export enum QuizQuestionsType {

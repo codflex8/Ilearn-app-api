@@ -18,6 +18,7 @@ exports.getNotifications = (0, express_async_handler_1.default)(async (req, res,
         .createQueryBuilder("notification")
         .leftJoinAndSelect("notification.user", "user")
         .leftJoinAndSelect("notification.group", "group")
+        .leftJoinAndSelect("group.userGroupsChats", "userGroupsChats", "userGroupsChats.userId = :userId", { userId: user.id })
         .leftJoinAndSelect("notification.fromUser", "fromUser")
         .where("user.id = :userId", { userId: user.id });
     if (type) {
@@ -30,6 +31,7 @@ exports.getNotifications = (0, express_async_handler_1.default)(async (req, res,
         .select("notification")
         .addSelect("user")
         .addSelect("group")
+        .addSelect("userGroupsChats")
         .addSelect([
         "fromUser.id",
         "fromUser.username",
@@ -37,27 +39,7 @@ exports.getNotifications = (0, express_async_handler_1.default)(async (req, res,
         "fromUser.imageUrl",
     ])
         .getManyAndCount();
-    // let query: FindOptionsWhere<Notification> = {
-    //   user: {
-    //     id: user.id,
-    //   },
-    // };
-    // if (type) {
-    //   query = { ...query, type };
-    // }
-    // const [notifications, count] = await Notification.findAndCount({
-    //   where: query,
-    //   skip,
-    //   take,
-    //   relations: {
-    //     user: true,
-    //     group: true,
-    //     fromUser: true,
-    //   },
-    //   order: {
-    //     createdAt: "DESC",
-    //   },
-    // });
+    notifications.map((notif) => { var _a; return (_a = notif.group) === null || _a === void 0 ? void 0 : _a.isAcceptJoin(user.id, false); });
     res
         .status(200)
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, notifications));

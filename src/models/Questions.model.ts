@@ -24,7 +24,7 @@ export class Question extends BaseModel {
   @Column({ type: "enum", enum: QuestionType })
   type: QuestionType;
 
-  @ManyToOne(() => Quiz)
+  @ManyToOne(() => Quiz, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   quiz: Quiz;
 
   @Column({ type: "int", nullable: true })

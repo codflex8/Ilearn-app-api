@@ -67,7 +67,7 @@ __decorate([
     __metadata("design:type", Object)
 ], Notification.prototype, "data", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User),
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, { onDelete: "CASCADE", onUpdate: "CASCADE" }),
     __metadata("design:type", User_model_1.User)
 ], Notification.prototype, "user", void 0);
 __decorate([

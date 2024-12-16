@@ -16,6 +16,9 @@ export class Answer extends BaseModel {
   // @Column({ type: "boolean", default: false })
   // isUserAnswer: boolean;
 
-  @ManyToOne(() => Question, (question) => question.answers)
+  @ManyToOne(() => Question, (question) => question.answers, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   question: Question;
 }

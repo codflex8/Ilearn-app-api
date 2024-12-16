@@ -125,6 +125,15 @@ exports.acceptJoinRequest = (0, express_async_handler_1.default)(async (req, res
         ((_a = groupChat.userGroupsChats[0]) === null || _a === void 0 ? void 0 : _a.role) !== GroupsChatValidator_1.GroupChatRoles.Admin) {
         throw new ApiError_1.default(req.t("you_are_not_group_admin"), 400);
     }
+    const isUserInGroup = await GroupsChatUsers_model_1.GroupsChatUsers.findOne({
+        where: {
+            user: { id: userId },
+            groupChat: { id },
+        },
+    });
+    if (isUserInGroup) {
+        throw new ApiError_1.default(req.t("user_in_group"), 400);
+    }
     const addedUser = await User_model_1.User.findOne({
         where: {
             id: userId,
@@ -218,6 +227,7 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
         .json({ message: req.t("join_request_sent_to_group_admin") });
 });
 exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
+    var _a, _b, _c, _d, _e, _f;
     const { name, usersIds, image } = req.body;
     const user = req.user;
     const users = await User_model_1.User.find({
@@ -239,6 +249,26 @@ exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, 
             : GroupsChatValidator_1.GroupChatRoles.Member,
     }));
     await GroupsChatUsers_model_1.GroupsChatUsers.save(usersGroupChat);
+    const body = req.t("user_added_to_group_chat", {
+        username: user.username,
+        groupChatName: newGroupChat.name,
+    });
+    await (0, sendNotification_1.sendAndCreateNotification)({
+        title: req.t("add_to_group_chat"),
+        body,
+        users,
+        group: newGroupChat,
+        data: {
+            groupChat: (_a = newGroupChat.name) !== null && _a !== void 0 ? _a : "",
+            groupChatId: (_b = newGroupChat.id) !== null && _b !== void 0 ? _b : "",
+            groupChatImageUrl: (_c = newGroupChat.fullImageUrl) !== null && _c !== void 0 ? _c : "",
+            fromUser: (_d = user.username) !== null && _d !== void 0 ? _d : "",
+            fromUserId: (_e = user.id) !== null && _e !== void 0 ? _e : "",
+            fromUserImageUrl: (_f = user.fullImageUrl) !== null && _f !== void 0 ? _f : "",
+        },
+        fcmTokens: users.map((user) => user.fcm).filter((fcm) => !!fcm),
+        type: Notification_model_1.NotificationType.UserAddedTOGroupChat,
+    });
     res.status(201).json({ newGroupChat });
 });
 exports.getGroupChatById = (0, express_async_handler_1.default)(async (req, res, next) => {

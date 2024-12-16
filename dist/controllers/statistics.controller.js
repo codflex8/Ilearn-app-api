@@ -116,6 +116,7 @@ const usersStatisticsReminder = async () => {
             users: [{ id: user.userId }],
             type: Notification_model_1.NotificationType.StatisticsReminder,
             data: {},
+            createNotification: false,
         });
     }));
     return userStatistics;

@@ -150,11 +150,23 @@ export const acceptJoinRequest = asyncHandler(
     ) {
       throw new ApiError(req.t("you_are_not_group_admin"), 400);
     }
+
+    const isUserInGroup = await GroupsChatUsers.findOne({
+      where: {
+        user: { id: userId },
+        groupChat: { id },
+      },
+    });
+    if (isUserInGroup) {
+      throw new ApiError(req.t("user_in_group"), 400);
+    }
+
     const addedUser = await User.findOne({
       where: {
         id: userId,
       },
     });
+
     const newGroupChatUser = await GroupsChatUsers.create({
       user: addedUser,
       groupChat,
@@ -278,6 +290,26 @@ export const createGroupChat = asyncHandler(
     );
 
     await GroupsChatUsers.save(usersGroupChat);
+    const body = req.t("user_added_to_group_chat", {
+      username: user.username,
+      groupChatName: newGroupChat.name,
+    });
+    await sendAndCreateNotification({
+      title: req.t("add_to_group_chat"),
+      body,
+      users,
+      group: newGroupChat,
+      data: {
+        groupChat: newGroupChat.name ?? "",
+        groupChatId: newGroupChat.id ?? "",
+        groupChatImageUrl: newGroupChat.fullImageUrl ?? "",
+        fromUser: user.username ?? "",
+        fromUserId: user.id ?? "",
+        fromUserImageUrl: user.fullImageUrl ?? "",
+      },
+      fcmTokens: users.map((user) => user.fcm).filter((fcm) => !!fcm),
+      type: NotificationType.UserAddedTOGroupChat,
+    });
     res.status(201).json({ newGroupChat });
   }
 );

@@ -31,13 +31,19 @@ __decorate([
     __metadata("design:type", String)
 ], GroupsChatUsers.prototype, "role", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.userGroupsChats)
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, (user) => user.userGroupsChats, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    })
     //   @JoinColumn()
     ,
     __metadata("design:type", User_model_1.User)
 ], GroupsChatUsers.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => GroupsChat_model_1.GroupsChat, (chat) => chat.userGroupsChats)
+    (0, typeorm_1.ManyToOne)(() => GroupsChat_model_1.GroupsChat, (chat) => chat.userGroupsChats, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    })
     //   @JoinColumn()
     ,
     __metadata("design:type", GroupsChat_model_1.GroupsChat)

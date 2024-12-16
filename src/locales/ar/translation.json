@@ -1,4 +1,5 @@
 {
+  "user_in_group":"المستخدم بالفعل عضو في المجموعة",
   "weekly_reminder_title":"تذكير اسبوعي",
   "weekly_reminder_body":"الاحصائيات هذا الاسبوع: نسبة الكتب: {{booksPercentage}}, نسبة الاختبارات: {{examsPercentage}}",
   "success": "تم بنجاح",
