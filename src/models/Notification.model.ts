@@ -29,7 +29,7 @@ export class Notification extends BaseModel {
   @ManyToOne(() => User, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   user: User;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "SET NULL", onUpdate: "CASCADE" })
   @JoinColumn({ name: "from_user_id" })
   fromUser: User;
 

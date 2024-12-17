@@ -84,11 +84,12 @@ const localStorage = multer.diskStorage({
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const originalNameWithoutExt = path.parse(file.originalname).name;
 
-    const filename =
+    const filename = Buffer.from(
       uniqueSuffix +
-      "_" +
-      originalNameWithoutExt +
-      path.extname(file.originalname);
+        "_" +
+        originalNameWithoutExt +
+        path.extname(file.originalname)
+    ).toString("utf-8");
 
     // Determine the relative path for the file
     const extension = path.extname(file.originalname).toLowerCase();
