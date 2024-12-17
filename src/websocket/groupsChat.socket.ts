@@ -178,12 +178,14 @@ export const groupsChatEvents = (socket: Socket) => {
           groupChatId,
           user.id
         );
-        // sendNewMessageByNotification({
-        //   message: newMessage,
-        //   groupChat: groupChat,
-        //   users: notActiveUsers,
-        //   translate: socket.t,
-        // });
+        console.log("notActiveUsers", notActiveUsers);
+
+        sendNewMessageByNotification({
+          message: newMessage,
+          groupChat: groupChat,
+          users: notActiveUsers,
+          translate: socket.t,
+        });
       } catch (error: any) {
         console.log(error);
         if (callback) callback({ message: error.message });
@@ -238,7 +240,6 @@ export const groupsChatEvents = (socket: Socket) => {
           groupChatId,
           user.id
         );
-        console.log("notActiveUsers", notActiveUsers);
         sendNewMessageByNotification({
           message: getMessage,
           groupChat: isGroupchatExist,
