@@ -103,8 +103,12 @@ class Websocket extends socket_io_1.Server {
     }
     static removeUser(user) {
         var _a, _b;
-        if (user)
+        if (user) {
             this.users = (_b = ((_a = this.users) !== null && _a !== void 0 ? _a : [])) === null || _b === void 0 ? void 0 : _b.filter((u) => u.id !== (user === null || user === void 0 ? void 0 : user.id));
+            Object.entries(this.rooms).map(([roomId]) => {
+                this.removeUserFromRoom(roomId, user);
+            });
+        }
     }
     static getUsersSocketIds(usersIds) {
         const socketsIds = [];

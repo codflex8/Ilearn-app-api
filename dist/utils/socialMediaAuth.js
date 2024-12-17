@@ -66,13 +66,41 @@ const getFacebookUserData = async (accessToken) => {
     }
 };
 exports.getFacebookUserData = getFacebookUserData;
+// Client ID : UVZ0Yk9rdDJjZEw4TEh5aExKUDU6MTpjaQ
+// Client Secret : NhFaufYO6Ppni5oISC23b51t0jo2L8mF5FGR69PR9iBiUawdK7
+// apiKey: g5pNEhu4anTFZwsgxA3BJLwM0
+// apiSecretKey: SzK1pSu7BYKb1FPlHr9bPEVxVyIHqfsapFptITNEyZww4jy4LC
 const twitterClient = new twitter_api_v2_1.TwitterApi({
     appKey: "your-app-key", // Replace with your App Key
     appSecret: "your-app-secret", // Replace with your App Secret
 });
 const getTwitterUserData = async (accessToken) => {
     const userUrl = "https://api.twitter.com/2/users/me";
+    // const authClient = new auth.OAuth2User({
+    //   client_id: "UVZ0Yk9rdDJjZEw4TEh5aExKUDU6MTpjaQ",
+    //   client_secret: "NhFaufYO6Ppni5oISC23b51t0jo2L8mF5FGR69PR9iBiUawdK7",
+    //   callback: "YOUR-CALLBACK",
+    //   scopes: ["tweet.read", "users.read", "offline.access"],
+    //   token: { access_token: accessToken,token_type:"bearer" ,refresh_token: "" },
+    // });
+    //1868991708572037120-4iBhnz3MFJVQ81Eqxyu17BM61rzDVL
+    //XzPSxhL5eYNHdCTHjCRVv9wiVcSxUKiia8VuBtLIH6AQM
+    // authClient.getAuthHeader
     try {
+        const twitterClient = new twitter_api_v2_1.TwitterApi({
+            appKey: "g5pNEhu4anTFZwsgxA3BJLwM0",
+            appSecret: "SzK1pSu7BYKb1FPlHr9bPEVxVyIHqfsapFptITNEyZww4jy4LC",
+            accessToken,
+        });
+        const userData = await twitterClient.v2.me();
+        console.log("userDataaaaaaaa", userData);
+        // const authenticatedClient = new TwitterApi(accessToken);
+        // // Fetch the authenticated user's data
+        // const userData = await authenticatedClient.v2.me();
+        // console.log("userDataaaaaa", userData);
+        // const twitterClient = new Client(authClient);
+        // const getCurrentUser = await twitterClient.users.findMyUser();
+        // console.log("getCurrentUserrrrrrr", getCurrentUser);
         // const response = await axios.get(userUrl, {
         //   headers: {
         //     Authorization: `Bearer ${accessToken}`,
@@ -82,15 +110,16 @@ const getTwitterUserData = async (accessToken) => {
         //   //   "user.fields": "id,name,username,profile_image_url,email",
         //   // },
         // });
-        const userClient = new twitter_api_v2_1.TwitterApi(accessToken);
-        // const userClient = twitterClient.readWrite.accessToken(accessToken);
-        console.log("send token to twitterrrr", accessToken);
-        // Fetch user data
-        userClient.revokeOAuth2Token(accessToken);
-        const response = await userClient.v2.me(); // Retrieves authenticated user info
-        // return userData;
-        console.log("twitter responseee", response.data);
-        return new SocialMediaUserData(response.data.name, response.data.profile_image_url, null, response.data.id);
+        // const userClient = new TwitterApi(`bearer ${accessToken}`);
+        // // const userClient = twitterClient.readWrite.accessToken(accessToken);
+        // console.log("send token to twitterrrr", accessToken);
+        // // Fetch user data
+        // const userResult = await userClient.currentUserV2();
+        // console.log("userResultuserResult", userResult);
+        // const response = await userClient.v2.me(); // Retrieves authenticated user info
+        // // return userData;
+        // console.log("twitter responseee", response.data);
+        return new SocialMediaUserData(userData.data.name, userData.data.profile_image_url, null, userData.data.id);
     }
     catch (error) {
         console.error("Error fetching Twitter user data:", error);

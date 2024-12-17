@@ -136,7 +136,12 @@ class Websocket extends Server {
   }
 
   public static removeUser(user: User) {
-    if (user) this.users = (this.users ?? [])?.filter((u) => u.id !== user?.id);
+    if (user) {
+      this.users = (this.users ?? [])?.filter((u) => u.id !== user?.id);
+      Object.entries(this.rooms).map(([roomId]) => {
+        this.removeUserFromRoom(roomId, user);
+      });
+    }
   }
 
   public static getUsersSocketIds(usersIds: string[]) {
