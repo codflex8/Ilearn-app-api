@@ -4,6 +4,7 @@ import fs from "fs";
 import ApiError from "../utils/ApiError";
 import multerS3 from "multer-s3";
 import { s3 } from "../utils/uploadToAws";
+import iconv from "iconv-lite";
 
 const createDirIfNotExist = (dir: string) => {
   if (!fs.existsSync(dir)) {
@@ -84,13 +85,16 @@ const localStorage = multer.diskStorage({
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const originalNameWithoutExt = path.parse(file.originalname).name;
 
-    const filename = Buffer.from(
-      uniqueSuffix +
-        "_" +
-        originalNameWithoutExt +
-        path.extname(file.originalname),
+    const filename = iconv.decode(
+      Buffer.from(
+        uniqueSuffix +
+          "_" +
+          originalNameWithoutExt +
+          path.extname(file.originalname),
+        "latin1"
+      ),
       "utf-8"
-    ).toString("utf-8");
+    );
 
     // Determine the relative path for the file
     const extension = path.extname(file.originalname).toLowerCase();

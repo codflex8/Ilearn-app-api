@@ -10,6 +10,7 @@ const fs_1 = __importDefault(require("fs"));
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const multer_s3_1 = __importDefault(require("multer-s3"));
 const uploadToAws_1 = require("../utils/uploadToAws");
+const iconv_lite_1 = __importDefault(require("iconv-lite"));
 const createDirIfNotExist = (dir) => {
     if (!fs_1.default.existsSync(dir)) {
         // If not, create it
@@ -85,10 +86,10 @@ const localStorage = multer_1.default.diskStorage({
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
         const originalNameWithoutExt = path_1.default.parse(file.originalname).name;
-        const filename = Buffer.from(uniqueSuffix +
+        const filename = iconv_lite_1.default.decode(Buffer.from(uniqueSuffix +
             "_" +
             originalNameWithoutExt +
-            path_1.default.extname(file.originalname), "utf-8").toString("utf-8");
+            path_1.default.extname(file.originalname), "latin1"), "utf-8");
         // Determine the relative path for the file
         const extension = path_1.default.extname(file.originalname).toLowerCase();
         const isImage = imagesExtensions.includes(extension);
