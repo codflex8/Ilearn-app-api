@@ -97,11 +97,11 @@ const localStorage = multer_1.default.diskStorage({
         const isDocument = documentsExtensions.includes(extension);
         let relativePath;
         if (isImage)
-            relativePath = `/public/images/${filename}`;
+            relativePath = decodeURIComponent(`/public/images/${filename}`);
         if (isAudio)
-            relativePath = `/public/audio/${filename}`;
+            relativePath = decodeURIComponent(`/public/audio/${filename}`);
         if (isDocument)
-            relativePath = `/public/documents/${filename}`;
+            relativePath = decodeURIComponent(`/public/documents/${filename}`);
         // Add the path to req.body using the field name
         req.body[file.fieldname] = relativePath;
         cb(null, filename);
