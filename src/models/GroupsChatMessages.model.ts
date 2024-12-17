@@ -58,8 +58,8 @@ export class GroupsChatMessages extends BaseModel {
   // @AfterLoad()
   // @AfterInsert()
   // @AfterUpdate()
-  // isMessageSeen() {
-  //   this.seen = !!this.readbyIds?.find((id) => id === this.id);
+  // encodeFileUrl() {
+  //   this.fileUrl = encodeURIComponent(this.fileUrl);
   // }
 
   isSeenMessage(userId: string) {

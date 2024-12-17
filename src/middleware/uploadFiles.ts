@@ -85,15 +85,11 @@ const localStorage = multer.diskStorage({
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const originalNameWithoutExt = path.parse(file.originalname).name;
 
-    const filename = iconv.decode(
-      Buffer.from(
-        uniqueSuffix +
-          "_" +
-          originalNameWithoutExt +
-          path.extname(file.originalname),
-        "utf-8"
-      ),
-      "utf-8"
+    const filename = decodeURIComponent(
+      uniqueSuffix +
+        "_" +
+        originalNameWithoutExt +
+        path.extname(file.originalname)
     );
 
     // Determine the relative path for the file
@@ -103,11 +99,9 @@ const localStorage = multer.diskStorage({
     const isDocument = documentsExtensions.includes(extension);
 
     let relativePath: string;
-    if (isImage)
-      relativePath = decodeURIComponent(`/public/images/${filename}`);
-    if (isAudio) relativePath = decodeURIComponent(`/public/audio/${filename}`);
-    if (isDocument)
-      relativePath = decodeURIComponent(`/public/documents/${filename}`);
+    if (isImage) relativePath = `/public/images/${filename}`;
+    if (isAudio) relativePath = `/public/audio/${filename}`;
+    if (isDocument) relativePath = `/public/documents/${filename}`;
     // Add the path to req.body using the field name
     req.body[file.fieldname] = relativePath;
     cb(null, filename);
