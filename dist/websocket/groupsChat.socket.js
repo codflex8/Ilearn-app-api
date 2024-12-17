@@ -198,6 +198,7 @@ const groupsChatEvents = (socket) => {
                 .to(groupChatId)
                 .emit("new-media-message", { message: getMessage, groupChatId });
             const notActiveUsers = await websocket_1.default.getRoomNotActiveUsers(groupChatId, user.id);
+            console.log("notActiveUsers", notActiveUsers);
             (0, GroupsChat_controller_1.sendNewMessageByNotification)({
                 message: getMessage,
                 groupChat: isGroupchatExist,

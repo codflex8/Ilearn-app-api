@@ -238,6 +238,7 @@ export const groupsChatEvents = (socket: Socket) => {
           groupChatId,
           user.id
         );
+        console.log("notActiveUsers", notActiveUsers);
         sendNewMessageByNotification({
           message: getMessage,
           groupChat: isGroupchatExist,
