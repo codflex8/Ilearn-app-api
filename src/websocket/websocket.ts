@@ -69,7 +69,7 @@ class Websocket extends Server {
       relations: {
         userGroupsChats: true,
       },
-      select: ["id", "fcm", "imageUrl", "userGroupsChats"],
+      select: ["id", "fcm", "imageUrl", "userGroupsChats", "username", "email"],
     });
   }
 

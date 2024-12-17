@@ -53,7 +53,7 @@ class Websocket extends socket_io_1.Server {
             relations: {
                 userGroupsChats: true,
             },
-            select: ["id", "fcm", "imageUrl", "userGroupsChats"],
+            select: ["id", "fcm", "imageUrl", "userGroupsChats", "username", "email"],
         });
     }
     static async sendNotificationsCount(userId) {
