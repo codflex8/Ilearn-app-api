@@ -4,6 +4,7 @@ import { getUserRooms } from "../controllers/GroupsChat.controller";
 import { GroupsChat } from "../models/GroupsChat.model";
 import { In, Not } from "typeorm";
 import { Notification } from "../models/Notification.model";
+import { httpLogger } from "../utils/logger";
 
 const WEBSOCKET_CORS = {
   origin: "*",
@@ -56,15 +57,7 @@ class Websocket extends Server {
       excludeId,
     ];
     console.log("excludeUSersIdssssss", excludeUserIds);
-    // return User.createQueryBuilder("user")
-    //   .leftJoinAndSelect("user.userGroupsChats", "userGroupsChats")
-    //   .where("user.id NOT IN (:...excludeUserIds)", { excludeUserIds })
-    //   .andWhere("userGroupsChats.acceptJoin = :acceptJoin", {
-    //     acceptJoin: true,
-    //   })
-    //   .andWhere("userGroupsChats.id = :roomId", { roomId })
-    //   .select(["user.id", "user.fcm", "user.imageUrl", "userGroupsChats"])
-    //   .getMany();
+    console.log("room usersssss", this.getroomUsers(roomId));
     return await User.find({
       where: {
         id: Not(In(excludeUserIds)),
@@ -137,10 +130,12 @@ class Websocket extends Server {
 
   public static removeUser(user: User) {
     if (user) {
+      httpLogger.info("remove user from socket data", { user });
       this.users = (this.users ?? [])?.filter((u) => u.id !== user?.id);
       Object.entries(this.rooms).map(([roomId]) => {
         this.removeUserFromRoom(roomId, user);
       });
+      console.log("users rooms", this.rooms);
     }
   }
 

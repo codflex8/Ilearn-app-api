@@ -4,6 +4,7 @@ const socket_io_1 = require("socket.io");
 const User_model_1 = require("../models/User.model");
 const typeorm_1 = require("typeorm");
 const Notification_model_1 = require("../models/Notification.model");
+const logger_1 = require("../utils/logger");
 const WEBSOCKET_CORS = {
     origin: "*",
     // methods: ["GET", "POST"],
@@ -40,15 +41,7 @@ class Websocket extends socket_io_1.Server {
             excludeId,
         ];
         console.log("excludeUSersIdssssss", excludeUserIds);
-        // return User.createQueryBuilder("user")
-        //   .leftJoinAndSelect("user.userGroupsChats", "userGroupsChats")
-        //   .where("user.id NOT IN (:...excludeUserIds)", { excludeUserIds })
-        //   .andWhere("userGroupsChats.acceptJoin = :acceptJoin", {
-        //     acceptJoin: true,
-        //   })
-        //   .andWhere("userGroupsChats.id = :roomId", { roomId })
-        //   .select(["user.id", "user.fcm", "user.imageUrl", "userGroupsChats"])
-        //   .getMany();
+        console.log("room usersssss", this.getroomUsers(roomId));
         return await User_model_1.User.find({
             where: {
                 id: (0, typeorm_1.Not)((0, typeorm_1.In)(excludeUserIds)),
@@ -104,10 +97,12 @@ class Websocket extends socket_io_1.Server {
     static removeUser(user) {
         var _a, _b;
         if (user) {
+            logger_1.httpLogger.info("remove user from socket data", { user });
             this.users = (_b = ((_a = this.users) !== null && _a !== void 0 ? _a : [])) === null || _b === void 0 ? void 0 : _b.filter((u) => u.id !== (user === null || user === void 0 ? void 0 : user.id));
             Object.entries(this.rooms).map(([roomId]) => {
                 this.removeUserFromRoom(roomId, user);
             });
+            console.log("users rooms", this.rooms);
         }
     }
     static getUsersSocketIds(usersIds) {
