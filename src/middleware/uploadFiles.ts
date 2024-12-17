@@ -91,7 +91,7 @@ const localStorage = multer.diskStorage({
           "_" +
           originalNameWithoutExt +
           path.extname(file.originalname),
-        "latin1"
+        "utf-8"
       ),
       "utf-8"
     );

@@ -89,7 +89,7 @@ const localStorage = multer_1.default.diskStorage({
         const filename = iconv_lite_1.default.decode(Buffer.from(uniqueSuffix +
             "_" +
             originalNameWithoutExt +
-            path_1.default.extname(file.originalname), "latin1"), "utf-8");
+            path_1.default.extname(file.originalname), "utf-8"), "utf-8");
         // Determine the relative path for the file
         const extension = path_1.default.extname(file.originalname).toLowerCase();
         const isImage = imagesExtensions.includes(extension);
