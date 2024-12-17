@@ -88,7 +88,7 @@ const localStorage = multer_1.default.diskStorage({
         const filename = Buffer.from(uniqueSuffix +
             "_" +
             originalNameWithoutExt +
-            path_1.default.extname(file.originalname)).toString("utf-8");
+            path_1.default.extname(file.originalname), "latin1").toString("utf-8");
         // Determine the relative path for the file
         const extension = path_1.default.extname(file.originalname).toLowerCase();
         const isImage = imagesExtensions.includes(extension);
