@@ -89,7 +89,7 @@ const localStorage = multer.diskStorage({
         "_" +
         originalNameWithoutExt +
         path.extname(file.originalname),
-      "latin1"
+      "utf-8"
     ).toString("utf-8");
 
     // Determine the relative path for the file
