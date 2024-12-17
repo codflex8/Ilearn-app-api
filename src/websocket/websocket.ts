@@ -61,10 +61,10 @@ class Websocket extends Server {
     return await User.find({
       where: {
         id: Not(In(excludeUserIds)),
-        userGroupsChats: {
-          acceptJoin: true,
-          id: roomId,
-        },
+        // userGroupsChats: {
+        //   acceptJoin: true,
+        //   id: roomId,
+        // },
       },
       relations: {
         userGroupsChats: true,

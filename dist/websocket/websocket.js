@@ -45,10 +45,10 @@ class Websocket extends socket_io_1.Server {
         return await User_model_1.User.find({
             where: {
                 id: (0, typeorm_1.Not)((0, typeorm_1.In)(excludeUserIds)),
-                userGroupsChats: {
-                    acceptJoin: true,
-                    id: roomId,
-                },
+                // userGroupsChats: {
+                //   acceptJoin: true,
+                //   id: roomId,
+                // },
             },
             relations: {
                 userGroupsChats: true,
