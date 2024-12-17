@@ -71,7 +71,7 @@ __decorate([
     __metadata("design:type", User_model_1.User)
 ], Notification.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User),
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, { onDelete: "SET NULL", onUpdate: "CASCADE" }),
     (0, typeorm_1.JoinColumn)({ name: "from_user_id" }),
     __metadata("design:type", User_model_1.User)
 ], Notification.prototype, "fromUser", void 0);

@@ -84,7 +84,7 @@ export const sendAndCreateNotification = async ({
   try {
     const fcms = fcmTokens.filter((fc) => !!fc);
     if (fcmTokens.length) {
-      // await sendNotification({ title, data, fcmTokens: fcms, body });
+      await sendNotification({ title, data, fcmTokens: fcms, body });
     } else {
       httpLogger.error("fcm array is empty", { fcmTokens });
     }
