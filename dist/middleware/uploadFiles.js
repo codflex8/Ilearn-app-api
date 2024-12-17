@@ -85,6 +85,7 @@ const localStorage = multer_1.default.diskStorage({
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
         const originalNameWithoutExt = path_1.default.parse(file.originalname).name;
+        console.log("file.originalnameeee", file.originalname);
         const filename = decodeURIComponent(uniqueSuffix +
             "_" +
             originalNameWithoutExt +
