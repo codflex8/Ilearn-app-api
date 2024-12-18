@@ -22,6 +22,7 @@ import {
   newGroupChatMessageValidator,
   updateGroupChatValidator,
 } from "../utils/validators/GroupsChatValidator";
+import { addReport, getReports } from "../controllers/report.controller";
 
 const router = Router();
 
@@ -73,5 +74,7 @@ router.post(
 );
 
 router.post("/:id/leave", leaveGroupChat);
+router.post("/:id/report", addReport);
+router.get("/:id/report", getReports);
 
 export default router;

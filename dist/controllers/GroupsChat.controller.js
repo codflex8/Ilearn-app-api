@@ -17,6 +17,7 @@ const GroupsChatMessages_model_1 = require("../models/GroupsChatMessages.model")
 const extractLing_1 = require("../utils/extractLing");
 const websocket_1 = __importDefault(require("../websocket/websocket"));
 const sendNotification_1 = require("../utils/sendNotification");
+const i18next_1 = __importDefault(require("i18next"));
 const Notification_model_1 = require("../models/Notification.model");
 exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
@@ -75,10 +76,13 @@ exports.acceptJoinGroup = (0, express_async_handler_1.default)(async (req, res, 
         },
         relations: { user: true },
     });
-    const title = req.t("user_accept_join_title");
+    const title = req.t("user_accept_join_title", {
+        lng: groupAdmin.user.language,
+    });
     const body = req.t("user_accept_join_group", {
         username: user.username,
         name: groupChat.name,
+        lng: groupAdmin.user.language,
     });
     await (0, sendNotification_1.sendAndCreateNotification)({
         title,
@@ -159,9 +163,10 @@ exports.acceptJoinRequest = (0, express_async_handler_1.default)(async (req, res
     }
     const body = req.t("admin_accept_join_body", {
         name: groupChat.name,
+        lng: addedUser.language,
     });
     await (0, sendNotification_1.sendAndCreateNotification)({
-        title: req.t("admin_accept_join_title"),
+        title: req.t("admin_accept_join_title", { lng: addedUser.language }),
         body,
         users: [addedUser],
         fromUser: user,
@@ -204,9 +209,12 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
     // send notification to group admin
     const body = req.t("user_request_to_join_group_chat", {
         username: user.username,
+        lng: groupAdmin.user.language,
     });
     await (0, sendNotification_1.sendAndCreateNotification)({
-        title: req.t("join_group_chat_request"),
+        title: req.t("join_group_chat_request", {
+            lng: groupAdmin.user.language,
+        }),
         body,
         users: [groupAdmin.user],
         fromUser: user,
@@ -227,12 +235,11 @@ exports.joinGroup = (0, express_async_handler_1.default)(async (req, res, next) 
         .json({ message: req.t("join_request_sent_to_group_admin") });
 });
 exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
-    var _a, _b, _c, _d, _e, _f;
     const { name, usersIds, image } = req.body;
     const user = req.user;
     const users = await User_model_1.User.find({
         where: {
-            id: (0, typeorm_1.In)([...(usersIds !== null && usersIds !== void 0 ? usersIds : []), user.id]),
+            id: (0, typeorm_1.In)([...(usersIds !== null && usersIds !== void 0 ? usersIds : [])]),
         },
     });
     const newGroupChat = GroupsChat_model_1.GroupsChat.create({
@@ -240,37 +247,40 @@ exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, 
         imageUrl: image,
     });
     await newGroupChat.save();
-    const usersGroupChat = users.map((currentUser) => GroupsChatUsers_model_1.GroupsChatUsers.create({
-        user: currentUser,
+    const arUsers = [];
+    const enUsers = [];
+    const usersGroupChat = users.map((currentUser) => {
+        if (currentUser.language === "ar") {
+            arUsers.push(currentUser);
+        }
+        else {
+            enUsers.push(currentUser);
+        }
+        return GroupsChatUsers_model_1.GroupsChatUsers.create({
+            user: currentUser,
+            groupChat: newGroupChat,
+            acceptJoin: user.id === currentUser.id,
+            role: GroupsChatValidator_1.GroupChatRoles.Member,
+        });
+    });
+    usersGroupChat.push(GroupsChatUsers_model_1.GroupsChatUsers.create({
+        user,
         groupChat: newGroupChat,
-        acceptJoin: user.id === currentUser.id,
-        role: user.id === currentUser.id
-            ? GroupsChatValidator_1.GroupChatRoles.Admin
-            : GroupsChatValidator_1.GroupChatRoles.Member,
+        acceptJoin: true,
+        role: GroupsChatValidator_1.GroupChatRoles.Admin,
     }));
     await GroupsChatUsers_model_1.GroupsChatUsers.save(usersGroupChat);
-    const body = req.t("user_added_to_group_chat", {
-        username: user.username,
-        groupChatName: newGroupChat.name,
+    await addUsersNotifications({
+        user,
+        users: arUsers,
+        newGroupChat,
+        language: "ar",
     });
-    await (0, sendNotification_1.sendAndCreateNotification)({
-        title: req.t("add_to_group_chat"),
-        body,
-        users,
-        group: newGroupChat,
-        data: {
-            groupChat: (_a = newGroupChat.name) !== null && _a !== void 0 ? _a : "",
-            groupChatId: (_b = newGroupChat.id) !== null && _b !== void 0 ? _b : "",
-            groupChatImageUrl: (_c = newGroupChat.fullImageUrl) !== null && _c !== void 0 ? _c : "",
-            fromUser: (_d = user.username) !== null && _d !== void 0 ? _d : "",
-            fromUserId: (_e = user.id) !== null && _e !== void 0 ? _e : "",
-            fromUserImageUrl: (_f = user.fullImageUrl) !== null && _f !== void 0 ? _f : "",
-        },
-        fcmTokens: users
-            .filter((u) => u.id !== user.id)
-            .map((user) => user.fcm)
-            .filter((fcm) => !!fcm),
-        type: Notification_model_1.NotificationType.UserAddedTOGroupChat,
+    await addUsersNotifications({
+        user,
+        users: enUsers,
+        newGroupChat,
+        language: "en",
     });
     res.status(201).json({ newGroupChat });
 });
@@ -372,7 +382,6 @@ exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, 
     res.status(200).json({ groupChat });
 });
 exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
-    var _a, _b, _c, _d, _e, _f;
     const { id } = req.params;
     const user = req.user;
     const { usersIds } = req.body;
@@ -390,9 +399,14 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
         },
     });
     const usersFcm = [];
+    const arUsers = [];
+    const enUsers = [];
     const usersGroupChat = users.map((user) => {
-        if (user.fcm) {
-            usersFcm.push(user.fcm);
+        if (user.language === "ar") {
+            arUsers.push(user);
+        }
+        else {
+            enUsers.push(user);
         }
         return GroupsChatUsers_model_1.GroupsChatUsers.create({
             user,
@@ -420,28 +434,49 @@ exports.addUsersToGroupChat = (0, express_async_handler_1.default)(async (req, r
         },
     });
     websocket_1.default.sendNewGroupUpdate(groupChat);
-    const body = req.t("user_added_to_group_chat", {
-        username: user.username,
-        groupChatName: groupChat.name,
+    await addUsersNotifications({
+        user,
+        users: arUsers,
+        newGroupChat: groupChat,
+        language: "ar",
     });
-    await (0, sendNotification_1.sendAndCreateNotification)({
-        title: req.t("add_to_group_chat"),
-        body,
-        users,
-        group: groupChat,
-        data: {
-            groupChat: (_a = groupChat.name) !== null && _a !== void 0 ? _a : "",
-            groupChatId: (_b = groupChat.id) !== null && _b !== void 0 ? _b : "",
-            groupChatImageUrl: (_c = groupChat.fullImageUrl) !== null && _c !== void 0 ? _c : "",
-            fromUser: (_d = user.username) !== null && _d !== void 0 ? _d : "",
-            fromUserId: (_e = user.id) !== null && _e !== void 0 ? _e : "",
-            fromUserImageUrl: (_f = user.fullImageUrl) !== null && _f !== void 0 ? _f : "",
-        },
-        fcmTokens: usersFcm,
-        type: Notification_model_1.NotificationType.UserAddedTOGroupChat,
+    await addUsersNotifications({
+        user,
+        users: enUsers,
+        newGroupChat: groupChat,
+        language: "en",
     });
     res.status(200).json({ users: groupChatUsers });
 });
+const addUsersNotifications = async ({ language, user, newGroupChat, users, }) => {
+    var _a, _b, _c, _d, _e, _f;
+    if (users.length) {
+        const t = i18next_1.default.getFixedT(language);
+        const body = t("user_added_to_group_chat", {
+            username: user.username,
+            groupChatName: newGroupChat.name,
+        });
+        await (0, sendNotification_1.sendAndCreateNotification)({
+            title: t("add_to_group_chat"),
+            body,
+            users,
+            group: newGroupChat,
+            data: {
+                groupChat: (_a = newGroupChat.name) !== null && _a !== void 0 ? _a : "",
+                groupChatId: (_b = newGroupChat.id) !== null && _b !== void 0 ? _b : "",
+                groupChatImageUrl: (_c = newGroupChat.fullImageUrl) !== null && _c !== void 0 ? _c : "",
+                fromUser: (_d = user.username) !== null && _d !== void 0 ? _d : "",
+                fromUserId: (_e = user.id) !== null && _e !== void 0 ? _e : "",
+                fromUserImageUrl: (_f = user.fullImageUrl) !== null && _f !== void 0 ? _f : "",
+            },
+            fcmTokens: users
+                // .filter((u) => u.id !== user.id)
+                .map((user) => user.fcm)
+                .filter((fcm) => !!fcm),
+            type: Notification_model_1.NotificationType.UserAddedTOGroupChat,
+        });
+    }
+};
 exports.removeUsersfromGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const { usersIds } = req.body;
@@ -531,12 +566,24 @@ const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, re
 };
 exports.addNewMessage = addNewMessage;
 const sendNewMessageByNotification = async ({ message, groupChat, users, translate, }) => {
-    var _a, _b, _c, _d;
-    const body = translate("new_groupcaht_message");
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    const arUsers = [];
+    const enUsers = [];
+    users.map((user) => {
+        if (user.language === "ar") {
+            arUsers.push(user);
+        }
+        else {
+            enUsers.push(user);
+        }
+    });
+    const body = message.imageUrl || message.fileUrl || message.recordUrl || message.message;
     await (0, sendNotification_1.sendAndCreateNotification)({
-        title: translate("new_groupcaht_message"),
+        title: translate("new_groupcaht_message", {
+            lng: "en",
+        }),
         body,
-        users: users,
+        users: enUsers,
         // fromUser: user,
         group: groupChat,
         data: {
@@ -546,7 +593,26 @@ const sendNewMessageByNotification = async ({ message, groupChat, users, transla
             message: (_d = message.message) !== null && _d !== void 0 ? _d : "",
             // fromUser: user,
         },
-        fcmTokens: users.map((u) => u.fcm),
+        fcmTokens: enUsers.map((u) => u.fcm),
+        type: Notification_model_1.NotificationType.NewGroupChatMessage,
+        createNotification: false,
+    });
+    await (0, sendNotification_1.sendAndCreateNotification)({
+        title: translate("new_groupcaht_message", {
+            lng: "ar",
+        }),
+        body,
+        users: arUsers,
+        // fromUser: user,
+        group: groupChat,
+        data: {
+            groupChat: (_e = groupChat.name) !== null && _e !== void 0 ? _e : "",
+            groupChatId: (_f = groupChat.id) !== null && _f !== void 0 ? _f : "",
+            groupChatImageUrl: (_g = groupChat.fullImageUrl) !== null && _g !== void 0 ? _g : "",
+            message: (_h = message.message) !== null && _h !== void 0 ? _h : "",
+            // fromUser: user,
+        },
+        fcmTokens: arUsers.map((u) => u.fcm),
         type: Notification_model_1.NotificationType.NewGroupChatMessage,
         createNotification: false,
     });

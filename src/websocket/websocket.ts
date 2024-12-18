@@ -5,6 +5,7 @@ import { GroupsChat } from "../models/GroupsChat.model";
 import { In, Not } from "typeorm";
 import { Notification } from "../models/Notification.model";
 import { httpLogger } from "../utils/logger";
+import { GroupsChatUsers } from "../models/GroupsChatUsers.model";
 
 const WEBSOCKET_CORS = {
   origin: "*",
@@ -56,21 +57,19 @@ class Websocket extends Server {
       ...this.getroomUsers(roomId).map((u) => u.id),
       excludeId,
     ];
-    console.log("excludeUSersIdssssss", excludeUserIds);
-    console.log("room usersssss", this.getroomUsers(roomId));
-    return await User.find({
+
+    const groupsUser = await GroupsChatUsers.find({
       where: {
-        id: Not(In(excludeUserIds)),
-        userGroupsChats: {
-          acceptJoin: true,
+        user: {
+          id: Not(In(excludeUserIds)),
+        },
+        groupChat: {
           id: roomId,
         },
       },
-      relations: {
-        userGroupsChats: true,
-      },
-      select: ["id", "fcm", "imageUrl", "userGroupsChats", "username", "email"],
+      relations: ["user"],
     });
+    return groupsUser.map((groupsUser) => groupsUser.user);
   }
 
   public static async sendNotificationsCount(userId: string) {

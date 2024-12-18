@@ -148,7 +148,7 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
 exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
-    const { name, image, fileUrl, link, content, categoryId, localPath } = req.body;
+    const { name, image } = req.body;
     const book = await Books_model_1.Book.getUserBookById(user.id, id);
     if (!book) {
         return next(new ApiError_1.default(req.t("book_not_found"), 400));
@@ -156,18 +156,15 @@ exports.updateBook = (0, express_async_handler_1.default)(async (req, res, next)
     book.name = name;
     if (image)
         book.imageUrl = image;
-    if (fileUrl)
-        book.fileUrl = fileUrl;
-    if (link)
-        book.link = link;
-    if (localPath)
-        book.localPath = localPath;
-    book.content = content;
-    const category = await Categories_model_1.Category.getUserCategoryById(user.id, categoryId);
-    if (!category) {
-        return next(new ApiError_1.default(req.t("category_not_found"), 400));
-    }
-    book.category = category;
+    // if (fileUrl) book.fileUrl = fileUrl;
+    // if (link) book.link = link;
+    // if (localPath) book.localPath = localPath;
+    // book.content = content;
+    // const category = await Category.getUserCategoryById(user.id, categoryId);
+    // if (!category) {
+    //   return next(new ApiError(req.t("category_not_found"), 400));
+    // }
+    // book.category = category;
     await book.save();
     res.status(200).json({ book });
 });

@@ -70,6 +70,14 @@ exports.getFacebookUserData = getFacebookUserData;
 // Client Secret : NhFaufYO6Ppni5oISC23b51t0jo2L8mF5FGR69PR9iBiUawdK7
 // apiKey: g5pNEhu4anTFZwsgxA3BJLwM0
 // apiSecretKey: SzK1pSu7BYKb1FPlHr9bPEVxVyIHqfsapFptITNEyZww4jy4LC
+// ***
+// api key:iuuKoFJr4yuomY59WODVhH0zl
+// api key secret:ssY0zEw8kDTXzHVyghT6OkGtVIT9xrLmKMb1VwS9mItnS6oHVz
+// bearer token: AAAAAAAAAAAAAAAAAAAAACplxgEAAAAAZS0zVycba%2FE%2FE72LyrEnBjHFtuk%3Db6tWw38g3R2mtlWqjFLTIzYspTIq38vIcoMKTsc6psiHmVpeXU
+// access token: 1868991708572037120-KEPUF1YiqBHTm3IHGFBpqsN5MuANlV
+//acces token secret: v1660wHYK8m3tSPRPSKtnUQQWnv2ITIOzOYNWqIFWY5Y0
+// client id: QU9scmJNR3MyVTBidjBFRHZneEQ6MTpjaQ
+// client secret: Drv2Z7dcmglW_bKNPYjdHNRACvkA5LRp45SC7zzESlgRXNHU7o
 const twitterClient = new twitter_api_v2_1.TwitterApi({
     appKey: "your-app-key", // Replace with your App Key
     appSecret: "your-app-secret", // Replace with your App Secret

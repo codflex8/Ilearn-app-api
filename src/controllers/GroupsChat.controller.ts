@@ -17,7 +17,7 @@ import { GroupsChatMessages } from "../models/GroupsChatMessages.model";
 import { containsLink } from "../utils/extractLing";
 import Websocket from "../websocket/websocket";
 import { sendAndCreateNotification } from "../utils/sendNotification";
-import { TFunction } from "i18next";
+import i18next, { TFunction } from "i18next";
 import { Notification, NotificationType } from "../models/Notification.model";
 
 interface GroupsChatQuery extends BaseQuery {
@@ -96,10 +96,13 @@ export const acceptJoinGroup = asyncHandler(
       },
       relations: { user: true },
     });
-    const title = req.t("user_accept_join_title");
+    const title = req.t("user_accept_join_title", {
+      lng: groupAdmin.user.language,
+    });
     const body = req.t("user_accept_join_group", {
       username: user.username,
       name: groupChat.name,
+      lng: groupAdmin.user.language,
     });
     await sendAndCreateNotification({
       title,
@@ -188,9 +191,10 @@ export const acceptJoinRequest = asyncHandler(
     }
     const body = req.t("admin_accept_join_body", {
       name: groupChat.name,
+      lng: addedUser.language,
     });
     await sendAndCreateNotification({
-      title: req.t("admin_accept_join_title"),
+      title: req.t("admin_accept_join_title", { lng: addedUser.language }),
       body,
       users: [addedUser],
       fromUser: user,
@@ -235,9 +239,12 @@ export const joinGroup = asyncHandler(
     // send notification to group admin
     const body = req.t("user_request_to_join_group_chat", {
       username: user.username,
+      lng: groupAdmin.user.language,
     });
     await sendAndCreateNotification({
-      title: req.t("join_group_chat_request"),
+      title: req.t("join_group_chat_request", {
+        lng: groupAdmin.user.language,
+      }),
       body,
       users: [groupAdmin.user],
       fromUser: user,
@@ -269,7 +276,7 @@ export const createGroupChat = asyncHandler(
     const user = req.user;
     const users = await User.find({
       where: {
-        id: In([...(usersIds ?? []), user.id]),
+        id: In([...(usersIds ?? [])]),
       },
     });
     const newGroupChat = GroupsChat.create({
@@ -277,42 +284,44 @@ export const createGroupChat = asyncHandler(
       imageUrl: image,
     });
     await newGroupChat.save();
-    const usersGroupChat = users.map((currentUser) =>
-      GroupsChatUsers.create({
+    const arUsers = [];
+    const enUsers = [];
+    const usersGroupChat = users.map((currentUser) => {
+      if (currentUser.language === "ar") {
+        arUsers.push(currentUser);
+      } else {
+        enUsers.push(currentUser);
+      }
+      return GroupsChatUsers.create({
         user: currentUser,
         groupChat: newGroupChat,
         acceptJoin: user.id === currentUser.id,
-        role:
-          user.id === currentUser.id
-            ? GroupChatRoles.Admin
-            : GroupChatRoles.Member,
+        role: GroupChatRoles.Member,
+      });
+    });
+    usersGroupChat.push(
+      GroupsChatUsers.create({
+        user,
+        groupChat: newGroupChat,
+        acceptJoin: true,
+        role: GroupChatRoles.Admin,
       })
     );
 
     await GroupsChatUsers.save(usersGroupChat);
-    const body = req.t("user_added_to_group_chat", {
-      username: user.username,
-      groupChatName: newGroupChat.name,
+    await addUsersNotifications({
+      user,
+      users: arUsers,
+      newGroupChat,
+      language: "ar",
     });
-    await sendAndCreateNotification({
-      title: req.t("add_to_group_chat"),
-      body,
-      users,
-      group: newGroupChat,
-      data: {
-        groupChat: newGroupChat.name ?? "",
-        groupChatId: newGroupChat.id ?? "",
-        groupChatImageUrl: newGroupChat.fullImageUrl ?? "",
-        fromUser: user.username ?? "",
-        fromUserId: user.id ?? "",
-        fromUserImageUrl: user.fullImageUrl ?? "",
-      },
-      fcmTokens: users
-        .filter((u) => u.id !== user.id)
-        .map((user) => user.fcm)
-        .filter((fcm) => !!fcm),
-      type: NotificationType.UserAddedTOGroupChat,
+    await addUsersNotifications({
+      user,
+      users: enUsers,
+      newGroupChat,
+      language: "en",
     });
+
     res.status(201).json({ newGroupChat });
   }
 );
@@ -464,9 +473,13 @@ export const addUsersToGroupChat = asyncHandler(
     });
 
     const usersFcm: string[] = [];
+    const arUsers = [];
+    const enUsers = [];
     const usersGroupChat = users.map((user) => {
-      if (user.fcm) {
-        usersFcm.push(user.fcm);
+      if (user.language === "ar") {
+        arUsers.push(user);
+      } else {
+        enUsers.push(user);
       }
       return GroupsChatUsers.create({
         user,
@@ -495,29 +508,61 @@ export const addUsersToGroupChat = asyncHandler(
       },
     });
     Websocket.sendNewGroupUpdate(groupChat);
-    const body = req.t("user_added_to_group_chat", {
-      username: user.username,
-      groupChatName: groupChat.name,
+
+    await addUsersNotifications({
+      user,
+      users: arUsers,
+      newGroupChat: groupChat,
+      language: "ar",
     });
-    await sendAndCreateNotification({
-      title: req.t("add_to_group_chat"),
-      body,
-      users,
-      group: groupChat,
-      data: {
-        groupChat: groupChat.name ?? "",
-        groupChatId: groupChat.id ?? "",
-        groupChatImageUrl: groupChat.fullImageUrl ?? "",
-        fromUser: user.username ?? "",
-        fromUserId: user.id ?? "",
-        fromUserImageUrl: user.fullImageUrl ?? "",
-      },
-      fcmTokens: usersFcm,
-      type: NotificationType.UserAddedTOGroupChat,
+    await addUsersNotifications({
+      user,
+      users: enUsers,
+      newGroupChat: groupChat,
+      language: "en",
     });
     res.status(200).json({ users: groupChatUsers });
   }
 );
+
+const addUsersNotifications = async ({
+  language,
+  user,
+  newGroupChat,
+  users,
+}: {
+  language: string;
+  user: User;
+  newGroupChat: GroupsChat;
+  users: User[];
+}) => {
+  if (users.length) {
+    const t = i18next.getFixedT(language);
+    const body = t("user_added_to_group_chat", {
+      username: user.username,
+      groupChatName: newGroupChat.name,
+    });
+    await sendAndCreateNotification({
+      title: t("add_to_group_chat"),
+      body,
+      users,
+      group: newGroupChat,
+      data: {
+        groupChat: newGroupChat.name ?? "",
+        groupChatId: newGroupChat.id ?? "",
+        groupChatImageUrl: newGroupChat.fullImageUrl ?? "",
+        fromUser: user.username ?? "",
+        fromUserId: user.id ?? "",
+        fromUserImageUrl: user.fullImageUrl ?? "",
+      },
+      fcmTokens: users
+        // .filter((u) => u.id !== user.id)
+        .map((user) => user.fcm)
+        .filter((fcm) => !!fcm),
+      type: NotificationType.UserAddedTOGroupChat,
+    });
+  }
+};
 
 export const removeUsersfromGroupChat = asyncHandler(
   async (
@@ -657,11 +702,23 @@ export const sendNewMessageByNotification = async ({
   users: User[];
   translate: TFunction;
 }) => {
-  const body = translate("new_groupcaht_message");
+  const arUsers = [];
+  const enUsers = [];
+  users.map((user) => {
+    if (user.language === "ar") {
+      arUsers.push(user);
+    } else {
+      enUsers.push(user);
+    }
+  });
+  const body =
+    message.imageUrl || message.fileUrl || message.recordUrl || message.message;
   await sendAndCreateNotification({
-    title: translate("new_groupcaht_message"),
+    title: translate("new_groupcaht_message", {
+      lng: "en",
+    }),
     body,
-    users: users,
+    users: enUsers,
     // fromUser: user,
     group: groupChat,
     data: {
@@ -671,7 +728,26 @@ export const sendNewMessageByNotification = async ({
       message: message.message ?? "",
       // fromUser: user,
     },
-    fcmTokens: users.map((u) => u.fcm),
+    fcmTokens: enUsers.map((u) => u.fcm),
+    type: NotificationType.NewGroupChatMessage,
+    createNotification: false,
+  });
+  await sendAndCreateNotification({
+    title: translate("new_groupcaht_message", {
+      lng: "ar",
+    }),
+    body,
+    users: arUsers,
+    // fromUser: user,
+    group: groupChat,
+    data: {
+      groupChat: groupChat.name ?? "",
+      groupChatId: groupChat.id ?? "",
+      groupChatImageUrl: groupChat.fullImageUrl ?? "",
+      message: message.message ?? "",
+      // fromUser: user,
+    },
+    fcmTokens: arUsers.map((u) => u.fcm),
     type: NotificationType.NewGroupChatMessage,
     createNotification: false,
   });

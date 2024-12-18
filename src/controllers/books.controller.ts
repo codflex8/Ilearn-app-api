@@ -165,23 +165,22 @@ export const updateBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     const user = req.user;
-    const { name, image, fileUrl, link, content, categoryId, localPath } =
-      req.body;
+    const { name, image } = req.body;
     const book = await Book.getUserBookById(user.id, id);
     if (!book) {
       return next(new ApiError(req.t("book_not_found"), 400));
     }
     book.name = name;
     if (image) book.imageUrl = image;
-    if (fileUrl) book.fileUrl = fileUrl;
-    if (link) book.link = link;
-    if (localPath) book.localPath = localPath;
-    book.content = content;
-    const category = await Category.getUserCategoryById(user.id, categoryId);
-    if (!category) {
-      return next(new ApiError(req.t("category_not_found"), 400));
-    }
-    book.category = category;
+    // if (fileUrl) book.fileUrl = fileUrl;
+    // if (link) book.link = link;
+    // if (localPath) book.localPath = localPath;
+    // book.content = content;
+    // const category = await Category.getUserCategoryById(user.id, categoryId);
+    // if (!category) {
+    //   return next(new ApiError(req.t("category_not_found"), 400));
+    // }
+    // book.category = category;
     await book.save();
     res.status(200).json({ book });
   }

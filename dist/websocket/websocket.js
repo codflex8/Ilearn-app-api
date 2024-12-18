@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const socket_io_1 = require("socket.io");
-const User_model_1 = require("../models/User.model");
 const typeorm_1 = require("typeorm");
 const Notification_model_1 = require("../models/Notification.model");
 const logger_1 = require("../utils/logger");
+const GroupsChatUsers_model_1 = require("../models/GroupsChatUsers.model");
 const WEBSOCKET_CORS = {
     origin: "*",
     // methods: ["GET", "POST"],
@@ -40,21 +40,18 @@ class Websocket extends socket_io_1.Server {
             ...this.getroomUsers(roomId).map((u) => u.id),
             excludeId,
         ];
-        console.log("excludeUSersIdssssss", excludeUserIds);
-        console.log("room usersssss", this.getroomUsers(roomId));
-        return await User_model_1.User.find({
+        const groupsUser = await GroupsChatUsers_model_1.GroupsChatUsers.find({
             where: {
-                id: (0, typeorm_1.Not)((0, typeorm_1.In)(excludeUserIds)),
-                userGroupsChats: {
-                    acceptJoin: true,
+                user: {
+                    id: (0, typeorm_1.Not)((0, typeorm_1.In)(excludeUserIds)),
+                },
+                groupChat: {
                     id: roomId,
                 },
             },
-            relations: {
-                userGroupsChats: true,
-            },
-            select: ["id", "fcm", "imageUrl", "userGroupsChats", "username", "email"],
+            relations: ["user"],
         });
+        return groupsUser.map((groupsUser) => groupsUser.user);
     }
     static async sendNotificationsCount(userId) {
         const unseenNotificationsCount = await Notification_model_1.Notification.getUnseenNotifications(userId);

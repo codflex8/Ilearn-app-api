@@ -5,6 +5,7 @@ const GroupsChat_controller_1 = require("../controllers/GroupsChat.controller");
 const uploadFiles_1 = require("../middleware/uploadFiles");
 const validationMiddleware_1 = require("../middleware/validationMiddleware");
 const GroupsChatValidator_1 = require("../utils/validators/GroupsChatValidator");
+const report_controller_1 = require("../controllers/report.controller");
 const router = (0, express_1.Router)();
 router.get("/", GroupsChat_controller_1.getGroupsChat);
 router.post("/", uploadFiles_1.upload.single("image"), (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.addGroupChatValidator), GroupsChat_controller_1.createGroupChat);
@@ -25,5 +26,7 @@ router.post("/:id/join-group", GroupsChat_controller_1.joinGroup);
 router.post("/:id/accept-join", GroupsChat_controller_1.acceptJoinGroup);
 router.post("/:id/accept-user-join", (0, validationMiddleware_1.validateData)(GroupsChatValidator_1.acceptJoinRequestValidator), GroupsChat_controller_1.acceptJoinRequest);
 router.post("/:id/leave", GroupsChat_controller_1.leaveGroupChat);
+router.post("/:id/report", report_controller_1.addReport);
+router.get("/:id/report", report_controller_1.getReports);
 exports.default = router;
 //# sourceMappingURL=groupsChat.router.js.map
