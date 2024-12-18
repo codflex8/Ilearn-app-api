@@ -250,11 +250,13 @@ exports.createGroupChat = (0, express_async_handler_1.default)(async (req, res, 
     const arUsers = [];
     const enUsers = [];
     const usersGroupChat = users.map((currentUser) => {
-        if (currentUser.language === "ar") {
-            arUsers.push(currentUser);
-        }
-        else {
-            enUsers.push(currentUser);
+        if (user.id !== currentUser.id) {
+            if (currentUser.language === "ar") {
+                arUsers.push(currentUser);
+            }
+            else {
+                enUsers.push(currentUser);
+            }
         }
         return GroupsChatUsers_model_1.GroupsChatUsers.create({
             user: currentUser,

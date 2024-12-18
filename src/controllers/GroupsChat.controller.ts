@@ -287,11 +287,14 @@ export const createGroupChat = asyncHandler(
     const arUsers = [];
     const enUsers = [];
     const usersGroupChat = users.map((currentUser) => {
-      if (currentUser.language === "ar") {
-        arUsers.push(currentUser);
-      } else {
-        enUsers.push(currentUser);
+      if (user.id !== currentUser.id) {
+        if (currentUser.language === "ar") {
+          arUsers.push(currentUser);
+        } else {
+          enUsers.push(currentUser);
+        }
       }
+
       return GroupsChatUsers.create({
         user: currentUser,
         groupChat: newGroupChat,
