@@ -17,7 +17,7 @@ router.post("/google/signup", (0, validationMiddleware_1.validateData)(AuthValid
 router.post("/google/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.googleAuthSignIn);
 router.post("/facebook/signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.facebookAuthSignUp);
 router.post("/facebook/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.facebookAuthSignIn);
-router.post("/twitter/signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.twitterAuthSignUp);
-router.post("/twitter/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.twitterAuthSignIn);
+router.post("/twitter/signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.twitterAuthValidator), authentication_controller_1.twitterAuthSignUp);
+router.post("/twitter/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.twitterAuthValidator), authentication_controller_1.twitterAuthSignIn);
 exports.default = router;
 //# sourceMappingURL=authentication.router.js.map

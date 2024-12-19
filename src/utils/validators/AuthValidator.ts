@@ -39,6 +39,11 @@ export const socialMediaAuthValidator = z.object({
   token: z.string(),
 });
 
+export const twitterAuthValidator = z.object({
+  authToken: z.string(),
+  authTokenSecret: z.string(),
+});
+
 export const addFcmValidation = z.object({
   fcm: z.string(),
 });

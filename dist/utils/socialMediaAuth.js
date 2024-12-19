@@ -84,7 +84,7 @@ const twitterClient = new twitter_api_v2_1.TwitterApi({
     appKey: "your-app-key", // Replace with your App Key
     appSecret: "your-app-secret", // Replace with your App Secret
 });
-const getTwitterUserData = async (accessToken, accessTokenSecret) => {
+const getTwitterUserData = async (authToken, authTokenSecret) => {
     // const userUrl = "https://api.twitter.com/2/users/me";
     // const twitterClient = new TwitterApi({
     //   accessToken:"1868991708572037120-KEPUF1YiqBHTm3IHGFBpqsN5MuANlV",
@@ -104,8 +104,8 @@ const getTwitterUserData = async (accessToken, accessTokenSecret) => {
         const client = new twitter_lite_1.default({
             consumer_key: "g5pNEhu4anTFZwsgxA3BJLwM0",
             consumer_secret: "SzK1pSu7BYKb1FPlHr9bPEVxVyIHqfsapFptITNEyZww4jy4LC",
-            access_token_key: accessToken,
-            access_token_secret: accessTokenSecret,
+            access_token_key: authToken,
+            access_token_secret: authTokenSecret,
             // access_token_key: "1777851158435876864-KJkiuJ9DclqzySOO1bgVMyxN82sY5M",
             // access_token_secret: "XtyM7pztrkXES9tp6eyX2soN0gOxmhZG3CauaMfD7HJJu",
         });

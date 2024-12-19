@@ -111,18 +111,17 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
     logger_1.httpLogger.info("upload new book", { fileData });
     try {
         if (!fileData && !link) {
-            console.log("fileData", fileData);
             return next(new ApiError_1.default(req.t("something_wrong_with_file_data"), 400));
         }
         const user = req.user;
         const book = Books_model_1.Book.create({
             name,
             imageUrl: image !== null && image !== void 0 ? image : null,
-            fileUrl: fileData.location,
+            fileUrl: fileData === null || fileData === void 0 ? void 0 : fileData.location,
             link,
             content,
             user,
-            s3Key: fileData.key,
+            s3Key: fileData === null || fileData === void 0 ? void 0 : fileData.key,
             localPath,
         });
         if (categoryId) {

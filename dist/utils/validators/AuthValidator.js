@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addFcmValidation = exports.socialMediaAuthValidator = exports.resetPasswordValidator = exports.verifyForgetPasswordValidator = exports.forgetPasswordValidator = exports.signUpValidator = exports.signInValidator = exports.LanguageEnum = exports.GenderEnum = void 0;
+exports.addFcmValidation = exports.twitterAuthValidator = exports.socialMediaAuthValidator = exports.resetPasswordValidator = exports.verifyForgetPasswordValidator = exports.forgetPasswordValidator = exports.signUpValidator = exports.signInValidator = exports.LanguageEnum = exports.GenderEnum = void 0;
 const zod_1 = require("zod");
 var GenderEnum;
 (function (GenderEnum) {
@@ -34,6 +34,10 @@ exports.resetPasswordValidator = zod_1.z.object({
 });
 exports.socialMediaAuthValidator = zod_1.z.object({
     token: zod_1.z.string(),
+});
+exports.twitterAuthValidator = zod_1.z.object({
+    authToken: zod_1.z.string(),
+    authTokenSecret: zod_1.z.string(),
 });
 exports.addFcmValidation = zod_1.z.object({
     fcm: zod_1.z.string(),

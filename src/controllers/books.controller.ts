@@ -122,18 +122,17 @@ export const addBook = asyncHandler(
     httpLogger.info("upload new book", { fileData });
     try {
       if (!fileData && !link) {
-        console.log("fileData", fileData);
         return next(new ApiError(req.t("something_wrong_with_file_data"), 400));
       }
       const user = req.user;
       const book = Book.create({
         name,
         imageUrl: image ?? null,
-        fileUrl: fileData.location,
+        fileUrl: fileData?.location,
         link,
         content,
         user,
-        s3Key: fileData.key,
+        s3Key: fileData?.key,
         localPath,
       });
       if (categoryId) {

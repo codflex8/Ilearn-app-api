@@ -23,6 +23,7 @@ import {
   signInValidator,
   signUpValidator,
   verifyForgetPasswordValidator,
+  twitterAuthValidator,
 } from "../utils/validators/AuthValidator";
 import { upload } from "../middleware/uploadFiles";
 
@@ -78,12 +79,12 @@ router.post(
 
 router.post(
   "/twitter/signup",
-  validateData(socialMediaAuthValidator),
+  validateData(twitterAuthValidator),
   twitterAuthSignUp
 );
 router.post(
   "/twitter/signin",
-  validateData(socialMediaAuthValidator),
+  validateData(twitterAuthValidator),
   twitterAuthSignIn
 );
 
