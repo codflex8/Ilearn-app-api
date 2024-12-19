@@ -20,7 +20,7 @@
     "chatbot_message_not_found": "Chatbot message not found.",
     "question_not_found": "Question not found.",
     "toggle_bookmark_success": "Toggle bookmark successful.",
-    "something_wrong_with_file_data": "Something wrong with the file data.",
+    "something_wrong_with_file_data": "Something wrong with the file data or link.",
     "category_not_found": "Category not found.",
     "book_not_found": "Book not found.",
     "delete_success": "Delete successful.",

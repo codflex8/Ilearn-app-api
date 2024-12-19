@@ -110,7 +110,7 @@ exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) =>
     const fileData = (_a = req.files["file"]) === null || _a === void 0 ? void 0 : _a[0];
     logger_1.httpLogger.info("upload new book", { fileData });
     try {
-        if (!fileData) {
+        if (!fileData && !link) {
             console.log("fileData", fileData);
             return next(new ApiError_1.default(req.t("something_wrong_with_file_data"), 400));
         }

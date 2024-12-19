@@ -121,7 +121,7 @@ export const addBook = asyncHandler(
     const fileData = req.files["file"]?.[0];
     httpLogger.info("upload new book", { fileData });
     try {
-      if (!fileData) {
+      if (!fileData && !link) {
         console.log("fileData", fileData);
         return next(new ApiError(req.t("something_wrong_with_file_data"), 400));
       }
