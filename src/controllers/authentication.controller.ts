@@ -320,7 +320,9 @@ export const googleAuthSignIn = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
   const userData = await verifyGoogleAuth(token);
 
-  const user = await User.getPublicUserDataByEmail({ email: userData.email });
+  const user = await User.getPublicUserDataByEmail({
+    googleId: userData.userId,
+  });
   if (!user) {
     return next(new ApiError(req.t("user_email_not_exist"), 409));
   }
@@ -378,8 +380,11 @@ export const facebookAuthSignIn = asyncHandler(async (req, res, next) => {
 });
 
 export const twitterAuthSignUp = asyncHandler(async (req, res, next) => {
-  const { token } = req.body;
-  const { email, username, imageUrl, userId } = await getTwitterUserData(token);
+  const { authToken, authTokenSecret } = req.body;
+  const { email, username, imageUrl, userId } = await getTwitterUserData(
+    authToken,
+    authTokenSecret
+  );
   const isUserExist = await User.findOne({
     where: [
       {
@@ -402,23 +407,25 @@ export const twitterAuthSignUp = asyncHandler(async (req, res, next) => {
     imageUrl,
     twitterId: userId,
   });
-  const authToken = createToken(newUser.id);
+  const token = createToken(newUser.id);
   res.status(201).json({
     message: req.t("twitter_signup_success"),
     user: newUser,
-    token: authToken,
+    token,
   });
 });
 
 export const twitterAuthSignIn = asyncHandler(async (req, res, next) => {
-  const { token } = req.body;
-  const userData = await getTwitterUserData(token);
+  const { authToken, authTokenSecret } = req.body;
+  const userData = await getTwitterUserData(authToken, authTokenSecret);
 
-  const user = await User.getPublicUserDataByEmail({ email: userData.email });
+  const user = await User.getPublicUserDataByEmail({
+    twitterId: userData.userId,
+  });
   if (!user) {
     return next(new ApiError(req.t("user_email_not_exist"), 409));
   }
 
-  const authToken = createToken(user.id);
-  res.status(201).json({ user, token: authToken });
+  const token = createToken(user.id);
+  res.status(201).json({ user, token });
 });

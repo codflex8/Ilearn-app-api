@@ -276,7 +276,9 @@ exports.googleAuthSignUp = (0, express_async_handler_1.default)(async (req, res,
 exports.googleAuthSignIn = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { token } = req.body;
     const userData = await (0, socialMediaAuth_1.verifyGoogleAuth)(token);
-    const user = await User_model_1.User.getPublicUserDataByEmail({ email: userData.email });
+    const user = await User_model_1.User.getPublicUserDataByEmail({
+        googleId: userData.userId,
+    });
     if (!user) {
         return next(new ApiError_1.default(req.t("user_email_not_exist"), 409));
     }
@@ -326,8 +328,8 @@ exports.facebookAuthSignIn = (0, express_async_handler_1.default)(async (req, re
     res.status(201).json({ user, token: authToken });
 });
 exports.twitterAuthSignUp = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const { token } = req.body;
-    const { email, username, imageUrl, userId } = await (0, socialMediaAuth_1.getTwitterUserData)(token);
+    const { authToken, authTokenSecret } = req.body;
+    const { email, username, imageUrl, userId } = await (0, socialMediaAuth_1.getTwitterUserData)(authToken, authTokenSecret);
     const isUserExist = await User_model_1.User.findOne({
         where: [
             {
@@ -350,21 +352,23 @@ exports.twitterAuthSignUp = (0, express_async_handler_1.default)(async (req, res
         imageUrl,
         twitterId: userId,
     });
-    const authToken = (0, createToken_1.createToken)(newUser.id);
+    const token = (0, createToken_1.createToken)(newUser.id);
     res.status(201).json({
         message: req.t("twitter_signup_success"),
         user: newUser,
-        token: authToken,
+        token,
     });
 });
 exports.twitterAuthSignIn = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const { token } = req.body;
-    const userData = await (0, socialMediaAuth_1.getTwitterUserData)(token);
-    const user = await User_model_1.User.getPublicUserDataByEmail({ email: userData.email });
+    const { authToken, authTokenSecret } = req.body;
+    const userData = await (0, socialMediaAuth_1.getTwitterUserData)(authToken, authTokenSecret);
+    const user = await User_model_1.User.getPublicUserDataByEmail({
+        twitterId: userData.userId,
+    });
     if (!user) {
         return next(new ApiError_1.default(req.t("user_email_not_exist"), 409));
     }
-    const authToken = (0, createToken_1.createToken)(user.id);
-    res.status(201).json({ user, token: authToken });
+    const token = (0, createToken_1.createToken)(user.id);
+    res.status(201).json({ user, token });
 });
 //# sourceMappingURL=authentication.controller.js.map

@@ -3,6 +3,7 @@ import { OAuth2Client } from "google-auth-library";
 import ApiError from "./ApiError";
 import { TwitterApi } from "twitter-api-v2";
 import { auth, Client } from "twitter-api-sdk";
+import Twitter from "twitter-lite";
 export class SocialMediaUserData {
   constructor(
     public username: string,
@@ -88,13 +89,22 @@ export const getFacebookUserData = async (
 //acces token secret: v1660wHYK8m3tSPRPSKtnUQQWnv2ITIOzOYNWqIFWY5Y0
 // client id: QU9scmJNR3MyVTBidjBFRHZneEQ6MTpjaQ
 // client secret: Drv2Z7dcmglW_bKNPYjdHNRACvkA5LRp45SC7zzESlgRXNHU7o
+// Drv2Z7dcmglW_bKNPYjdHNRACvkA5LRp45SC7zzESlgRXNHU7o
 
 const twitterClient = new TwitterApi({
   appKey: "your-app-key", // Replace with your App Key
   appSecret: "your-app-secret", // Replace with your App Secret
 });
-export const getTwitterUserData = async (accessToken: string): Promise<any> => {
-  const userUrl = "https://api.twitter.com/2/users/me";
+export const getTwitterUserData = async (
+  accessToken: string,
+  accessTokenSecret: string
+): Promise<any> => {
+  // const userUrl = "https://api.twitter.com/2/users/me";
+  // const twitterClient = new TwitterApi({
+  //   accessToken:"1868991708572037120-KEPUF1YiqBHTm3IHGFBpqsN5MuANlV",
+  //   accessSecret: "v1660wHYK8m3tSPRPSKtnUQQWnv2ITIOzOYNWqIFWY5Y0",
+  // });
+
   // const authClient = new auth.OAuth2User({
   //   client_id: "UVZ0Yk9rdDJjZEw4TEh5aExKUDU6MTpjaQ",
   //   client_secret: "NhFaufYO6Ppni5oISC23b51t0jo2L8mF5FGR69PR9iBiUawdK7",
@@ -107,13 +117,36 @@ export const getTwitterUserData = async (accessToken: string): Promise<any> => {
   // authClient.getAuthHeader
 
   try {
-    const twitterClient = new TwitterApi({
-      appKey: "g5pNEhu4anTFZwsgxA3BJLwM0",
-      appSecret: "SzK1pSu7BYKb1FPlHr9bPEVxVyIHqfsapFptITNEyZww4jy4LC",
-      accessToken,
+    const client = new Twitter({
+      consumer_key: "g5pNEhu4anTFZwsgxA3BJLwM0",
+      consumer_secret: "SzK1pSu7BYKb1FPlHr9bPEVxVyIHqfsapFptITNEyZww4jy4LC",
+      access_token_key: accessToken,
+      access_token_secret: accessTokenSecret,
+      // access_token_key: "1777851158435876864-KJkiuJ9DclqzySOO1bgVMyxN82sY5M",
+      // access_token_secret: "XtyM7pztrkXES9tp6eyX2soN0gOxmhZG3CauaMfD7HJJu",
     });
-    const userData = await twitterClient.v2.me();
-    console.log("userDataaaaaaaa", userData);
+    const user = await client.get("account/verify_credentials", {
+      include_email: true,
+    });
+    console.log("userrrrrrr", user);
+
+    // const twitterClient = new TwitterApi({
+    //   clientId: "UVZ0Yk9rdDJjZEw4TEh5aExKUDU6MTpjaQ",
+    //   clientSecret: "NhFaufYO6Ppni5oISC23b51t0jo2L8mF5FGR69PR9iBiUawdK7",
+    //   // appKey: "g5pNEhu4anTFZwsgxA3BJLwM0",
+    //   // appSecret: "SzK1pSu7BYKb1FPlHr9bPEVxVyIHqfsapFptITNEyZww4jy4LC",
+    //   // accessToken,
+    // });
+    // twitterClient.loginWithOAuth2().then(async ({ client: loggedClient, accessToken, refreshToken, expiresIn }) => {
+    //   // {loggedClient} is an authenticated client in behalf of some user
+    //   // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
+    //   // If you want to refresh your token later, store {refreshToken} (it is present if 'offline.access' has been given as scope)
+
+    //   // Example request
+    //   const { data: userObject } = await loggedClient.v2.me();
+    // // })
+    // const userData = await twitterClient.v2.me();
+    // console.log("userDataaaaaaaa", userData);
     // const authenticatedClient = new TwitterApi(accessToken);
 
     // // Fetch the authenticated user's data
@@ -144,10 +177,10 @@ export const getTwitterUserData = async (accessToken: string): Promise<any> => {
     // // return userData;
     // console.log("twitter responseee", response.data);
     return new SocialMediaUserData(
-      userData.data.name,
-      userData.data.profile_image_url,
+      user.name,
+      user.profile_image_url,
       null,
-      userData.data.id
+      user.id
     );
   } catch (error: any) {
     console.error("Error fetching Twitter user data:", error);
