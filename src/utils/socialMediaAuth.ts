@@ -1,8 +1,5 @@
 import axios from "axios";
-import { OAuth2Client } from "google-auth-library";
 import ApiError from "./ApiError";
-import { TwitterApi } from "twitter-api-v2";
-import { auth, Client } from "twitter-api-sdk";
 import Twitter from "twitter-lite";
 import { httpLogger } from "./logger";
 export class SocialMediaUserData {
@@ -14,7 +11,6 @@ export class SocialMediaUserData {
   ) {}
 }
 
-const client = new OAuth2Client();
 export const verifyGoogleAuth = async (token: string) => {
   try {
     const response = await axios.get(
@@ -25,20 +21,10 @@ export const verifyGoogleAuth = async (token: string) => {
         },
       }
     );
-    // console.log(response.data.data);
-    console.log("tokennnnnn", token);
-    // const ticket = await client.verifyIdToken({
-    //   idToken: token,
-    //   audience: process.env.GOOGLE_CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
-    //   // Or, if multiple clients access the backend:
-    //   //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-    // });
-    // const payload = ticket.getPayload();
-    // const userid = payload["sub"];
+    httpLogger.info("twitter user data", { data: response.data });
+
     const { email, name, picture, sub } = response.data;
     return new SocialMediaUserData(name, picture, email, sub);
-    // If the request specified a Google Workspace domain:
-    // const domain = payload['hd'];
   } catch (error: any) {
     console.log(error);
     console.error("Error fetching Google user data:", error.message, error);
@@ -61,7 +47,7 @@ export const getFacebookUserData = async (
         access_token: accessToken,
       },
     });
-    console.log(response.data);
+    httpLogger.info("twitter user data", { data: response.data });
     return new SocialMediaUserData(
       response.data.name,
       response.data.picture?.data?.url,

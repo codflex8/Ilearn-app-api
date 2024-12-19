@@ -7,6 +7,7 @@ import {
   googleAuthSignUp,
   protect,
   refreshToken,
+  resendVerifyCode,
   resetPassword,
   signIn,
   signOut,
@@ -14,6 +15,7 @@ import {
   twitterAuthSignIn,
   twitterAuthSignUp,
   verifyPassResetCode,
+  verifyUserEmail,
 } from "../controllers/authentication.controller";
 import { validateData } from "../middleware/validationMiddleware";
 import {
@@ -24,6 +26,7 @@ import {
   signUpValidator,
   verifyForgetPasswordValidator,
   twitterAuthValidator,
+  verifyEmailValidator,
 } from "../utils/validators/AuthValidator";
 import { upload } from "../middleware/uploadFiles";
 
@@ -82,6 +85,18 @@ router.post(
   validateData(twitterAuthValidator),
   twitterAuthSignUp
 );
+
+router.post(
+  "/resend-verification-email",
+  validateData(forgetPasswordValidator),
+  resendVerifyCode
+);
+router.post(
+  "/verify-email",
+  validateData(verifyEmailValidator),
+  verifyUserEmail
+);
+
 router.post(
   "/twitter/signin",
   validateData(twitterAuthValidator),

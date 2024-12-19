@@ -1,4 +1,7 @@
 {
+  "sign_up_success":"تم التسجيل بنجاح, يرجى التحقق من بريدك الإلكتروني",
+  "invalid_code": "الكود غير صالح",
+  "emailNotVerified": "لم يتم التحقق من عنوان البريد الإلكتروني",
   "user_in_group":"المستخدم بالفعل عضو في المجموعة",
   "weekly_reminder_title":"تذكير اسبوعي",
   "weekly_reminder_body":"الاحصائيات هذا الاسبوع: نسبة الكتب: {{booksPercentage}}, نسبة الاختبارات: {{examsPercentage}}",

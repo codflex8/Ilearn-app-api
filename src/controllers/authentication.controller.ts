@@ -40,6 +40,8 @@ export const signup = asyncHandler(
       password: cryptedPassword,
       imageUrl: image,
     });
+    const resetCode = generateRandomCode();
+    user.verifyCode = resetCode;
 
     await user.save();
     delete user.password;
@@ -47,20 +49,84 @@ export const signup = asyncHandler(
     delete user.passwordResetCode;
     delete user.passwordResetExpires;
     delete user.passwordResetVerified;
+    delete user.verifyCode;
     // 2- Generate token
     const token = createToken(user.id);
 
-    res.status(201).json({ data: user, token });
+    // 3- send verify email
+    const message = `Hi ${user.username},\n Thanks for signing up with Ilearn.this is verify code, this is verify code ${resetCode}`;
+    try {
+      await sendEmail(
+        user.email,
+        "Your verify code (valid for 10 min)",
+        message
+      );
+    } catch (error) {
+      user.verifyCode = undefined;
+      await user.save();
+      return next(new ApiError("There is an error in sending email", 400));
+    }
+
+    res.status(201).json({ message: req.t("sign_up_success") });
+  }
+);
+
+export const resendVerifyCode = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await User.findOne({
+      where: {
+        email: req.body.email,
+      },
+    });
+    if (!user) {
+      return next(new ApiError(req.t("emailNotExist"), 404));
+    }
+    const resetCode = generateRandomCode();
+    user.verifyCode = resetCode;
+    await user.save();
+    const message = `Hi ${user.username},\n Thanks for signing up with Ilearn.this is verify code, this is verify code ${resetCode}`;
+    try {
+      await sendEmail(user.email, "Your verify code", message);
+    } catch (error) {
+      user.verifyCode = undefined;
+      await user.save();
+      return next(new ApiError("There is an error in sending email", 400));
+    }
+    res.status(200).json({ message: "email sent success" });
+  }
+);
+
+export const verifyUserEmail = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await User.findOne({
+      where: {
+        email: req.body.email,
+      },
+    });
+    if (!user) {
+      return next(new ApiError(req.t("emailNotExist"), 404));
+    }
+    if (user.verifyCode != req.body.verifyCode) {
+      return next(new ApiError(req.t("invalid_code"), 400));
+    }
+    user.verifyEmail = true;
+    user.verifyCode = undefined;
+    await user.save();
+    res.status(200).json({ message: "email verified" });
   }
 );
 
 export const signIn = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = await User.findOneBy({ email: Equal(req.body.email) });
-    console.log("getServerIPAddress", getServerIPAddress());
+
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
       return next(new ApiError(req.t("IncorrectEmailPasswod"), 401));
     }
+    if (!user.verifyEmail) {
+      return next(new ApiError(req.t("emailNotVerified"), 401));
+    }
+
     const token = createToken(user.id);
     const refreshToken = createRefreshToken(user.id);
     delete user.password;
@@ -172,27 +238,27 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
 
   // Save hashed password reset code into db
   user.passwordResetCode = resetCode;
-  // Add expiration time for password reset code (1 min)
-  const oneMinuteLater = new Date(Date.now() + 1 * 60 * 1000);
+  // Add expiration time for password reset code (10 min)
+  const oneMinuteLater = new Date(Date.now() + 10 * 60 * 1000);
   user.passwordResetExpires = oneMinuteLater;
   user.passwordResetVerified = false;
 
   await user.save();
 
   // 3) Send the reset code via email
-  const message = `Hi ${user.username},\n We received a request to reset the password on your E-shop Account. \n ${resetCode} \n Enter this code to complete the reset. \n Thanks for helping us keep your account secure.\n The E-shop Team`;
+  const message = `Hi ${user.username},\n We received a request to reset the password on your Ilearn Account. \n ${resetCode} \n Enter this code to complete the reset. \n Thanks for helping us keep your account secure.\n The E-shop Team`;
   try {
-    await sendEmail({
-      email: user.email,
-      subject: "Your password reset code (valid for 10 min)",
-      message,
-    });
+    await sendEmail(
+      user.email,
+      "Your password reset code (valid for 10 min)",
+      message
+    );
   } catch (err) {
     user.passwordResetCode = undefined;
     user.passwordResetExpires = undefined;
     user.passwordResetVerified = undefined;
     await user.save();
-    return next(new ApiError("There is an error in sending email", 500));
+    return next(new ApiError("There is an error in sending email", 400));
   }
 
   res
@@ -212,7 +278,7 @@ export const verifyPassResetCode = asyncHandler(async (req, res, next) => {
   }
   const timeDiff = Date.now() - Number(user.passwordResetExpires);
 
-  const oneMinutesInMilliesecond = 60000;
+  const oneMinutesInMilliesecond = 60000 * 10;
   if (
     timeDiff > oneMinutesInMilliesecond ||
     user.passwordResetCode != req.body.resetCode
@@ -278,6 +344,7 @@ const createSocialMediaUser = async ({
     googleId,
     facebookId,
     twitterId,
+    verifyEmail: true,
   });
   await newUser.save();
   return newUser;

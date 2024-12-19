@@ -53,6 +53,12 @@ export class User extends BaseModel {
   @Column({ nullable: true })
   imageUrl: string;
 
+  @Column({ type: "boolean", default: false })
+  verifyEmail: Boolean;
+
+  @Column({ type: "int", nullable: true })
+  verifyCode: number;
+
   @Column({ type: "datetime", nullable: true })
   passwordChangedAt: Date;
 

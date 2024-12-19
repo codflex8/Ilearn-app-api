@@ -1,4 +1,7 @@
 { 
+  "sign_up_success":"sign up success, please verify your email",
+  "invalid_code": "Invalid code",
+  "emailNotVerified": "Email address not verified",
   "user_in_group":"user already in group chat",
   "weekly_reminder_title":"weekly reminder",
   "weekly_reminder_body":"your weekly statistics: books percentage: {{booksPercentage}}, exams percentage: {{examsPercentage}}",

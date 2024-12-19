@@ -104,6 +104,14 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "imageUrl", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: "boolean", default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "verifyEmail", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "int", nullable: true }),
+    __metadata("design:type", Number)
+], User.prototype, "verifyCode", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: "datetime", nullable: true }),
     __metadata("design:type", Date)
 ], User.prototype, "passwordChangedAt", void 0);

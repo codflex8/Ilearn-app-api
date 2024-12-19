@@ -30,6 +30,11 @@ export const verifyForgetPasswordValidator = z.object({
   resetCode: z.string().length(4),
 });
 
+export const verifyEmailValidator = z.object({
+  email: z.string().email(),
+  verifyCode: z.string().length(4),
+});
+
 export const resetPasswordValidator = z.object({
   email: z.string().email(),
   password: z.string().min(6),

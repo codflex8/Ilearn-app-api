@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTwitterUserData = exports.getFacebookUserData = exports.verifyGoogleAuth = exports.SocialMediaUserData = void 0;
 const axios_1 = __importDefault(require("axios"));
-const google_auth_library_1 = require("google-auth-library");
 const ApiError_1 = __importDefault(require("./ApiError"));
 const twitter_lite_1 = __importDefault(require("twitter-lite"));
 const logger_1 = require("./logger");
@@ -18,7 +17,6 @@ class SocialMediaUserData {
     }
 }
 exports.SocialMediaUserData = SocialMediaUserData;
-const client = new google_auth_library_1.OAuth2Client();
 const verifyGoogleAuth = async (token) => {
     try {
         const response = await axios_1.default.get("https://www.googleapis.com/oauth2/v3/userinfo?", {
@@ -26,20 +24,9 @@ const verifyGoogleAuth = async (token) => {
                 access_token: token,
             },
         });
-        // console.log(response.data.data);
-        console.log("tokennnnnn", token);
-        // const ticket = await client.verifyIdToken({
-        //   idToken: token,
-        //   audience: process.env.GOOGLE_CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
-        //   // Or, if multiple clients access the backend:
-        //   //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-        // });
-        // const payload = ticket.getPayload();
-        // const userid = payload["sub"];
+        logger_1.httpLogger.info("twitter user data", { data: response.data });
         const { email, name, picture, sub } = response.data;
         return new SocialMediaUserData(name, picture, email, sub);
-        // If the request specified a Google Workspace domain:
-        // const domain = payload['hd'];
     }
     catch (error) {
         console.log(error);
@@ -58,7 +45,7 @@ const getFacebookUserData = async (accessToken) => {
                 access_token: accessToken,
             },
         });
-        console.log(response.data);
+        logger_1.httpLogger.info("twitter user data", { data: response.data });
         return new SocialMediaUserData(response.data.name, (_b = (_a = response.data.picture) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.url, response.data.email, response.data.id); // User data returned from Facebook
     }
     catch (error) {
