@@ -118,7 +118,14 @@ exports.verifyUserEmail = (0, express_async_handler_1.default)(async (req, res, 
     user.verifyEmail = true;
     user.verifyCode = undefined;
     await user.save();
-    res.status(200).json({ message: "email verified" });
+    delete user.password;
+    delete user.passwordChangedAt;
+    delete user.passwordResetCode;
+    delete user.passwordResetExpires;
+    delete user.passwordResetVerified;
+    delete user.verifyCode;
+    const token = (0, createToken_1.createToken)(user.id);
+    res.status(200).json({ user, token });
 });
 exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = await User_model_1.User.findOneBy({ email: (0, typeorm_1.Equal)(req.body.email) });

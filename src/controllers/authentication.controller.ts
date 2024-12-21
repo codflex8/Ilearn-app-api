@@ -112,7 +112,14 @@ export const verifyUserEmail = asyncHandler(
     user.verifyEmail = true;
     user.verifyCode = undefined;
     await user.save();
-    res.status(200).json({ message: "email verified" });
+    delete user.password;
+    delete user.passwordChangedAt;
+    delete user.passwordResetCode;
+    delete user.passwordResetExpires;
+    delete user.passwordResetVerified;
+    delete user.verifyCode;
+    const token = createToken(user.id);
+    res.status(200).json({ user, token });
   }
 );
 
