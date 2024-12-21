@@ -126,7 +126,7 @@ exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => 
         return next(new ApiError_1.default(req.t("IncorrectEmailPasswod"), 401));
     }
     if (!user.verifyEmail) {
-        return next(new ApiError_1.default(req.t("emailNotVerified"), 401));
+        return next(new ApiError_1.default(req.t("emailNotVerified"), 403));
     }
     const token = (0, createToken_1.createToken)(user.id);
     const refreshToken = (0, createToken_1.createRefreshToken)(user.id);
@@ -179,6 +179,9 @@ exports.protect = (0, express_async_handler_1.default)(async (req, res, next) =>
     const { currentUser, decoded } = await (0, getUserFromToken_1.getUserFromToken)(token);
     if (!currentUser) {
         return next(new ApiError_1.default(req.t("unauthorized"), 401));
+    }
+    if (!currentUser.verifyEmail) {
+        return next(new ApiError_1.default(req.t("emailNotVerified"), 403));
     }
     try {
         verifyUserChangePassword(currentUser, decoded, req.t);

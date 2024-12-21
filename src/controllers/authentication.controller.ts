@@ -124,7 +124,7 @@ export const signIn = asyncHandler(
       return next(new ApiError(req.t("IncorrectEmailPasswod"), 401));
     }
     if (!user.verifyEmail) {
-      return next(new ApiError(req.t("emailNotVerified"), 401));
+      return next(new ApiError(req.t("emailNotVerified"), 403));
     }
 
     const token = createToken(user.id);
@@ -197,6 +197,9 @@ export const protect = asyncHandler(
     const { currentUser, decoded } = await getUserFromToken(token);
     if (!currentUser) {
       return next(new ApiError(req.t("unauthorized"), 401));
+    }
+    if (!currentUser.verifyEmail) {
+      return next(new ApiError(req.t("emailNotVerified"), 403));
     }
     try {
       verifyUserChangePassword(currentUser, decoded, req.t);
