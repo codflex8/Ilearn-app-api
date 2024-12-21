@@ -60,15 +60,7 @@ exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => 
     const resetCode = (0, generateCode_1.default)();
     user.verifyCode = resetCode;
     await user.save();
-    delete user.password;
-    delete user.passwordChangedAt;
-    delete user.passwordResetCode;
-    delete user.passwordResetExpires;
-    delete user.passwordResetVerified;
-    delete user.verifyCode;
-    // 2- Generate token
-    const token = (0, createToken_1.createToken)(user.id);
-    // 3- send verify email
+    // 2- send verify email
     const message = `Hi ${user.username},\n Thanks for signing up with Ilearn.this is verify code, this is verify code ${resetCode}`;
     try {
         await (0, sendEmail_1.default)(user.email, "Your verify code (valid for 10 min)", message);

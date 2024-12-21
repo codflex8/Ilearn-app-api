@@ -44,16 +44,8 @@ export const signup = asyncHandler(
     user.verifyCode = resetCode;
 
     await user.save();
-    delete user.password;
-    delete user.passwordChangedAt;
-    delete user.passwordResetCode;
-    delete user.passwordResetExpires;
-    delete user.passwordResetVerified;
-    delete user.verifyCode;
-    // 2- Generate token
-    const token = createToken(user.id);
 
-    // 3- send verify email
+    // 2- send verify email
     const message = `Hi ${user.username},\n Thanks for signing up with Ilearn.this is verify code, this is verify code ${resetCode}`;
     try {
       await sendEmail(
