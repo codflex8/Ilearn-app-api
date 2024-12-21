@@ -12,7 +12,7 @@ const chatbotEvents = (socket) => {
         const user = socket.user;
         try {
             (0, schemaValidator_1.default)(ChatbotValidator_1.refineChatbotMessageValidator, data);
-            await (0, chatbot_controller_1.addMessage)({
+            const message = await (0, chatbot_controller_1.addMessage)({
                 chatbotId: data.chatbotId,
                 message: data.message,
                 from: data.from,
@@ -23,6 +23,7 @@ const chatbotEvents = (socket) => {
                 },
                 translate: socket.t,
             });
+            callback({ status: "success", message });
         }
         catch (error) {
             if (callback)

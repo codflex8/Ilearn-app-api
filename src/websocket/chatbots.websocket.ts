@@ -11,7 +11,7 @@ export const chatbotEvents = (socket: Socket) => {
     const user = socket.user;
     try {
       schemaValidator(refineChatbotMessageValidator, data);
-      await addMessage({
+      const message = await addMessage({
         chatbotId: data.chatbotId,
         message: data.message,
         from: data.from,
@@ -21,6 +21,7 @@ export const chatbotEvents = (socket: Socket) => {
         },
         translate: socket.t,
       });
+      callback({ status: "success", message });
     } catch (error: any) {
       if (callback) callback({ message: error.message });
     }
