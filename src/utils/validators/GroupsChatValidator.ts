@@ -26,6 +26,10 @@ export const updateGroupChatValidator = addGroupChatValidator.extend({
     .transform((val) => val === "true")
     .default("false"),
   backgroundColor: z.string().optional().nullable(),
+  removeCover: z
+    .string()
+    .transform((val) => val === "true")
+    .default("false"),
 });
 
 export const newGroupChatMessageValidator = z

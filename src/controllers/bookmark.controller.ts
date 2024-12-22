@@ -7,7 +7,8 @@ import { ChatbotMessages } from "../models/ChatBotMessages.model";
 import ApiError from "../utils/ApiError";
 import { Question } from "../models/Questions.model";
 import { User } from "../models/User.model";
-import { FindOneOptions, FindOptions, FindOptionsWhere, In } from "typeorm";
+import { FindOptionsWhere, In } from "typeorm";
+import { TFunction } from "i18next";
 
 export const getBookmarks = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -75,42 +76,62 @@ export const addBookmark = asyncHandler(
     const { chatbotMessageId, questionId } = req.body;
     const user = req.user;
 
-    if (chatbotMessageId) {
-      const chatbotMessage = await ChatbotMessages.findOne({
-        where: {
-          id: chatbotMessageId,
-          chatbot: {
-            user: {
-              id: user.id,
-            },
-          },
-        },
-      });
-      if (!chatbotMessage) {
-        return next(new ApiError(req.t("chatbot_message_not_found"), 400));
-      }
-      handleChatbotMessagesBookmark(chatbotMessage, user);
-    }
+    await toggleBookmark({
+      chatbotMessageId,
+      questionId,
+      user,
+      translate: req.t,
+    });
 
-    if (questionId) {
-      const question = await Question.findOne({
-        where: {
-          id: questionId,
-          quiz: {
-            user: {
-              id: user.id,
-            },
-          },
-        },
-      });
-      if (!question) {
-        return next(new ApiError(req.t("question_not_found"), 400));
-      }
-      await handleQuestionBookmark(question, user);
-    }
     res.status(200).json({ message: req.t("toggle_bookmark_success") });
   }
 );
+
+export const toggleBookmark = async ({
+  chatbotMessageId,
+  questionId,
+  user,
+  translate,
+}: {
+  chatbotMessageId: string;
+  questionId: string;
+  user: User;
+  translate: TFunction;
+}) => {
+  if (chatbotMessageId) {
+    const chatbotMessage = await ChatbotMessages.findOne({
+      where: {
+        id: chatbotMessageId,
+        chatbot: {
+          user: {
+            id: user.id,
+          },
+        },
+      },
+    });
+    if (!chatbotMessage) {
+      throw new ApiError(translate("chatbot_message_not_found"), 400);
+    }
+    handleChatbotMessagesBookmark(chatbotMessage, user);
+  }
+
+  if (questionId) {
+    const question = await Question.findOne({
+      where: {
+        id: questionId,
+        quiz: {
+          user: {
+            id: user.id,
+          },
+        },
+      },
+    });
+    if (!question) {
+      throw new ApiError(translate("question_not_found"), 400);
+    }
+    await handleQuestionBookmark(question, user);
+  }
+};
 
 const handleChatbotMessagesBookmark = async (
   chatbotMessage: ChatbotMessages,

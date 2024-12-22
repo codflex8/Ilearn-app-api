@@ -153,6 +153,7 @@ const groupsChatEvents = (socket) => {
                 groupChat: groupChat,
                 users: notActiveUsers,
                 translate: socket.t,
+                fromUser: user,
             });
         }
         catch (error) {
@@ -204,6 +205,7 @@ const groupsChatEvents = (socket) => {
                 groupChat: isGroupchatExist,
                 users: notActiveUsers,
                 translate: socket.t,
+                fromUser: user,
             });
         }
         catch (error) {
@@ -258,6 +260,7 @@ const groupsChatEvents = (socket) => {
                 groupChat: toGroupChat,
                 users: notActiveUsers,
                 translate: socket.t,
+                fromUser: user,
             });
             // .emit("share-group", { newMessage });
         }

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addBookmark = exports.getBookmarks = void 0;
+exports.toggleBookmark = exports.addBookmark = exports.getBookmarks = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Bookmarks_model_1 = require("../models/Bookmarks.model");
 const getPaginationData_1 = require("../utils/getPaginationData");
@@ -60,6 +60,15 @@ exports.getBookmarks = (0, express_async_handler_1.default)(async (req, res, nex
 exports.addBookmark = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { chatbotMessageId, questionId } = req.body;
     const user = req.user;
+    await (0, exports.toggleBookmark)({
+        chatbotMessageId,
+        questionId,
+        user,
+        translate: req.t,
+    });
+    res.status(200).json({ message: req.t("toggle_bookmark_success") });
+});
+const toggleBookmark = async ({ chatbotMessageId, questionId, user, translate, }) => {
     if (chatbotMessageId) {
         const chatbotMessage = await ChatBotMessages_model_1.ChatbotMessages.findOne({
             where: {
@@ -72,7 +81,7 @@ exports.addBookmark = (0, express_async_handler_1.default)(async (req, res, next
             },
         });
         if (!chatbotMessage) {
-            return next(new ApiError_1.default(req.t("chatbot_message_not_found"), 400));
+            throw new ApiError_1.default(translate("chatbot_message_not_found"), 400);
         }
         handleChatbotMessagesBookmark(chatbotMessage, user);
     }
@@ -88,12 +97,12 @@ exports.addBookmark = (0, express_async_handler_1.default)(async (req, res, next
             },
         });
         if (!question) {
-            return next(new ApiError_1.default(req.t("question_not_found"), 400));
+            throw new ApiError_1.default(translate("question_not_found"), 400);
         }
         await handleQuestionBookmark(question, user);
     }
-    res.status(200).json({ message: req.t("toggle_bookmark_success") });
-});
+};
+exports.toggleBookmark = toggleBookmark;
 const handleChatbotMessagesBookmark = async (chatbotMessage, user) => {
     const bookmark = await Bookmarks_model_1.Bookmark.findOne({
         where: {

@@ -345,40 +345,39 @@ exports.getGroupChatMessages = (0, express_async_handler_1.default)(async (req, 
 });
 exports.updateGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
-    const { name, image, muteNotification, backgroundColor, backgroundCover } = req.body;
+    const { name, image, muteNotification, backgroundColor, backgroundCover, removeCover, } = req.body;
     const user = req.user;
-    const groupChat = await GroupsChat_model_1.GroupsChat.findOne({
-        where: {
-            id,
-            userGroupsChats: {
-                user: {
-                    id: user.id,
-                },
-            },
-        },
-        relations: {
-            userGroupsChats: { user: true },
-        },
-    });
-    const userGroupsChatIndex = groupChat.userGroupsChats.findIndex((groupchat) => groupchat.user.id === user.id);
-    const userGroupsChat = groupChat.userGroupsChats[userGroupsChatIndex];
-    if (userGroupsChat.role !== GroupsChatValidator_1.GroupChatRoles.Admin) {
-        return next(new ApiError_1.default("just admin can change group settings", 409));
-    }
+    const groupChat = await GroupsChat_model_1.GroupsChat.createQueryBuilder("group")
+        .leftJoinAndSelect("group.userGroupsChats", "userGroupsChats")
+        .leftJoinAndSelect("userGroupsChats.user", "user")
+        .where("group.id = :id", { id })
+        .getOne();
     if (!groupChat)
         return next(new ApiError_1.default("groupcaht not found", 400));
+    const userGroupsChatIndex = groupChat.userGroupsChats.findIndex((groupchat) => groupchat.user.id === user.id);
+    const userGroupsChat = groupChat.userGroupsChats[userGroupsChatIndex];
+    if (!userGroupsChat) {
+        return next(new ApiError_1.default("groupcaht not found", 400));
+    }
+    if (muteNotification !== null && muteNotification !== undefined) {
+        userGroupsChat.muteNotification = muteNotification === "true";
+    }
+    if (userGroupsChat.role !== GroupsChatValidator_1.GroupChatRoles.Admin) {
+        await userGroupsChat.save();
+        groupChat.userGroupsChats[userGroupsChatIndex] = userGroupsChat;
+        res.status(200).json({ groupChat });
+        return;
+    }
     groupChat.name = name;
     if (image)
         groupChat.imageUrl = image;
     groupChat.backgroundColor = backgroundColor;
     if (backgroundCover)
         groupChat.backgroundCoverUrl = backgroundCover;
-    if (muteNotification !== null && muteNotification !== undefined) {
-        userGroupsChat.muteNotification = muteNotification === "true";
-        groupChat.userGroupsChats[userGroupsChatIndex] = userGroupsChat;
-    }
+    if (removeCover)
+        groupChat.backgroundCoverUrl = null;
     await groupChat.save();
-    await GroupsChatUsers_model_1.GroupsChatUsers.save(groupChat.userGroupsChats);
+    await userGroupsChat.save();
     websocket_1.default.sendNewGroupUpdate(groupChat);
     await GroupsChat_model_1.GroupsChat.getGroupChatWithMessagesData(groupChat, user.id);
     res.status(200).json({ groupChat });
@@ -567,7 +566,7 @@ const addNewMessage = async ({ message, groupChatId, user, fileUrl, imageUrl, re
     return newMessage;
 };
 exports.addNewMessage = addNewMessage;
-const sendNewMessageByNotification = async ({ message, groupChat, users, translate, }) => {
+const sendNewMessageByNotification = async ({ message, groupChat, users, translate, fromUser, }) => {
     var _a, _b, _c, _d, _e, _f, _g, _h;
     const arUsers = [];
     const enUsers = [];
@@ -579,7 +578,8 @@ const sendNewMessageByNotification = async ({ message, groupChat, users, transla
             enUsers.push(user);
         }
     });
-    const body = message.imageUrl || message.fileUrl || message.recordUrl || message.message;
+    const body = `${fromUser.username}: ${message.imageUrl || message.fileUrl || message.recordUrl || message.message}`;
+    console.log("bodyyyyy", body);
     await (0, sendNotification_1.sendAndCreateNotification)({
         title: translate("new_groupcaht_message", {
             lng: "en",

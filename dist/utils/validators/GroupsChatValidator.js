@@ -26,6 +26,10 @@ exports.updateGroupChatValidator = exports.addGroupChatValidator.extend({
         .transform((val) => val === "true")
         .default("false"),
     backgroundColor: zod_1.z.string().optional().nullable(),
+    removeCover: zod_1.z
+        .string()
+        .transform((val) => val === "true")
+        .default("false"),
 });
 exports.newGroupChatMessageValidator = zod_1.z
     .object({

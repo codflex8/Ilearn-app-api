@@ -185,6 +185,7 @@ export const groupsChatEvents = (socket: Socket) => {
           groupChat: groupChat,
           users: notActiveUsers,
           translate: socket.t,
+          fromUser: user,
         });
       } catch (error: any) {
         console.log(error);
@@ -245,6 +246,7 @@ export const groupsChatEvents = (socket: Socket) => {
           groupChat: isGroupchatExist,
           users: notActiveUsers,
           translate: socket.t,
+          fromUser: user,
         });
       } catch (error: any) {
         if (callback) callback({ message: error.message });
@@ -323,6 +325,7 @@ export const groupsChatEvents = (socket: Socket) => {
           groupChat: toGroupChat,
           users: notActiveUsers,
           translate: socket.t,
+          fromUser: user,
         });
 
         // .emit("share-group", { newMessage });
