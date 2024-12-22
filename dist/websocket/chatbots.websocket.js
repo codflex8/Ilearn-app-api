@@ -32,7 +32,7 @@ const chatbotEvents = (socket) => {
                 callback({ message: error.message });
         }
     });
-    socket.on("chatbot-toggle-bookmark", async (data, callback) => {
+    socket.on("toggle-bookmark", async (data, callback) => {
         const user = socket.user;
         try {
             (0, schemaValidator_1.default)(BookmarkValidator_1.addBookmarkValidator, data);

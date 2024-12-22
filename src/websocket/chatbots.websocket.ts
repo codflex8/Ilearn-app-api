@@ -29,7 +29,7 @@ export const chatbotEvents = (socket: Socket) => {
     }
   });
 
-  socket.on("chatbot-toggle-bookmark", async (data, callback) => {
+  socket.on("toggle-bookmark", async (data, callback) => {
     const user = socket.user;
     try {
       schemaValidator(addBookmarkValidator, data);
