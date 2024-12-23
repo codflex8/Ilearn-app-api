@@ -28,6 +28,7 @@ export const getUsers = asyncHandler(
       take,
       skip,
     });
+    // users.map("")
     res
       .status(200)
       .json(new GenericResponse<User>(Number(page), take, count, users));

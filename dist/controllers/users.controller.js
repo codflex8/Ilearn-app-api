@@ -31,6 +31,7 @@ exports.getUsers = (0, express_async_handler_1.default)(async (req, res, next) =
         take,
         skip,
     });
+    // users.map("")
     res
         .status(200)
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, users));

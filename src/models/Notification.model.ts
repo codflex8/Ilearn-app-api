@@ -70,7 +70,7 @@ export class Notification extends BaseModel {
         type,
       })
     );
-    Notification.save(newNotifications);
+    await Notification.save(newNotifications);
     return newNotifications;
   }
 

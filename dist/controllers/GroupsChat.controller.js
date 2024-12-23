@@ -480,8 +480,9 @@ const addUsersNotifications = async ({ language, user, newGroupChat, users, }) =
 };
 exports.removeUsersfromGroupChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
-    const { usersIds } = req.body;
+    let { usersIds } = req.body;
     const user = req.user;
+    usersIds = usersIds.filter((userId) => userId !== user.id);
     const groupChat = await GroupsChat_model_1.GroupsChat.getUserGroupChatById(user.id, id);
     if (!groupChat) {
         return next(new ApiError_1.default(req.t("group_chat_not_found"), 400));

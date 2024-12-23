@@ -142,14 +142,11 @@ export class User extends BaseModel {
   @AfterUpdate()
   setFullImageUrl() {
     if (this.imageUrl) {
-      !this.facebookId && !this.googleId && !this.twitterId
+      !this.imageUrl.startsWith("http")
         ? (this.fullImageUrl = getServerIPAddress() + this.imageUrl)
         : (this.fullImageUrl = this.imageUrl);
     }
   }
-  // @ManyToMany(() => GroupsChat, (group) => group.users)
-  // @JoinTable({ name: "groups_chat_users" })
-  // groupsChat: GroupsChat[];
 
   static isEmailExist(email: string) {
     return this.exists({

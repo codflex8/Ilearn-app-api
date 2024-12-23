@@ -15,54 +15,34 @@ export const getBookmarks = asyncHandler(
     const user = req.user;
     const { page, pageSize, bookId, chatbotId, quizId } = req.query;
     const { take, skip } = getPaginationData({ page, pageSize });
-    let conditions: FindOptionsWhere<Bookmark> = {
-      user: {
-        id: user.id,
-      },
-    };
+    const quereable = await Bookmark.createQueryBuilder("bookmark")
+      .leftJoin("bookmark.user", "user")
+      .leftJoinAndSelect("bookmark.chatbotMessage", "chatbotMessage")
+      .leftJoin("chatbotMessage.chatbot", "chatbot")
+      .leftJoin("chatbot.books", "chatBotbook")
+      .leftJoinAndSelect("bookmark.question", "question")
+      .leftJoin("question.quiz", "quiz")
+      .leftJoin("quiz.books", "quizBook")
+      .where("user.id = :userId", { userId: user.id });
+
     if (bookId) {
-      conditions = {
-        ...conditions,
-        question: {
-          quiz: {
-            books: {
-              id: In([bookId]),
-            },
-          },
-        },
-      };
+      quereable.andWhere(
+        "(chatBotbook.id = :bookId OR quizBook.id = :bookId)",
+        { bookId }
+      );
     }
     if (chatbotId) {
-      conditions = {
-        ...conditions,
-        chatbotMessage: {
-          chatbot: {
-            id: In([chatbotId]),
-          },
-        },
-      };
+      quereable.andWhere("chatbot.id = :chatbotId", { chatbotId });
     }
-
     if (quizId) {
-      conditions = {
-        ...conditions,
-        question: {
-          quiz: {
-            id: In([quizId]),
-          },
-        },
-      };
+      quereable.andWhere("quiz.id = :quizId", { quizId });
     }
 
-    const [bookmarks, count] = await Bookmark.findAndCount({
-      where: conditions,
-      relations: {
-        chatbotMessage: true,
-        question: true,
-      },
-      skip,
-      take,
-    });
+    const [bookmarks, count] = await quereable
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+
     res
       .status(200)
       .json(

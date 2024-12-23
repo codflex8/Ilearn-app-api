@@ -4,7 +4,6 @@ import fs from "fs";
 import ApiError from "../utils/ApiError";
 import multerS3 from "multer-s3";
 import { s3 } from "../utils/uploadToAws";
-import iconv from "iconv-lite";
 
 const createDirIfNotExist = (dir: string) => {
   if (!fs.existsSync(dir)) {

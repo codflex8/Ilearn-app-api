@@ -56,6 +56,10 @@ class Websocket extends socket_io_1.Server {
     static async sendNotificationsCount(userId) {
         const unseenNotificationsCount = await Notification_model_1.Notification.getUnseenNotifications(userId);
         const userSocketId = this.usersSockets[userId];
+        console.log("unseenNotificationsCount", {
+            unseenNotificationsCount,
+            userId,
+        });
         if (userSocketId)
             this.io
                 .to(userSocketId)
@@ -116,6 +120,9 @@ class Websocket extends socket_io_1.Server {
         users.map((user) => {
             this.sendActiveRoomsToUser(user);
         });
+    }
+    static async sendUnseenNotifications(users) {
+        Promise.all(users.map(async (user) => await this.sendNotificationsCount(user.id)));
     }
     static async sendActiveRoomsToUser(user) {
         const userActiveGroups = Object.entries(this.rooms)

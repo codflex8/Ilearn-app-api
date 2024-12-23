@@ -26,7 +26,7 @@
     "chatbot_message_not_found": "لم يتم العثور على رسالة شات بوت.",
     "question_not_found": "لم يتم العثور على السؤال.",
     "toggle_bookmark_success": "تم تغيير الإشارة المرجعية بنجاح.",
-    "something_wrong_with_file_data": " هناك خطأ في بيانات الملف او الملف.",
+    "something_wrong_with_file_data": "  هناك خطأ في بيانات الملف او الرابط او المحتوى",
     "category_not_found": "لم يتم العثور على المجلد.",
     "book_not_found": "لم يتم العثور على الكتاب.",
     "delete_success": "تم الحذف بنجاح.",

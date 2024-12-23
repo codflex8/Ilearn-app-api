@@ -5,6 +5,7 @@ import { User } from "../models/User.model";
 import { GroupsChat } from "../models/GroupsChat.model";
 import { MulticastMessage } from "firebase-admin/lib/messaging/messaging-api";
 import { httpLogger } from "./logger";
+import Websocket from "../websocket/websocket";
 
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -80,6 +81,7 @@ export const sendAndCreateNotification = async ({
       data,
       type,
     });
+    Websocket.sendUnseenNotifications(users);
   }
   try {
     const fcms = fcmTokens.filter((fc) => !!fc);

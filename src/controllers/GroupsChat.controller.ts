@@ -583,8 +583,9 @@ export const removeUsersfromGroupChat = asyncHandler(
     next: NextFunction
   ) => {
     const { id } = req.params;
-    const { usersIds } = req.body;
+    let { usersIds } = req.body;
     const user = req.user;
+    usersIds = usersIds.filter((userId) => userId !== user.id);
     const groupChat = await GroupsChat.getUserGroupChatById(user.id, id);
     if (!groupChat) {
       return next(new ApiError(req.t("group_chat_not_found"), 400));

@@ -11,48 +11,32 @@ const GenericResponse_1 = require("../utils/GenericResponse");
 const ChatBotMessages_model_1 = require("../models/ChatBotMessages.model");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const Questions_model_1 = require("../models/Questions.model");
-const typeorm_1 = require("typeorm");
 exports.getBookmarks = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
     const { page, pageSize, bookId, chatbotId, quizId } = req.query;
     const { take, skip } = (0, getPaginationData_1.getPaginationData)({ page, pageSize });
-    let conditions = {
-        user: {
-            id: user.id,
-        },
-    };
+    const quereable = await Bookmarks_model_1.Bookmark.createQueryBuilder("bookmark")
+        .leftJoin("bookmark.user", "user")
+        .leftJoinAndSelect("bookmark.chatbotMessage", "chatbotMessage")
+        .leftJoin("chatbotMessage.chatbot", "chatbot")
+        .leftJoin("chatbot.books", "chatBotbook")
+        .leftJoinAndSelect("bookmark.question", "question")
+        .leftJoin("question.quiz", "quiz")
+        .leftJoin("quiz.books", "quizBook")
+        .where("user.id = :userId", { userId: user.id });
     if (bookId) {
-        conditions = Object.assign(Object.assign({}, conditions), { question: {
-                quiz: {
-                    books: {
-                        id: (0, typeorm_1.In)([bookId]),
-                    },
-                },
-            } });
+        quereable.andWhere("(chatBotbook.id = :bookId OR quizBook.id = :bookId)", { bookId });
     }
     if (chatbotId) {
-        conditions = Object.assign(Object.assign({}, conditions), { chatbotMessage: {
-                chatbot: {
-                    id: (0, typeorm_1.In)([chatbotId]),
-                },
-            } });
+        quereable.andWhere("chatbot.id = :chatbotId", { chatbotId });
     }
     if (quizId) {
-        conditions = Object.assign(Object.assign({}, conditions), { question: {
-                quiz: {
-                    id: (0, typeorm_1.In)([quizId]),
-                },
-            } });
+        quereable.andWhere("quiz.id = :quizId", { quizId });
     }
-    const [bookmarks, count] = await Bookmarks_model_1.Bookmark.findAndCount({
-        where: conditions,
-        relations: {
-            chatbotMessage: true,
-            question: true,
-        },
-        skip,
-        take,
-    });
+    const [bookmarks, count] = await quereable
+        .skip(skip)
+        .take(take)
+        .getManyAndCount();
     res
         .status(200)
         .json(new GenericResponse_1.GenericResponse(Number(page), take, count, bookmarks));

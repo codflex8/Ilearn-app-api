@@ -77,6 +77,10 @@ class Websocket extends Server {
       userId
     );
     const userSocketId = this.usersSockets[userId];
+    console.log("unseenNotificationsCount", {
+      unseenNotificationsCount,
+      userId,
+    });
     if (userSocketId)
       this.io
         .to(userSocketId)
@@ -153,6 +157,12 @@ class Websocket extends Server {
     users.map((user) => {
       this.sendActiveRoomsToUser(user);
     });
+  }
+
+  public static async sendUnseenNotifications(users: User[]) {
+    Promise.all(
+      users.map(async (user) => await this.sendNotificationsCount(user.id))
+    );
   }
 
   public static async sendActiveRoomsToUser(user: User) {

@@ -28,14 +28,11 @@ let User = class User extends BaseModel_1.BaseModel {
     }
     setFullImageUrl() {
         if (this.imageUrl) {
-            !this.facebookId && !this.googleId && !this.twitterId
+            !this.imageUrl.startsWith("http")
                 ? (this.fullImageUrl = (0, getServerIpAddress_1.getServerIPAddress)() + this.imageUrl)
                 : (this.fullImageUrl = this.imageUrl);
         }
     }
-    // @ManyToMany(() => GroupsChat, (group) => group.users)
-    // @JoinTable({ name: "groups_chat_users" })
-    // groupsChat: GroupsChat[];
     static isEmailExist(email) {
         return this.exists({
             where: {

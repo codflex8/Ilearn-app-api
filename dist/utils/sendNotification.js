@@ -8,6 +8,7 @@ const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const firebaseAccountKey_json_1 = __importDefault(require("../../firebaseAccountKey.json"));
 const Notification_model_1 = require("../models/Notification.model");
 const logger_1 = require("./logger");
+const websocket_1 = __importDefault(require("../websocket/websocket"));
 firebase_admin_1.default.initializeApp({
     credential: firebase_admin_1.default.credential.cert({
         clientEmail: firebaseAccountKey_json_1.default.client_email,
@@ -47,6 +48,7 @@ const sendAndCreateNotification = async ({ title, data, fcmTokens, body, users, 
             data,
             type,
         });
+        websocket_1.default.sendUnseenNotifications(users);
     }
     try {
         const fcms = fcmTokens.filter((fc) => !!fc);

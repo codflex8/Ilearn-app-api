@@ -35,7 +35,7 @@ let Notification = Notification_1 = class Notification extends BaseModel_1.BaseM
             data,
             type,
         }));
-        Notification_1.save(newNotifications);
+        await Notification_1.save(newNotifications);
         return newNotifications;
     }
     static async getUnseenNotifications(userId) {

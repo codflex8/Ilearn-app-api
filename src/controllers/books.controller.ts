@@ -22,7 +22,9 @@ export const getBooks = asyncHandler(
 
     // Apply dynamic conditions
     if (name) {
-      queryBuilder.andWhere("book.name ILIKE :name", { name: `%${name}%` });
+      queryBuilder.andWhere("LOWER(book.name) LIKE LOWER(:name)", {
+        name: `%${name}%`,
+      });
     }
 
     if (categoryId) {
@@ -116,12 +118,11 @@ export const getBookById = asyncHandler(
 
 export const addBook = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, image, fileUrl, link, content, categoryId, localPath } =
-      req.body;
+    const { name, image, link, content, categoryId, localPath } = req.body;
     const fileData = req.files["file"]?.[0];
     httpLogger.info("upload new book", { fileData });
     try {
-      if (!fileData && !link) {
+      if (!fileData && !link && !content) {
         return next(new ApiError(req.t("something_wrong_with_file_data"), 400));
       }
       const user = req.user;

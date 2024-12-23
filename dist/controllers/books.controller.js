@@ -24,7 +24,9 @@ exports.getBooks = (0, express_async_handler_1.default)(async (req, res, next) =
         .where("book.userId = :userId", { userId: user.id });
     // Apply dynamic conditions
     if (name) {
-        queryBuilder.andWhere("book.name ILIKE :name", { name: `%${name}%` });
+        queryBuilder.andWhere("LOWER(book.name) LIKE LOWER(:name)", {
+            name: `%${name}%`,
+        });
     }
     if (categoryId) {
         queryBuilder.andWhere("category.id = :categoryId", {
@@ -106,11 +108,11 @@ exports.getBookById = (0, express_async_handler_1.default)(async (req, res, next
 });
 exports.addBook = (0, express_async_handler_1.default)(async (req, res, next) => {
     var _a;
-    const { name, image, fileUrl, link, content, categoryId, localPath } = req.body;
+    const { name, image, link, content, categoryId, localPath } = req.body;
     const fileData = (_a = req.files["file"]) === null || _a === void 0 ? void 0 : _a[0];
     logger_1.httpLogger.info("upload new book", { fileData });
     try {
-        if (!fileData && !link) {
+        if (!fileData && !link && !content) {
             return next(new ApiError_1.default(req.t("something_wrong_with_file_data"), 400));
         }
         const user = req.user;
