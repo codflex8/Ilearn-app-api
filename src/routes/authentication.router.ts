@@ -1,10 +1,6 @@
 import express, { Router } from "express";
 import {
-  facebookAuthSignIn,
-  facebookAuthSignUp,
   forgotPassword,
-  googleAuthSignIn,
-  googleAuthSignUp,
   protect,
   refreshToken,
   resendVerifyCode,
@@ -12,10 +8,11 @@ import {
   signIn,
   signOut,
   signup,
-  twitterAuthSignIn,
-  twitterAuthSignUp,
   verifyPassResetCode,
   verifyUserEmail,
+  googleAuth,
+  facebookAuth,
+  twitterAuth,
 } from "../controllers/authentication.controller";
 import { validateData } from "../middleware/validationMiddleware";
 import {
@@ -58,33 +55,9 @@ router.put(
   resetPassword
 );
 
-router.post(
-  "/google/signup",
-  validateData(socialMediaAuthValidator),
-  googleAuthSignUp
-);
-router.post(
-  "/google/signin",
-  validateData(socialMediaAuthValidator),
-  googleAuthSignIn
-);
-
-router.post(
-  "/facebook/signup",
-  validateData(socialMediaAuthValidator),
-  facebookAuthSignUp
-);
-router.post(
-  "/facebook/signin",
-  validateData(socialMediaAuthValidator),
-  facebookAuthSignIn
-);
-
-router.post(
-  "/twitter/signup",
-  validateData(twitterAuthValidator),
-  twitterAuthSignUp
-);
+router.post("/google", validateData(socialMediaAuthValidator), googleAuth);
+router.post("/facebook", validateData(socialMediaAuthValidator), facebookAuth);
+router.post("/twitter", validateData(twitterAuthValidator), twitterAuth);
 
 router.post(
   "/resend-verification-email",
@@ -95,12 +68,6 @@ router.post(
   "/verify-email",
   validateData(verifyEmailValidator),
   verifyUserEmail
-);
-
-router.post(
-  "/twitter/signin",
-  validateData(twitterAuthValidator),
-  twitterAuthSignIn
 );
 
 export default router;

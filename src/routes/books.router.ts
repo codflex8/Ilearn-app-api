@@ -6,6 +6,7 @@ import {
   getBookById,
   updateBook,
   setLocalPath,
+  getWrongQuestions,
 } from "../controllers/books.controller";
 import { validateData } from "../middleware/validationMiddleware";
 import {
@@ -40,5 +41,6 @@ router.post(
   setLocalPath
 );
 router.delete("/:id", deleteBook);
+router.get("/:id/wrong-questions", getWrongQuestions);
 
 export default router;

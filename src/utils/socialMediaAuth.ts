@@ -21,7 +21,7 @@ export const verifyGoogleAuth = async (token: string) => {
         },
       }
     );
-    httpLogger.info("twitter user data", { data: response.data });
+    httpLogger.info("google user data", { data: response.data });
 
     const { email, name, picture, sub } = response.data;
     return new SocialMediaUserData(name, picture, email, sub);
@@ -47,7 +47,7 @@ export const getFacebookUserData = async (
         access_token: accessToken,
       },
     });
-    httpLogger.info("twitter user data", { data: response.data });
+    httpLogger.info("facebook user data", { data: response.data });
     return new SocialMediaUserData(
       response.data.name,
       response.data.picture?.data?.url,

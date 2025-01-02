@@ -8,6 +8,8 @@ import { getPaginationData } from "../utils/getPaginationData";
 import ApiError from "../utils/ApiError";
 import { deleteS3File } from "../utils/uploadToAws";
 import { httpLogger } from "../utils/logger";
+import { Quiz } from "../models/Quiz.model";
+import { Question } from "../models/Questions.model";
 
 export const getBooks = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -218,5 +220,18 @@ export const deleteBook = asyncHandler(
       await deleteS3File(book.s3Key);
     }
     res.status(200).json({ message: req.t("delete_success") });
+  }
+);
+
+export const getWrongQuestions = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const bookId = req.params.id;
+    const questions = await Question.createQueryBuilder("question")
+      .leftJoin("question.quiz", "quiz")
+      .leftJoin("quiz.books", "book")
+      .where("book.id = :bookId", { bookId })
+      .andWhere("question.userAnswerIndex != question.correctAnswerIndex")
+      .getMany();
+    res.status(200).json({ questions });
   }
 );

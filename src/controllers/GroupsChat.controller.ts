@@ -19,6 +19,7 @@ import Websocket from "../websocket/websocket";
 import { sendAndCreateNotification } from "../utils/sendNotification";
 import i18next, { TFunction } from "i18next";
 import { Notification, NotificationType } from "../models/Notification.model";
+import { ShareGroup } from "../models/ShareGroup.model";
 
 interface GroupsChatQuery extends BaseQuery {
   name?: string;
@@ -836,3 +837,23 @@ export const getUserRooms = async (roomsIds: string[], userId: string) => {
     },
   });
 };
+
+export const shareGroup = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const isGroupExist = await GroupsChat.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!isGroupExist) {
+      throw new ApiError(req.t("cannot_find_group_chat"), 404);
+    }
+    const shareGroup = await ShareGroup.create({
+      user: { id: req.user.id },
+      group: { id },
+    });
+    await shareGroup.save();
+    res.status(200).json({ message: req.t("success") });
+  }
+);

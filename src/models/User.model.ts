@@ -20,6 +20,7 @@ import { GroupsChat } from "./GroupsChat.model";
 import { GroupsChatUsers } from "./GroupsChatUsers.model";
 import { getServerIPAddress } from "../utils/getServerIpAddress";
 import { Notification } from "./Notification.model";
+import { ShareGroup } from "./ShareGroup.model";
 
 @Entity()
 export class User extends BaseModel {
@@ -100,6 +101,13 @@ export class User extends BaseModel {
     onUpdate: "CASCADE",
   })
   categories: Category[];
+
+  @OneToMany(() => ShareGroup, (shareGroup) => shareGroup.user, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
+  shareGroups: ShareGroup[];
 
   @OneToMany(() => Book, (book) => book.user, {
     cascade: true,

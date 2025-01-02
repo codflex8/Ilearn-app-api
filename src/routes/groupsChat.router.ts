@@ -11,6 +11,7 @@ import {
   leaveGroupChat,
   newGroupChatMessage,
   removeUsersfromGroupChat,
+  shareGroup,
   updateGroupChat,
 } from "../controllers/GroupsChat.controller";
 import { upload } from "../middleware/uploadFiles";
@@ -76,5 +77,6 @@ router.post(
 router.post("/:id/leave", leaveGroupChat);
 router.post("/:id/report", addReport);
 router.get("/:id/report", getReports);
+router.post("/:id/share", shareGroup);
 
 export default router;
