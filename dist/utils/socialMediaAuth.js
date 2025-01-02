@@ -24,7 +24,7 @@ const verifyGoogleAuth = async (token) => {
                 access_token: token,
             },
         });
-        logger_1.httpLogger.info("twitter user data", { data: response.data });
+        logger_1.httpLogger.info("google user data", { data: response.data });
         const { email, name, picture, sub } = response.data;
         return new SocialMediaUserData(name, picture, email, sub);
     }
@@ -45,7 +45,7 @@ const getFacebookUserData = async (accessToken) => {
                 access_token: accessToken,
             },
         });
-        logger_1.httpLogger.info("twitter user data", { data: response.data });
+        logger_1.httpLogger.info("facebook user data", { data: response.data });
         return new SocialMediaUserData(response.data.name, (_b = (_a = response.data.picture) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.url, response.data.email, response.data.id); // User data returned from Facebook
     }
     catch (error) {

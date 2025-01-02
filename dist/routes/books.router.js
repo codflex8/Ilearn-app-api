@@ -15,5 +15,6 @@ router.get("/:id", books_controller_1.getBookById);
 router.put("/:id", uploadFiles_1.upload.single("image"), (0, validationMiddleware_1.validateData)(BookValidator_1.addBookValidator), books_controller_1.updateBook);
 router.post("/:id/local-path", (0, validationMiddleware_1.validateData)(BookValidator_1.setLocalPathValidation), books_controller_1.setLocalPath);
 router.delete("/:id", books_controller_1.deleteBook);
+router.get("/:id/wrong-questions", books_controller_1.getWrongQuestions);
 exports.default = router;
 //# sourceMappingURL=books.router.js.map

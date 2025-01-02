@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserRooms = exports.readMessages = exports.sendNewMessageByNotification = exports.addNewMessage = exports.newGroupChatMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.joinGroup = exports.acceptJoinRequest = exports.acceptJoinGroup = exports.getGroupsChat = void 0;
+exports.shareGroup = exports.getUserRooms = exports.readMessages = exports.sendNewMessageByNotification = exports.addNewMessage = exports.newGroupChatMessage = exports.leaveGroupChat = exports.removeUsersfromGroupChat = exports.addUsersToGroupChat = exports.updateGroupChat = exports.getGroupChatMessages = exports.getGroupChatById = exports.createGroupChat = exports.joinGroup = exports.acceptJoinRequest = exports.acceptJoinGroup = exports.getGroupsChat = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const GroupsChat_model_1 = require("../models/GroupsChat.model");
 const getPaginationData_1 = require("../utils/getPaginationData");
@@ -19,6 +19,7 @@ const websocket_1 = __importDefault(require("../websocket/websocket"));
 const sendNotification_1 = require("../utils/sendNotification");
 const i18next_1 = __importDefault(require("i18next"));
 const Notification_model_1 = require("../models/Notification.model");
+const ShareGroup_model_1 = require("../models/ShareGroup.model");
 exports.getGroupsChat = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
     const { page, pageSize, name } = req.query;
@@ -672,4 +673,21 @@ const getUserRooms = async (roomsIds, userId) => {
     });
 };
 exports.getUserRooms = getUserRooms;
+exports.shareGroup = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const { id } = req.params;
+    const isGroupExist = await GroupsChat_model_1.GroupsChat.findOne({
+        where: {
+            id,
+        },
+    });
+    if (!isGroupExist) {
+        throw new ApiError_1.default(req.t("cannot_find_group_chat"), 404);
+    }
+    const shareGroup = await ShareGroup_model_1.ShareGroup.create({
+        user: { id: req.user.id },
+        group: { id },
+    });
+    await shareGroup.save();
+    res.status(200).json({ message: req.t("success") });
+});
 //# sourceMappingURL=GroupsChat.controller.js.map

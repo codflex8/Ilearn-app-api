@@ -21,6 +21,7 @@ const Bookmarks_model_1 = require("./Bookmarks.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 const getServerIpAddress_1 = require("../utils/getServerIpAddress");
 const Notification_model_1 = require("./Notification.model");
+const ShareGroup_model_1 = require("./ShareGroup.model");
 let User = class User extends BaseModel_1.BaseModel {
     constructor() {
         super(...arguments);
@@ -160,6 +161,14 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], User.prototype, "categories", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => ShareGroup_model_1.ShareGroup, (shareGroup) => shareGroup.user, {
+        cascade: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    }),
+    __metadata("design:type", Array)
+], User.prototype, "shareGroups", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Books_model_1.Book, (book) => book.user, {
         cascade: true,

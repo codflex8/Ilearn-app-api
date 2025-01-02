@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteBook = exports.setLocalPath = exports.updateBook = exports.addBook = exports.getBookById = exports.getBooks = void 0;
+exports.getWrongQuestions = exports.deleteBook = exports.setLocalPath = exports.updateBook = exports.addBook = exports.getBookById = exports.getBooks = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const Books_model_1 = require("../models/Books.model");
 const typeorm_1 = require("typeorm");
@@ -13,6 +13,7 @@ const getPaginationData_1 = require("../utils/getPaginationData");
 const ApiError_1 = __importDefault(require("../utils/ApiError"));
 const uploadToAws_1 = require("../utils/uploadToAws");
 const logger_1 = require("../utils/logger");
+const Questions_model_1 = require("../models/Questions.model");
 exports.getBooks = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { page, pageSize, categoryId, name, forArchive } = req.query;
     const user = req.user;
@@ -197,5 +198,15 @@ exports.deleteBook = (0, express_async_handler_1.default)(async (req, res, next)
         await (0, uploadToAws_1.deleteS3File)(book.s3Key);
     }
     res.status(200).json({ message: req.t("delete_success") });
+});
+exports.getWrongQuestions = (0, express_async_handler_1.default)(async (req, res, next) => {
+    const bookId = req.params.id;
+    const questions = await Questions_model_1.Question.createQueryBuilder("question")
+        .leftJoin("question.quiz", "quiz")
+        .leftJoin("quiz.books", "book")
+        .where("book.id = :bookId", { bookId })
+        .andWhere("question.userAnswerIndex != question.correctAnswerIndex")
+        .getMany();
+    res.status(200).json({ questions });
 });
 //# sourceMappingURL=books.controller.js.map

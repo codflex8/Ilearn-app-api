@@ -13,13 +13,10 @@ router.post("/refreshToken", authentication_controller_1.refreshToken);
 router.post("/forgotPassword", (0, validationMiddleware_1.validateData)(AuthValidator_1.forgetPasswordValidator), authentication_controller_1.forgotPassword);
 router.post("/verifyResetCode", (0, validationMiddleware_1.validateData)(AuthValidator_1.verifyForgetPasswordValidator), authentication_controller_1.verifyPassResetCode);
 router.put("/resetPassword", (0, validationMiddleware_1.validateData)(AuthValidator_1.resetPasswordValidator), authentication_controller_1.resetPassword);
-router.post("/google/signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.googleAuthSignUp);
-router.post("/google/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.googleAuthSignIn);
-router.post("/facebook/signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.facebookAuthSignUp);
-router.post("/facebook/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.facebookAuthSignIn);
-router.post("/twitter/signup", (0, validationMiddleware_1.validateData)(AuthValidator_1.twitterAuthValidator), authentication_controller_1.twitterAuthSignUp);
+router.post("/google", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.googleAuth);
+router.post("/facebook", (0, validationMiddleware_1.validateData)(AuthValidator_1.socialMediaAuthValidator), authentication_controller_1.facebookAuth);
+router.post("/twitter", (0, validationMiddleware_1.validateData)(AuthValidator_1.twitterAuthValidator), authentication_controller_1.twitterAuth);
 router.post("/resend-verification-email", (0, validationMiddleware_1.validateData)(AuthValidator_1.forgetPasswordValidator), authentication_controller_1.resendVerifyCode);
 router.post("/verify-email", (0, validationMiddleware_1.validateData)(AuthValidator_1.verifyEmailValidator), authentication_controller_1.verifyUserEmail);
-router.post("/twitter/signin", (0, validationMiddleware_1.validateData)(AuthValidator_1.twitterAuthValidator), authentication_controller_1.twitterAuthSignIn);
 exports.default = router;
 //# sourceMappingURL=authentication.router.js.map
