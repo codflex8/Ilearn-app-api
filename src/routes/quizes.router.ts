@@ -20,7 +20,7 @@ const router = Router();
 
 router.get("/", getQuizes);
 router.post("/", validateData(addQuizValidator), addQuize);
-router.put("/:id", validateData(updateQuizValidator), updateQuiz);
+router.put("/:id", validateData(addQuizValidator), updateQuiz);
 router.get("/:id", getQuizById);
 router.delete("/:id", deleteQuiz);
 router.get("/:id/questions", getQuizQuestions);

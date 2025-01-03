@@ -27,6 +27,10 @@ __decorate([
     __metadata("design:type", String)
 ], Question.prototype, "question", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: "boolean", default: false }),
+    __metadata("design:type", Boolean)
+], Question.prototype, "isCorrect", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: "enum", enum: QuizValidator_1.QuestionType }),
     __metadata("design:type", String)
 ], Question.prototype, "type", void 0);

@@ -78,6 +78,7 @@ exports.addQuize = (0, express_async_handler_1.default)(async (req, res, next) =
             aiAnswer: question.aiAnswer,
             userAnswer: question.userAnswer,
             user,
+            isCorrect: question.isCorrect,
         })),
     });
     await newQuiz.save();
@@ -100,7 +101,19 @@ exports.updateQuiz = (0, express_async_handler_1.default)(async (req, res, next)
     quiz.name = name;
     quiz.quizLevel = quizLevel;
     quiz.questionsType = questionsType;
-    quiz.questions = questions;
+    quiz.questions = questions.map((question) => addQuestion({
+        question: question.question,
+        answers: question.answers,
+        type: question.type,
+        userAnswerIndex: question.userAnswerIndex,
+        aiAnswerIndex: question.aiAnswerIndex,
+        correctAnswerIndex: question.correctAnswerIndex,
+        isBookmarked: question.isBookmarked,
+        aiAnswer: question.aiAnswer,
+        userAnswer: question.userAnswer,
+        user,
+        isCorrect: question.isCorrect,
+    }));
     quiz.mark = mark;
     quiz.books = books;
     await quiz.save();
@@ -176,7 +189,7 @@ exports.getQuizQuestionById = (0, express_async_handler_1.default)(async (req, r
     });
     res.status(200).json({ question });
 });
-const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, isBookmarked, user, userAnswer, aiAnswer, }) => {
+const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, isBookmarked, user, userAnswer, aiAnswer, isCorrect, }) => {
     const newQuestion = Questions_model_1.Question.create({
         question,
         type,
@@ -184,6 +197,7 @@ const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, 
         correctAnswerIndex,
         aiAnswer,
         userAnswer,
+        isCorrect,
         answers: answers.map((answer, index) => Answers_model_1.Answer.create({
             answer,
             // isCorrectAnswer: answer.isCorrectAnswer,
@@ -200,7 +214,7 @@ const addQuestion = ({ question, type, answers, userAnswerIndex, aiAnswerIndex, 
 exports.addQuestionHanlder = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
     const user = req.user;
-    const { question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, } = req.body;
+    const { question, type, answers, userAnswerIndex, aiAnswerIndex, correctAnswerIndex, isCorrect, } = req.body;
     const quiz = await Quiz_model_1.Quiz.findOne({
         where: {
             id,
@@ -220,6 +234,7 @@ exports.addQuestionHanlder = (0, express_async_handler_1.default)(async (req, re
         correctAnswerIndex,
         isBookmarked: question.isBookmarked,
         user,
+        isCorrect,
         aiAnswer: question.aiAnswer,
         userAnswer: question.userAnswer,
     });

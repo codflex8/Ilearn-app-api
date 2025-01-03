@@ -21,6 +21,9 @@ export class Question extends BaseModel {
   @Column({ type: "longtext" })
   question: string;
 
+  @Column({ type: "boolean", default: false })
+  isCorrect: boolean;
+
   @Column({ type: "enum", enum: QuestionType })
   type: QuestionType;
 

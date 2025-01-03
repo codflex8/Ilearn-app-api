@@ -62,6 +62,7 @@ const addQuestionObject = zod_1.z.object({
     userAnswer: zod_1.z.string().optional().nullable(),
     answers: zod_1.z.array(zod_1.z.string()),
     isBookmarked: zod_1.z.boolean().optional().nullable(),
+    isCorrect: zod_1.z.boolean(),
     // answers: z.array(addAnswerValidator),
 });
 exports.addQuestionValidator = questionValidatorWithRefine(addQuestionObject);

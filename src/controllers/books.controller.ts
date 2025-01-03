@@ -226,12 +226,15 @@ export const deleteBook = asyncHandler(
 export const getWrongQuestions = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const bookId = req.params.id;
-    const questions = await Question.createQueryBuilder("question")
-      .leftJoin("question.quiz", "quiz")
+    const quizId = req.query.quizId;
+    const querable = await Question.createQueryBuilder("question")
+      .leftJoinAndSelect("question.quiz", "quiz")
       .leftJoin("quiz.books", "book")
       .where("book.id = :bookId", { bookId })
-      .andWhere("question.userAnswerIndex != question.correctAnswerIndex")
-      .getMany();
-    res.status(200).json({ questions });
+      .andWhere("question.isCorrect = 0");
+    if (quizId) {
+      querable.andWhere("quiz.id = :quizId", { quizId });
+    }
+    res.status(200).json({ questions: await querable.getMany() });
   }
 );

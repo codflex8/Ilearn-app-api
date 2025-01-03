@@ -70,6 +70,7 @@ const addQuestionObject = z.object({
   userAnswer: z.string().optional().nullable(),
   answers: z.array(z.string()),
   isBookmarked: z.boolean().optional().nullable(),
+  isCorrect: z.boolean(),
   // answers: z.array(addAnswerValidator),
 });
 

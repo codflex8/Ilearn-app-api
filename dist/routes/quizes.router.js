@@ -7,7 +7,7 @@ const QuizValidator_1 = require("../utils/validators/QuizValidator");
 const router = (0, express_1.Router)();
 router.get("/", quiz_controller_1.getQuizes);
 router.post("/", (0, validationMiddleware_1.validateData)(QuizValidator_1.addQuizValidator), quiz_controller_1.addQuize);
-router.put("/:id", (0, validationMiddleware_1.validateData)(QuizValidator_1.updateQuizValidator), quiz_controller_1.updateQuiz);
+router.put("/:id", (0, validationMiddleware_1.validateData)(QuizValidator_1.addQuizValidator), quiz_controller_1.updateQuiz);
 router.get("/:id", quiz_controller_1.getQuizById);
 router.delete("/:id", quiz_controller_1.deleteQuiz);
 router.get("/:id/questions", quiz_controller_1.getQuizQuestions);

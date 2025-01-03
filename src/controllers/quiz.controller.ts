@@ -105,6 +105,7 @@ export const addQuize = asyncHandler(
           aiAnswer: question.aiAnswer,
           userAnswer: question.userAnswer,
           user,
+          isCorrect: question.isCorrect,
         })
       ),
     });
@@ -132,7 +133,21 @@ export const updateQuiz = asyncHandler(
     quiz.name = name;
     quiz.quizLevel = quizLevel;
     quiz.questionsType = questionsType;
-    quiz.questions = questions;
+    quiz.questions = questions.map((question) =>
+      addQuestion({
+        question: question.question,
+        answers: question.answers,
+        type: question.type,
+        userAnswerIndex: question.userAnswerIndex,
+        aiAnswerIndex: question.aiAnswerIndex,
+        correctAnswerIndex: question.correctAnswerIndex,
+        isBookmarked: question.isBookmarked,
+        aiAnswer: question.aiAnswer,
+        userAnswer: question.userAnswer,
+        user,
+        isCorrect: question.isCorrect,
+      })
+    );
     quiz.mark = mark;
     quiz.books = books;
     await quiz.save();
@@ -241,6 +256,7 @@ const addQuestion = ({
   user,
   userAnswer,
   aiAnswer,
+  isCorrect,
 }: {
   question: string;
   type: QuestionType;
@@ -252,6 +268,7 @@ const addQuestion = ({
   user: User;
   aiAnswer: string;
   userAnswer: string;
+  isCorrect: boolean;
 }) => {
   const newQuestion = Question.create({
     question,
@@ -260,6 +277,7 @@ const addQuestion = ({
     correctAnswerIndex,
     aiAnswer,
     userAnswer,
+    isCorrect,
     answers: answers.map((answer, index) =>
       Answer.create({
         answer,
@@ -288,6 +306,7 @@ export const addQuestionHanlder = asyncHandler(
       userAnswerIndex,
       aiAnswerIndex,
       correctAnswerIndex,
+      isCorrect,
     } = req.body;
     const quiz = await Quiz.findOne({
       where: {
@@ -307,6 +326,7 @@ export const addQuestionHanlder = asyncHandler(
       correctAnswerIndex,
       isBookmarked: question.isBookmarked,
       user,
+      isCorrect,
       aiAnswer: question.aiAnswer,
       userAnswer: question.userAnswer,
     });

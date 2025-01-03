@@ -15,6 +15,7 @@ import { Quiz } from "../models/Quiz.model";
 import i18next from "i18next";
 import { sendAndCreateNotification } from "../utils/sendNotification";
 import { NotificationType } from "../models/Notification.model";
+import { ShareGroup } from "../models/ShareGroup.model";
 // import { getWeeksInMonth } from "date-fns";
 
 enum ReportType {
@@ -74,7 +75,18 @@ export const getProfileStatistics = expressAsync(
       endDate,
       startDate,
     });
-    res.status(200).json({ booksPercentage, examsPercentage });
+
+    const getExcitementPoin = await getExcitementPoints({
+      booksPercentage: booksPercentage.percentage,
+      examsPercentage: examsPercentage.percentage,
+      reportType,
+      user,
+      endDate,
+      startDate,
+    });
+    res
+      .status(200)
+      .json({ booksPercentage, examsPercentage, getExcitementPoin });
   }
 );
 
@@ -96,6 +108,44 @@ const getReportsStartAndEndDate = (date: Date, reportType: ReportType) => {
   }
   console.log("dayEnd, dayStart", startDate, endDate);
   return { startDate, endDate };
+};
+
+const getExcitementPoints = async ({
+  endDate,
+  startDate,
+  user,
+  reportType,
+  examsPercentage,
+  booksPercentage,
+}: {
+  examsPercentage: number;
+  booksPercentage: number;
+  user: User;
+  startDate: Date;
+  endDate: Date;
+  reportType: ReportType;
+}) => {
+  const shareGroup = await ShareGroup.count({
+    where: {
+      user: { id: user.id },
+      createdAt: Between(startDate, endDate),
+    },
+  });
+  const shareGroupScale = 4;
+  const enthusiasmPoints =
+    ((booksPercentage / 100) * 0.4 +
+      (examsPercentage / 100) * 0.4 +
+      Math.min(
+        shareGroup /
+          (reportType === ReportType.monthly
+            ? shareGroupScale * 4
+            : shareGroupScale),
+        1
+      ) *
+        0.2) *
+    100;
+
+  return enthusiasmPoints;
 };
 
 export const usersStatisticsReminder = async () => {

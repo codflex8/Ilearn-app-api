@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var Quiz_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quiz = void 0;
 const typeorm_1 = require("typeorm");
@@ -16,7 +17,7 @@ const Questions_model_1 = require("./Questions.model");
 const User_model_1 = require("./User.model");
 const QuizValidator_1 = require("../utils/validators/QuizValidator");
 const Books_model_1 = require("./Books.model");
-let Quiz = class Quiz extends BaseModel_1.BaseModel {
+let Quiz = Quiz_1 = class Quiz extends BaseModel_1.BaseModel {
     static getUserQuizById(userId, quizId) {
         return this.createQueryBuilder("quiz")
             .leftJoinAndSelect("quiz.questions", "question")
@@ -67,7 +68,7 @@ let Quiz = class Quiz extends BaseModel_1.BaseModel {
         return querable.orderBy("quiz.createdAt", "DESC");
     }
     static async getQuizesPercentage({ userId, startDate, endDate, examsGoal }) {
-        const fullmarkQuizesCount = await this.getRepository()
+        const fullmarkExamsCount = await this.getRepository()
             .createQueryBuilder("quiz")
             .leftJoin("quiz.user", "user")
             .where("user.id = :userId", { userId })
@@ -86,11 +87,35 @@ let Quiz = class Quiz extends BaseModel_1.BaseModel {
             return `quiz.mark >= (${subQuery})`;
         })
             .getCount();
-        console.log("fullmarkQuizesCount", fullmarkQuizesCount);
+        const quizPercentages = await Quiz_1.getRepository()
+            .createQueryBuilder("quiz")
+            .leftJoin("quiz.questions", "question")
+            .select("100 * (quiz.mark * 1.0 / COUNT(question.id))", "markPercentage")
+            .where("quiz.userId = :userId", { userId })
+            .andWhere("quiz.createdAt BETWEEN :startDate AND :endDate", {
+            startDate,
+            endDate,
+        })
+            .groupBy("quiz.id")
+            .getRawMany();
+        const percentages = quizPercentages.map((row) => parseFloat(row.markPercentage));
+        const averagePercentage = percentages.reduce((sum, percentage) => sum + percentage, 0) /
+            percentages.length || 0;
+        // const subQuery = queryBuilder
+        //   .subQuery()
+        //   .select("quiz.mark * 1.0 / COUNT(question.id)", "markPercentage")
+        //   .from("quiz", "quiz")
+        //   .leftJoin("quiz.questions", "question")
+        //   .groupBy("quiz.id")
+        //   .getQuery();
+        // // حساب المتوسط لجميع النسب المئوية
+        // const averagePercentage = await queryBuilder
+        //   .select(`AVG(${subQuery})`, "averagePercentage")
+        //   .getOne();
         return {
             examsGoal,
-            examsCount: fullmarkQuizesCount,
-            percentage: (fullmarkQuizesCount / examsGoal) * 100,
+            fullmarkExamsCount,
+            percentage: averagePercentage,
         };
     }
 };
@@ -142,7 +167,7 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], Quiz.prototype, "books", void 0);
-exports.Quiz = Quiz = __decorate([
+exports.Quiz = Quiz = Quiz_1 = __decorate([
     (0, typeorm_1.Entity)()
 ], Quiz);
 //# sourceMappingURL=Quiz.model.js.map

@@ -8,10 +8,12 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const Dates_1 = require("../utils/Dates");
 const User_model_1 = require("../models/User.model");
 const Books_model_1 = require("../models/Books.model");
+const typeorm_1 = require("typeorm");
 const Quiz_model_1 = require("../models/Quiz.model");
 const i18next_1 = __importDefault(require("i18next"));
 const sendNotification_1 = require("../utils/sendNotification");
 const Notification_model_1 = require("../models/Notification.model");
+const ShareGroup_model_1 = require("../models/ShareGroup.model");
 // import { getWeeksInMonth } from "date-fns";
 var ReportType;
 (function (ReportType) {
@@ -58,7 +60,17 @@ exports.getProfileStatistics = (0, express_async_handler_1.default)(async (req, 
         endDate,
         startDate,
     });
-    res.status(200).json({ booksPercentage, examsPercentage });
+    const getExcitementPoin = await getExcitementPoints({
+        booksPercentage: booksPercentage.percentage,
+        examsPercentage: examsPercentage.percentage,
+        reportType,
+        user,
+        endDate,
+        startDate,
+    });
+    res
+        .status(200)
+        .json({ booksPercentage, examsPercentage, getExcitementPoin });
 });
 const getReportsStartAndEndDate = (date, reportType) => {
     let startDate;
@@ -80,6 +92,24 @@ const getReportsStartAndEndDate = (date, reportType) => {
     }
     console.log("dayEnd, dayStart", startDate, endDate);
     return { startDate, endDate };
+};
+const getExcitementPoints = async ({ endDate, startDate, user, reportType, examsPercentage, booksPercentage, }) => {
+    const shareGroup = await ShareGroup_model_1.ShareGroup.count({
+        where: {
+            user: { id: user.id },
+            createdAt: (0, typeorm_1.Between)(startDate, endDate),
+        },
+    });
+    const shareGroupScale = 4;
+    const enthusiasmPoints = ((booksPercentage / 100) * 0.4 +
+        (examsPercentage / 100) * 0.4 +
+        Math.min(shareGroup /
+            (reportType === ReportType.monthly
+                ? shareGroupScale * 4
+                : shareGroupScale), 1) *
+            0.2) *
+        100;
+    return enthusiasmPoints;
 };
 const usersStatisticsReminder = async () => {
     const { endDate, startDate } = getReportsStartAndEndDate(new Date(), ReportType.weekly);
