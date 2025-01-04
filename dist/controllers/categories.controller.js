@@ -50,11 +50,11 @@ exports.addCategory = (0, express_async_handler_1.default)(async (req, res, next
 });
 exports.updateCategory = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { id } = req.params;
-    const { name, imageUrl } = req.body;
+    const { name, image } = req.body;
     const user = req.user;
     const updateCategory = await Categories_model_1.Category.getUserCategoryById(user.id, id);
     updateCategory.name = name;
-    updateCategory.imageUrl = imageUrl;
+    updateCategory.imageUrl = image;
     await updateCategory.save();
     res.status(200).json({ category: updateCategory });
 });

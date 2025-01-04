@@ -130,6 +130,7 @@ export const updateQuiz = asyncHandler(
         id: In(booksIds),
       },
     });
+    await Question.remove(quiz.questions);
     quiz.name = name;
     quiz.quizLevel = quizLevel;
     quiz.questionsType = questionsType;

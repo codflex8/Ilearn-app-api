@@ -15,7 +15,7 @@ import { Quiz } from "../models/Quiz.model";
 import i18next from "i18next";
 import { sendAndCreateNotification } from "../utils/sendNotification";
 import { NotificationType } from "../models/Notification.model";
-import { ShareGroup } from "../models/ShareGroup.model";
+import { ShareApp } from "../models/ShareApp.model";
 // import { getWeeksInMonth } from "date-fns";
 
 enum ReportType {
@@ -45,7 +45,20 @@ export const getHomeStatistcs = expressAsync(
         return { index, todayPercentage };
       })
     );
-    res.status(200).json({ weekPercentageData, dailyData });
+    const { booksPercentage, examsPercentage, getExcitementPoin } =
+      await getUserStatistics({
+        user,
+        startDate: startWeekDate,
+        endDate: endWeekDate,
+        reportType: ReportType.weekly,
+      });
+    res.status(200).json({
+      weekPercentageData,
+      dailyData,
+      booksPercentage,
+      examsPercentage,
+      getExcitementPoin,
+    });
   }
 );
 
@@ -60,35 +73,52 @@ export const getProfileStatistics = expressAsync(
     const { endDate, startDate } = getReportsStartAndEndDate(date, reportType);
     // const monthWeeks = getWeeksInMonth(new Date(date));
     // console.log("monthWeeksssss", monthWeeks);
-    const booksPercentage = await Book.getUserGoalPercentage({
-      userId: user.id,
-      booksGoal:
-        reportType === ReportType.monthly ? user.booksGoal * 4 : user.booksGoal,
-      endDate,
-      startDate,
-    });
-
-    const examsPercentage = await Quiz.getQuizesPercentage({
-      userId: user.id,
-      examsGoal:
-        reportType === ReportType.monthly ? user.examsGoal * 4 : user.examsGoal,
-      endDate,
-      startDate,
-    });
-
-    const getExcitementPoin = await getExcitementPoints({
-      booksPercentage: booksPercentage.percentage,
-      examsPercentage: examsPercentage.percentage,
-      reportType,
-      user,
-      endDate,
-      startDate,
-    });
+    const { booksPercentage, examsPercentage, getExcitementPoin } =
+      await getUserStatistics({ user, startDate, endDate, reportType });
     res
       .status(200)
       .json({ booksPercentage, examsPercentage, getExcitementPoin });
   }
 );
+
+const getUserStatistics = async ({
+  user,
+  endDate,
+  reportType,
+  startDate,
+}: {
+  user: User;
+  reportType: ReportType;
+  endDate: Date;
+  startDate: Date;
+}) => {
+  const booksPercentage = await Book.getUserGoalPercentage({
+    userId: user.id,
+    booksGoal:
+      reportType === ReportType.monthly ? user.booksGoal * 4 : user.booksGoal,
+    endDate,
+    startDate,
+  });
+
+  const examsPercentage = await Quiz.getQuizesPercentage({
+    userId: user.id,
+    examsGoal:
+      reportType === ReportType.monthly ? user.examsGoal * 4 : user.examsGoal,
+    endDate,
+    startDate,
+  });
+
+  const getExcitementPoin = await getExcitementPoints({
+    booksPercentage: booksPercentage.percentage,
+    examsPercentage: examsPercentage.percentage,
+    reportType,
+    user,
+    endDate,
+    startDate,
+  });
+
+  return { booksPercentage, examsPercentage, getExcitementPoin };
+};
 
 const getReportsStartAndEndDate = (date: Date, reportType: ReportType) => {
   let startDate: Date;
@@ -125,7 +155,7 @@ const getExcitementPoints = async ({
   endDate: Date;
   reportType: ReportType;
 }) => {
-  const shareGroup = await ShareGroup.count({
+  const shareGroup = await ShareApp.count({
     where: {
       user: { id: user.id },
       createdAt: Between(startDate, endDate),

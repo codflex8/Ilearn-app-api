@@ -19,9 +19,11 @@ const termsAndPolicy_router_1 = __importDefault(require("./termsAndPolicy.router
 const appLinks_router_1 = __importDefault(require("./appLinks.router"));
 const notifications_router_1 = __importDefault(require("./notifications.router"));
 const authentication_controller_1 = require("../controllers/authentication.controller");
+const GroupsChat_controller_1 = require("../controllers/GroupsChat.controller");
 class Routes {
     constructor(app) {
         app.use("/api/v1/auth", authentication_router_1.default);
+        app.post("/api/v1/share-app", authentication_controller_1.protect, GroupsChat_controller_1.shareApp);
         app.use("/api/v1", authentication_controller_1.protect, home_router_1.default);
         app.use("/api/v1", authentication_controller_1.protect, users_router_1.default);
         app.use("/api/v1/archive", authentication_controller_1.protect, archive_router_1.default);

@@ -15,7 +15,6 @@ const BaseModel_1 = require("./BaseModel");
 const GroupsChatMessages_model_1 = require("./GroupsChatMessages.model");
 const GroupsChatUsers_model_1 = require("./GroupsChatUsers.model");
 const getServerIpAddress_1 = require("../utils/getServerIpAddress");
-const ShareGroup_model_1 = require("./ShareGroup.model");
 let GroupsChat = class GroupsChat extends BaseModel_1.BaseModel {
     constructor() {
         super(...arguments);
@@ -129,14 +128,6 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], GroupsChat.prototype, "messages", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => ShareGroup_model_1.ShareGroup, (shareGroup) => shareGroup.group, {
-        cascade: true,
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-    }),
-    __metadata("design:type", Array)
-], GroupsChat.prototype, "shareGroups", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => GroupsChatUsers_model_1.GroupsChatUsers, (groupsChatUsers) => groupsChatUsers.groupChat, {
         onDelete: "CASCADE",

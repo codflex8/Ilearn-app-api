@@ -60,11 +60,11 @@ export const addCategory = asyncHandler(
 export const updateCategory = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const { name, imageUrl } = req.body;
+    const { name, image } = req.body;
     const user = req.user;
     const updateCategory = await Category.getUserCategoryById(user.id, id);
     updateCategory.name = name;
-    updateCategory.imageUrl = imageUrl;
+    updateCategory.imageUrl = image;
     await updateCategory.save();
     res.status(200).json({ category: updateCategory });
   }

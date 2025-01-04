@@ -235,6 +235,11 @@ export const getWrongQuestions = asyncHandler(
     if (quizId) {
       querable.andWhere("quiz.id = :quizId", { quizId });
     }
-    res.status(200).json({ questions: await querable.getMany() });
+    res.status(200).json({
+      questions: await querable
+        .orderBy("RAND()") // MySQL random ordering
+        .limit(3)
+        .getMany(),
+    });
   }
 );

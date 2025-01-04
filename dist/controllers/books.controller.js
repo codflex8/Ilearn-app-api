@@ -210,6 +210,11 @@ exports.getWrongQuestions = (0, express_async_handler_1.default)(async (req, res
     if (quizId) {
         querable.andWhere("quiz.id = :quizId", { quizId });
     }
-    res.status(200).json({ questions: await querable.getMany() });
+    res.status(200).json({
+        questions: await querable
+            .orderBy("RAND()") // MySQL random ordering
+            .limit(3)
+            .getMany(),
+    });
 });
 //# sourceMappingURL=books.controller.js.map

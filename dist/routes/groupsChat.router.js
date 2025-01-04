@@ -28,6 +28,5 @@ router.post("/:id/accept-user-join", (0, validationMiddleware_1.validateData)(Gr
 router.post("/:id/leave", GroupsChat_controller_1.leaveGroupChat);
 router.post("/:id/report", report_controller_1.addReport);
 router.get("/:id/report", report_controller_1.getReports);
-router.post("/:id/share", GroupsChat_controller_1.shareGroup);
 exports.default = router;
 //# sourceMappingURL=groupsChat.router.js.map

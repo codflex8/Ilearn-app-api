@@ -13,7 +13,6 @@ import { GroupsChatMessages } from "./GroupsChatMessages.model";
 import { User } from "./User.model";
 import { GroupsChatUsers } from "./GroupsChatUsers.model";
 import { getServerIPAddress } from "../utils/getServerIpAddress";
-import { ShareGroup } from "./ShareGroup.model";
 
 @Entity()
 export class GroupsChat extends BaseModel {
@@ -46,13 +45,6 @@ export class GroupsChat extends BaseModel {
     onUpdate: "CASCADE",
   })
   messages: GroupsChatMessages[];
-
-  @OneToMany(() => ShareGroup, (shareGroup) => shareGroup.group, {
-    cascade: true,
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  shareGroups: ShareGroup[];
 
   @OneToMany(
     () => GroupsChatUsers,

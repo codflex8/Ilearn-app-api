@@ -13,7 +13,7 @@ const Quiz_model_1 = require("../models/Quiz.model");
 const i18next_1 = __importDefault(require("i18next"));
 const sendNotification_1 = require("../utils/sendNotification");
 const Notification_model_1 = require("../models/Notification.model");
-const ShareGroup_model_1 = require("../models/ShareGroup.model");
+const ShareApp_model_1 = require("../models/ShareApp.model");
 // import { getWeeksInMonth } from "date-fns";
 var ReportType;
 (function (ReportType) {
@@ -40,7 +40,19 @@ exports.getHomeStatistcs = (0, express_async_handler_1.default)(async (req, res,
         });
         return { index, todayPercentage };
     }));
-    res.status(200).json({ weekPercentageData, dailyData });
+    const { booksPercentage, examsPercentage, getExcitementPoin } = await getUserStatistics({
+        user,
+        startDate: startWeekDate,
+        endDate: endWeekDate,
+        reportType: ReportType.weekly,
+    });
+    res.status(200).json({
+        weekPercentageData,
+        dailyData,
+        booksPercentage,
+        examsPercentage,
+        getExcitementPoin,
+    });
 });
 exports.getProfileStatistics = (0, express_async_handler_1.default)(async (req, res, next) => {
     const user = req.user;
@@ -48,6 +60,12 @@ exports.getProfileStatistics = (0, express_async_handler_1.default)(async (req, 
     const { endDate, startDate } = getReportsStartAndEndDate(date, reportType);
     // const monthWeeks = getWeeksInMonth(new Date(date));
     // console.log("monthWeeksssss", monthWeeks);
+    const { booksPercentage, examsPercentage, getExcitementPoin } = await getUserStatistics({ user, startDate, endDate, reportType });
+    res
+        .status(200)
+        .json({ booksPercentage, examsPercentage, getExcitementPoin });
+});
+const getUserStatistics = async ({ user, endDate, reportType, startDate, }) => {
     const booksPercentage = await Books_model_1.Book.getUserGoalPercentage({
         userId: user.id,
         booksGoal: reportType === ReportType.monthly ? user.booksGoal * 4 : user.booksGoal,
@@ -68,10 +86,8 @@ exports.getProfileStatistics = (0, express_async_handler_1.default)(async (req, 
         endDate,
         startDate,
     });
-    res
-        .status(200)
-        .json({ booksPercentage, examsPercentage, getExcitementPoin });
-});
+    return { booksPercentage, examsPercentage, getExcitementPoin };
+};
 const getReportsStartAndEndDate = (date, reportType) => {
     let startDate;
     let endDate;
@@ -94,7 +110,7 @@ const getReportsStartAndEndDate = (date, reportType) => {
     return { startDate, endDate };
 };
 const getExcitementPoints = async ({ endDate, startDate, user, reportType, examsPercentage, booksPercentage, }) => {
-    const shareGroup = await ShareGroup_model_1.ShareGroup.count({
+    const shareGroup = await ShareApp_model_1.ShareApp.count({
         where: {
             user: { id: user.id },
             createdAt: (0, typeorm_1.Between)(startDate, endDate),

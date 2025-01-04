@@ -98,6 +98,7 @@ exports.updateQuiz = (0, express_async_handler_1.default)(async (req, res, next)
             id: (0, typeorm_1.In)(booksIds),
         },
     });
+    await Questions_model_1.Question.remove(quiz.questions);
     quiz.name = name;
     quiz.quizLevel = quizLevel;
     quiz.questionsType = questionsType;

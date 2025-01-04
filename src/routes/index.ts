@@ -16,10 +16,12 @@ import appLinksRouter from "./appLinks.router";
 import notificationRouter from "./notifications.router";
 
 import { protect } from "../controllers/authentication.controller";
+import { shareApp } from "../controllers/GroupsChat.controller";
 
 export default class Routes {
   constructor(app: Application) {
     app.use("/api/v1/auth", AuthRouter);
+    app.post("/api/v1/share-app", protect, shareApp);
     app.use("/api/v1", protect, homeRouter);
     app.use("/api/v1", protect, usersRouter);
     app.use("/api/v1/archive", protect, archiveRouter);
