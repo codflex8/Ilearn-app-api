@@ -82,6 +82,7 @@ exports.addQuize = (0, express_async_handler_1.default)(async (req, res, next) =
         })),
     });
     await newQuiz.save();
+    await updateCorrectAnswers(questions);
     delete newQuiz.user;
     res.status(201).json({ quiz: newQuiz });
 });
@@ -117,6 +118,7 @@ exports.updateQuiz = (0, express_async_handler_1.default)(async (req, res, next)
     }));
     quiz.mark = mark;
     quiz.books = books;
+    await updateCorrectAnswers(questions);
     await quiz.save();
     res.status(200).json({ quiz });
 });
@@ -243,4 +245,15 @@ exports.addQuestionHanlder = (0, express_async_handler_1.default)(async (req, re
     await newQuestion.save();
     res.status(201).json({ newQuestion });
 });
+// update correct answers after get wrong get answers
+const updateCorrectAnswers = async (questions) => {
+    const correctQuestionsIds = questions
+        .filter((ques) => ques.isCorrect)
+        .map((ques) => ques.id);
+    await Questions_model_1.Question.update({
+        id: (0, typeorm_1.In)(correctQuestionsIds),
+    }, {
+        isCorrect: true,
+    });
+};
 //# sourceMappingURL=quiz.controller.js.map

@@ -1,14 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { Book } from "../models/Books.model";
-import { Brackets, FindOptionsWhere, ILike, IsNull, Not } from "typeorm";
+import { Brackets } from "typeorm";
 import { Category } from "../models/Categories.model";
 import { GenericResponse } from "../utils/GenericResponse";
 import { getPaginationData } from "../utils/getPaginationData";
 import ApiError from "../utils/ApiError";
 import { deleteS3File } from "../utils/uploadToAws";
 import { httpLogger } from "../utils/logger";
-import { Quiz } from "../models/Quiz.model";
 import { Question } from "../models/Questions.model";
 
 export const getBooks = asyncHandler(

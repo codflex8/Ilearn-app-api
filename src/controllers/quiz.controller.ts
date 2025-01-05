@@ -110,6 +110,7 @@ export const addQuize = asyncHandler(
       ),
     });
     await newQuiz.save();
+    await updateCorrectAnswers(questions);
     delete newQuiz.user;
     res.status(201).json({ quiz: newQuiz });
   }
@@ -151,6 +152,7 @@ export const updateQuiz = asyncHandler(
     );
     quiz.mark = mark;
     quiz.books = books;
+    await updateCorrectAnswers(questions);
     await quiz.save();
     res.status(200).json({ quiz });
   }
@@ -336,3 +338,18 @@ export const addQuestionHanlder = asyncHandler(
     res.status(201).json({ newQuestion });
   }
 );
+
+// update correct answers after get wrong get answers
+const updateCorrectAnswers = async (questions) => {
+  const correctQuestionsIds: string[] = questions
+    .filter((ques) => ques.isCorrect)
+    .map((ques) => ques.id);
+  await Question.update(
+    {
+      id: In(correctQuestionsIds),
+    },
+    {
+      isCorrect: true,
+    }
+  );
+};
