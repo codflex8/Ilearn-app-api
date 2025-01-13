@@ -3,14 +3,14 @@ import i18next from "i18next";
 import Backend from "i18next-fs-backend";
 import middleware from "i18next-http-middleware";
 import { dataSource } from "./models/dataSource";
-import Routes from "./routes";
+import Routes from "./routes/users";
 import cors from "cors";
-import morgan from "morgan";
 import { globalError } from "./middleware/ErrorMiddleware";
 import ApiError from "./utils/ApiError";
 import dotenv from "dotenv";
 import path from "path";
 import { httpLogger } from "./utils/logger";
+import DashboardRoutes from "./routes/dashboard";
 
 export default class AppServer {
   constructor(app: Application) {
@@ -42,7 +42,7 @@ export default class AppServer {
       });
     dotenv.config();
     app.use(middleware.handle(i18next));
-    app.use(cors());
+    app.use(cors({ origin: "*" }));
     app.use(express.json({ limit: "100mb" }));
     app.use(express.urlencoded({ limit: "100mb", extended: true }));
     app.use((req: Request, res: Response, next: NextFunction) => {
@@ -60,8 +60,8 @@ export default class AppServer {
       return res.send("hello worldddd");
     });
 
+    new DashboardRoutes(app);
     new Routes(app);
-
     app.all("*", (req, res, next) => {
       next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));
     });

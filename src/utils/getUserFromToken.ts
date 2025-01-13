@@ -29,6 +29,7 @@ export const getUserFromToken = async (
 
     return { currentUser, decoded };
   } catch (error) {
+    console.log("errorrrrr", error);
     throw new ApiError("unauthorized", 401);
   }
 };

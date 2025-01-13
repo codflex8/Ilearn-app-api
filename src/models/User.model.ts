@@ -5,13 +5,16 @@ import {
   Column,
   Entity,
   FindOptionsWhere,
-  JoinTable,
-  ManyToMany,
   OneToMany,
 } from "typeorm";
 import { Category } from "./Categories.model";
 import { Book } from "./Books.model";
-import { GenderEnum, LanguageEnum } from "../utils/validators/AuthValidator";
+import {
+  GenderEnum,
+  LanguageEnum,
+  UsersRoles,
+  UserStatus,
+} from "../utils/validators/AuthValidator";
 import { BaseModel } from "./BaseModel";
 import { Chatbot } from "./ChatBot.model";
 import { Quiz } from "./Quiz.model";
@@ -35,6 +38,9 @@ export class User extends BaseModel {
 
   @Column({ nullable: true })
   password: string;
+
+  @Column({ nullable: true })
+  dashboardPassword: string;
 
   @Column({ nullable: true })
   googleId: string;
@@ -87,6 +93,12 @@ export class User extends BaseModel {
 
   @Column({ type: "enum", nullable: true, enum: LanguageEnum })
   language: LanguageEnum;
+
+  @Column({ type: "enum", enum: UsersRoles, default: UsersRoles.user })
+  role: UsersRoles;
+
+  @Column({ type: "enum", enum: UserStatus, default: UserStatus.active })
+  status: UserStatus;
 
   @OneToMany(() => Notification, (not) => not.user, {
     cascade: true,

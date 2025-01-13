@@ -19,7 +19,7 @@ let Bookmark = class Bookmark extends BaseModel_1.BaseModel {
 };
 exports.Bookmark = Bookmark;
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_model_1.User),
+    (0, typeorm_1.ManyToOne)(() => User_model_1.User, { onDelete: "CASCADE", onUpdate: "CASCADE" }),
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", User_model_1.User)
 ], Bookmark.prototype, "user", void 0);

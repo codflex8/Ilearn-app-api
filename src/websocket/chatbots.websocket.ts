@@ -3,9 +3,9 @@ import {
   IChatbotMessage,
   refineChatbotMessageValidator,
 } from "../utils/validators/ChatbotValidator";
-import { addMessage } from "../controllers/chatbot.controller";
+import { addMessage } from "../controllers/users/chatbot.controller";
 import schemaValidator from "../utils/schemaValidator";
-import { toggleBookmark } from "../controllers/bookmark.controller";
+import { toggleBookmark } from "../controllers/users/bookmark.controller";
 import { addBookmarkValidator } from "../utils/validators/BookmarkValidator";
 
 export const chatbotEvents = (socket: Socket) => {

@@ -52,3 +52,13 @@ export const twitterAuthValidator = z.object({
 export const addFcmValidation = z.object({
   fcm: z.string(),
 });
+
+export enum UsersRoles {
+  user = "user",
+  admin = "admin",
+}
+
+export enum UserStatus {
+  active = "active",
+  unactive = "unactive",
+}

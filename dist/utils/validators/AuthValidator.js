@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addFcmValidation = exports.twitterAuthValidator = exports.socialMediaAuthValidator = exports.resetPasswordValidator = exports.verifyEmailValidator = exports.verifyForgetPasswordValidator = exports.forgetPasswordValidator = exports.signUpValidator = exports.signInValidator = exports.LanguageEnum = exports.GenderEnum = void 0;
+exports.UserStatus = exports.UsersRoles = exports.addFcmValidation = exports.twitterAuthValidator = exports.socialMediaAuthValidator = exports.resetPasswordValidator = exports.verifyEmailValidator = exports.verifyForgetPasswordValidator = exports.forgetPasswordValidator = exports.signUpValidator = exports.signInValidator = exports.LanguageEnum = exports.GenderEnum = void 0;
 const zod_1 = require("zod");
 var GenderEnum;
 (function (GenderEnum) {
@@ -46,4 +46,14 @@ exports.twitterAuthValidator = zod_1.z.object({
 exports.addFcmValidation = zod_1.z.object({
     fcm: zod_1.z.string(),
 });
+var UsersRoles;
+(function (UsersRoles) {
+    UsersRoles["user"] = "user";
+    UsersRoles["admin"] = "admin";
+})(UsersRoles || (exports.UsersRoles = UsersRoles = {}));
+var UserStatus;
+(function (UserStatus) {
+    UserStatus["active"] = "active";
+    UserStatus["unactive"] = "unactive";
+})(UserStatus || (exports.UserStatus = UserStatus = {}));
 //# sourceMappingURL=AuthValidator.js.map

@@ -80,6 +80,10 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
+], User.prototype, "dashboardPassword", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
 ], User.prototype, "googleId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
@@ -145,6 +149,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: "enum", nullable: true, enum: AuthValidator_1.LanguageEnum }),
     __metadata("design:type", String)
 ], User.prototype, "language", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "enum", enum: AuthValidator_1.UsersRoles, default: AuthValidator_1.UsersRoles.user }),
+    __metadata("design:type", String)
+], User.prototype, "role", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "enum", enum: AuthValidator_1.UserStatus, default: AuthValidator_1.UserStatus.active }),
+    __metadata("design:type", String)
+], User.prototype, "status", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Notification_model_1.Notification, (not) => not.user, {
         cascade: true,

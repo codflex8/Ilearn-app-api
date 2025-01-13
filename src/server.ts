@@ -11,7 +11,7 @@ import ApiError from "./utils/ApiError";
 import { httpLogger } from "./utils/logger";
 import i18next from "i18next";
 import cron from "node-cron";
-import { usersStatisticsReminder } from "./controllers/statistics.controller";
+import { usersStatisticsReminder } from "./controllers/users/statistics.controller";
 
 const app = express();
 

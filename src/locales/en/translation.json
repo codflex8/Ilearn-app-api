@@ -1,4 +1,6 @@
 { 
+  "not-found":"not found",
+  "user-not-active":"user not active",
   "sign_up_success":"sign up success, please verify your email",
   "invalid_code": "Invalid code",
   "emailNotVerified": "Email address not verified",

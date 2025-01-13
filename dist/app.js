@@ -8,13 +8,14 @@ const i18next_1 = __importDefault(require("i18next"));
 const i18next_fs_backend_1 = __importDefault(require("i18next-fs-backend"));
 const i18next_http_middleware_1 = __importDefault(require("i18next-http-middleware"));
 const dataSource_1 = require("./models/dataSource");
-const routes_1 = __importDefault(require("./routes"));
+const users_1 = __importDefault(require("./routes/users"));
 const cors_1 = __importDefault(require("cors"));
 const ErrorMiddleware_1 = require("./middleware/ErrorMiddleware");
 const ApiError_1 = __importDefault(require("./utils/ApiError"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 const logger_1 = require("./utils/logger");
+const dashboard_1 = __importDefault(require("./routes/dashboard"));
 class AppServer {
     constructor(app) {
         this.connectDatabase();
@@ -38,7 +39,7 @@ class AppServer {
         });
         dotenv_1.default.config();
         app.use(i18next_http_middleware_1.default.handle(i18next_1.default));
-        app.use((0, cors_1.default)());
+        app.use((0, cors_1.default)({ origin: "*" }));
         app.use(express_1.default.json({ limit: "100mb" }));
         app.use(express_1.default.urlencoded({ limit: "100mb", extended: true }));
         app.use((req, res, next) => {
@@ -54,7 +55,8 @@ class AppServer {
         app.get("/", (req, res, next) => {
             return res.send("hello worldddd");
         });
-        new routes_1.default(app);
+        new dashboard_1.default(app);
+        new users_1.default(app);
         app.all("*", (req, res, next) => {
             next(new ApiError_1.default(`Can't find this route: ${req.originalUrl}`, 400));
         });

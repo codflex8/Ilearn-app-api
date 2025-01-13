@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chatbotEvents = void 0;
 const ChatbotValidator_1 = require("../utils/validators/ChatbotValidator");
-const chatbot_controller_1 = require("../controllers/chatbot.controller");
+const chatbot_controller_1 = require("../controllers/users/chatbot.controller");
 const schemaValidator_1 = __importDefault(require("../utils/schemaValidator"));
-const bookmark_controller_1 = require("../controllers/bookmark.controller");
+const bookmark_controller_1 = require("../controllers/users/bookmark.controller");
 const BookmarkValidator_1 = require("../utils/validators/BookmarkValidator");
 const chatbotEvents = (socket) => {
     socket.on("chatbot-new-message", async (data, callback) => {

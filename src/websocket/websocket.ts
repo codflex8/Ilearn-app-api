@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { User } from "../models/User.model";
-import { getUserRooms } from "../controllers/GroupsChat.controller";
+import { getUserRooms } from "../controllers/users/GroupsChat.controller";
 import { GroupsChat } from "../models/GroupsChat.model";
 import { In, Not } from "typeorm";
 import { Notification } from "../models/Notification.model";

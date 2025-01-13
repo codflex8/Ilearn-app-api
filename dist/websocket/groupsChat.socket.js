@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.groupsChatEvents = void 0;
 const GroupsChat_model_1 = require("../models/GroupsChat.model");
 const websocket_1 = __importDefault(require("./websocket"));
-const GroupsChat_controller_1 = require("../controllers/GroupsChat.controller");
+const GroupsChat_controller_1 = require("../controllers/users/GroupsChat.controller");
 const GroupsChatValidator_1 = require("../utils/validators/GroupsChatValidator");
 const schemaValidator_1 = __importDefault(require("../utils/schemaValidator"));
 const GroupsChatMessages_model_1 = require("../models/GroupsChatMessages.model");

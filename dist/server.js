@@ -15,7 +15,7 @@ const ApiError_1 = __importDefault(require("./utils/ApiError"));
 const logger_1 = require("./utils/logger");
 const i18next_1 = __importDefault(require("i18next"));
 const node_cron_1 = __importDefault(require("node-cron"));
-const statistics_controller_1 = require("./controllers/statistics.controller");
+const statistics_controller_1 = require("./controllers/users/statistics.controller");
 const app = (0, express_1.default)();
 new app_1.default(app);
 const httpServer = (0, http_1.createServer)(app);

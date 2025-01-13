@@ -6,7 +6,7 @@ import {
   getUserRooms,
   readMessages,
   sendNewMessageByNotification,
-} from "../controllers/GroupsChat.controller";
+} from "../controllers/users/GroupsChat.controller";
 import { newGroupChatMessageValidator } from "../utils/validators/GroupsChatValidator";
 import schemaValidator from "../utils/schemaValidator";
 import { GroupsChatMessages } from "../models/GroupsChatMessages.model";

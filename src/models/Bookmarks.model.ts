@@ -6,7 +6,7 @@ import { Question } from "./Questions.model";
 
 @Entity()
 export class Bookmark extends BaseModel {
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinColumn()
   user: User;
 

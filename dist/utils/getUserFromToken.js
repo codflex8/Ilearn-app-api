@@ -27,6 +27,7 @@ const getUserFromToken = async (token, withGroupsChat = false) => {
         return { currentUser, decoded };
     }
     catch (error) {
+        console.log("errorrrrr", error);
         throw new ApiError_1.default("unauthorized", 401);
     }
 };
