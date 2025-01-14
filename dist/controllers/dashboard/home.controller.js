@@ -13,6 +13,7 @@ const GroupsChat_model_1 = require("../../models/GroupsChat.model");
 const AuthValidator_1 = require("../../utils/validators/AuthValidator");
 const UsersActivities_model_1 = require("../../models/UsersActivities.model");
 const date_fns_1 = require("date-fns");
+const getMonthName_1 = require("../../utils/getMonthName");
 exports.home = (0, express_async_handler_1.default)(async (req, res, next) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -35,9 +36,9 @@ exports.home = (0, express_async_handler_1.default)(async (req, res, next) => {
         monthsOfTheYear,
     });
     // Calculate the start of the range (3 months before the current month)
-    const startDate = new Date(today.getFullYear(), today.getMonth() - 3, 1);
-    // Calculate the end of the range (3 months after the current month)
-    const endDate = new Date(today.getFullYear(), today.getMonth() + 4, 0);
+    const startDate = new Date(today.getFullYear(), today.getMonth() - 4, 1);
+    // Calculate the end of the range (the current month)
+    const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     const activityDataQuery = UsersActivities_model_1.UsersActivities.createQueryBuilder("activity")
         .select([
         "YEAR(activity.date) AS year",
@@ -51,6 +52,22 @@ exports.home = (0, express_async_handler_1.default)(async (req, res, next) => {
         .groupBy("YEAR(activity.date), MONTH(activity.date)")
         .orderBy("YEAR(activity.date), MONTH(activity.date)")
         .getRawMany();
+    // const dailyUsersActivityQuery = UsersActivities.createQueryBuilder(
+    //   "activity"
+    // )
+    //   .select([
+    //     "YEAR(activity.date) AS year",
+    //     "MONTH(activity.date) AS month",
+    //     "DAY(activity.date) AS day",
+    //     "SUM(activity.count) AS totalCount",
+    //   ])
+    //   .where("activity.date BETWEEN :startDate AND :endDate", {
+    //     startDate,
+    //     endDate,
+    //   })
+    //   .groupBy("YEAR(activity.date), MONTH(activity.date), DAY(activity.date)")
+    //   .orderBy("YEAR(activity.date), MONTH(activity.date), DAY(activity.date)")
+    //   .getRawMany();
     const groupsChatDataQuery = GroupsChat_model_1.GroupsChat.createQueryBuilder("group")
         .leftJoin("group.userGroupsChats", "userGroup")
         .select("Count(userGroup.id)", "usersCount")
@@ -61,7 +78,9 @@ exports.home = (0, express_async_handler_1.default)(async (req, res, next) => {
         .select("COUNT(CASE WHEN user.status = 'active' THEN 1 END)", "activeUsersCount")
         .addSelect("COUNT(CASE WHEN user.status = 'unactive' THEN 1 END)", "unactiveUsersCount")
         .getRawOne();
-    const [allUsersCount, activeUsersCount, uploadedBooksCount, quizesCount, chatbotsCount, groupsChatData, usersData, activityData,] = await Promise.all([
+    const [allUsersCount, activeUsersCount, uploadedBooksCount, quizesCount, chatbotsCount, groupsChatData, usersData, activityData,
+    // dailyUsersActivity,
+    ] = await Promise.all([
         allUsersCountQuery,
         activeUsersCountQuery,
         uploadedBooksCountQuery,
@@ -70,13 +89,30 @@ exports.home = (0, express_async_handler_1.default)(async (req, res, next) => {
         groupsChatDataQuery,
         usersDataQuery,
         activityDataQuery,
+        // dailyUsersActivityQuery,
     ]);
-    // Format the data (optional)
-    const formattedData = activityData.map((row) => ({
-        year: row.year,
-        month: row.month,
-        totalCount: row.totalCount,
-    }));
+    // Generate all months in the range
+    const allMonths = [];
+    const current = new Date(startDate);
+    while (current <= endDate) {
+        allMonths.push({
+            year: current.getFullYear(),
+            month: current.getMonth() + 1, // Months are 0-indexed in JavaScript
+            totalCount: 0, // Default value,
+            monthName: (0, getMonthName_1.getMonthName)(current.getMonth() + 1),
+        });
+        current.setMonth(current.getMonth() + 1); // Increment month
+    }
+    // Merge the database results with the full range
+    const mergedData = allMonths.map((month) => {
+        const found = activityData.find((activity) => activity.year === month.year && activity.month === month.month);
+        return Object.assign(Object.assign({}, month), found); // Use activity data if found; otherwise, use the default
+    });
+    // const dailyActivity = getDailyActivity(
+    //   dailyUsersActivity,
+    //   startDate.getFullYear(),
+    //   startDate.getMonth()
+    // );
     res.status(200).json({
         allUsersCount,
         activeUsersCount,
@@ -85,7 +121,9 @@ exports.home = (0, express_async_handler_1.default)(async (req, res, next) => {
         chatbotsCount,
         groupsChatData,
         usersData,
-        activityData,
+        activityData: mergedData,
+        // dailyUsersActivity,
+        // dailyActivity,
     });
 });
 //# sourceMappingURL=home.controller.js.map

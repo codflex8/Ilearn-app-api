@@ -8,6 +8,7 @@ import { GroupsChat } from "../../models/GroupsChat.model";
 import { UserStatus } from "../../utils/validators/AuthValidator";
 import { UsersActivities } from "../../models/UsersActivities.model";
 import { startOfYear, endOfYear, eachMonthOfInterval } from "date-fns";
+import { getDailyActivity, getMonthName } from "../../utils/getMonthName";
 
 export const home = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -35,9 +36,9 @@ export const home = expressAsyncHandler(
     });
 
     // Calculate the start of the range (3 months before the current month)
-    const startDate = new Date(today.getFullYear(), today.getMonth() - 3, 1);
-    // Calculate the end of the range (3 months after the current month)
-    const endDate = new Date(today.getFullYear(), today.getMonth() + 4, 0);
+    const startDate = new Date(today.getFullYear(), today.getMonth() - 4, 1);
+    // Calculate the end of the range (the current month)
+    const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     const activityDataQuery = UsersActivities.createQueryBuilder("activity")
       .select([
         "YEAR(activity.date) AS year",
@@ -51,6 +52,23 @@ export const home = expressAsyncHandler(
       .groupBy("YEAR(activity.date), MONTH(activity.date)")
       .orderBy("YEAR(activity.date), MONTH(activity.date)")
       .getRawMany();
+
+    // const dailyUsersActivityQuery = UsersActivities.createQueryBuilder(
+    //   "activity"
+    // )
+    //   .select([
+    //     "YEAR(activity.date) AS year",
+    //     "MONTH(activity.date) AS month",
+    //     "DAY(activity.date) AS day",
+    //     "SUM(activity.count) AS totalCount",
+    //   ])
+    //   .where("activity.date BETWEEN :startDate AND :endDate", {
+    //     startDate,
+    //     endDate,
+    //   })
+    //   .groupBy("YEAR(activity.date), MONTH(activity.date), DAY(activity.date)")
+    //   .orderBy("YEAR(activity.date), MONTH(activity.date), DAY(activity.date)")
+    //   .getRawMany();
 
     const groupsChatDataQuery = GroupsChat.createQueryBuilder("group")
       .leftJoin("group.userGroupsChats", "userGroup")
@@ -79,6 +97,7 @@ export const home = expressAsyncHandler(
       groupsChatData,
       usersData,
       activityData,
+      // dailyUsersActivity,
     ] = await Promise.all([
       allUsersCountQuery,
       activeUsersCountQuery,
@@ -88,13 +107,35 @@ export const home = expressAsyncHandler(
       groupsChatDataQuery,
       usersDataQuery,
       activityDataQuery,
+      // dailyUsersActivityQuery,
     ]);
-    // Format the data (optional)
-    const formattedData = activityData.map((row) => ({
-      year: row.year,
-      month: row.month,
-      totalCount: row.totalCount,
-    }));
+    // Generate all months in the range
+    const allMonths = [];
+    const current = new Date(startDate);
+    while (current <= endDate) {
+      allMonths.push({
+        year: current.getFullYear(),
+        month: current.getMonth() + 1, // Months are 0-indexed in JavaScript
+        totalCount: 0, // Default value,
+        monthName: getMonthName(current.getMonth() + 1),
+      });
+      current.setMonth(current.getMonth() + 1); // Increment month
+    }
+    // Merge the database results with the full range
+    const mergedData = allMonths.map((month) => {
+      const found = activityData.find(
+        (activity) =>
+          activity.year === month.year && activity.month === month.month
+      );
+      return { ...month, ...found }; // Use activity data if found; otherwise, use the default
+    });
+
+    // const dailyActivity = getDailyActivity(
+    //   dailyUsersActivity,
+    //   startDate.getFullYear(),
+    //   startDate.getMonth()
+    // );
+
     res.status(200).json({
       allUsersCount,
       activeUsersCount,
@@ -103,7 +144,9 @@ export const home = expressAsyncHandler(
       chatbotsCount,
       groupsChatData,
       usersData,
-      activityData,
+      activityData: mergedData,
+      // dailyUsersActivity,
+      // dailyActivity,
     });
   }
 );
