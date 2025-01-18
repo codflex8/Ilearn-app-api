@@ -17,7 +17,7 @@ export const home = expressAsyncHandler(
 
     const allUsersCountQuery = User.count();
     const activeUsersCountQuery = User.count({
-      where: { status: UserStatus.unactive },
+      where: { status: UserStatus.active },
     });
     const uploadedBooksCountQuery = Book.count();
     const quizesCountQuery = Quiz.count();

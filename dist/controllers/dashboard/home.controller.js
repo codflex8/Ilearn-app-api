@@ -19,7 +19,7 @@ exports.home = (0, express_async_handler_1.default)(async (req, res, next) => {
     today.setHours(0, 0, 0, 0);
     const allUsersCountQuery = User_model_1.User.count();
     const activeUsersCountQuery = User_model_1.User.count({
-        where: { status: AuthValidator_1.UserStatus.unactive },
+        where: { status: AuthValidator_1.UserStatus.active },
     });
     const uploadedBooksCountQuery = Books_model_1.Book.count();
     const quizesCountQuery = Quiz_model_1.Quiz.count();
