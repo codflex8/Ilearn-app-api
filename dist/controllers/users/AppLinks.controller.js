@@ -12,7 +12,7 @@ exports.getAppLinks = (0, express_async_handler_1.default)(async (req, res, next
     res.status(200).json({
         appLinks: {
             androidLink: (_a = appLinks === null || appLinks === void 0 ? void 0 : appLinks.androidLink) !== null && _a !== void 0 ? _a : "",
-            appleLink: (_b = appLinks.appleLink) !== null && _b !== void 0 ? _b : "",
+            appleLink: (_b = appLinks === null || appLinks === void 0 ? void 0 : appLinks.appleLink) !== null && _b !== void 0 ? _b : "",
         },
     });
 });

@@ -8,7 +8,7 @@ export const getAppLinks = expressAsync(
     res.status(200).json({
       appLinks: {
         androidLink: appLinks?.androidLink ?? "",
-        appleLink: appLinks.appleLink ?? "",
+        appleLink: appLinks?.appleLink ?? "",
       },
     });
   }
