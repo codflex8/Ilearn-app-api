@@ -129,7 +129,7 @@ export class Quiz extends BaseModel {
   }
 
   static async getQuizesPercentage({ userId, startDate, endDate, examsGoal }) {
-    const fullmarkExamsCount = await this.getRepository()
+    const examsCount = await this.getRepository()
       .createQueryBuilder("quiz")
       .leftJoin("quiz.user", "user")
       .where("user.id = :userId", { userId })
@@ -145,7 +145,7 @@ export class Quiz extends BaseModel {
           .leftJoin("subQuiz.questions", "question")
           .where("subQuiz.id = quiz.id")
           .getQuery();
-        return `quiz.mark >= (${subQuery})`;
+        return `quiz.mark >= (${subQuery}) / 2`;
       })
       .getCount();
     const quizPercentages = await Quiz.getRepository()
@@ -167,21 +167,9 @@ export class Quiz extends BaseModel {
       percentages.reduce((sum, percentage) => sum + percentage, 0) /
         percentages.length || 0;
 
-    // const subQuery = queryBuilder
-    //   .subQuery()
-    //   .select("quiz.mark * 1.0 / COUNT(question.id)", "markPercentage")
-    //   .from("quiz", "quiz")
-    //   .leftJoin("quiz.questions", "question")
-    //   .groupBy("quiz.id")
-    //   .getQuery();
-
-    // // حساب المتوسط لجميع النسب المئوية
-    // const averagePercentage = await queryBuilder
-    //   .select(`AVG(${subQuery})`, "averagePercentage")
-    //   .getOne();
     return {
       examsGoal,
-      fullmarkExamsCount,
+      examsCount,
       percentage: averagePercentage,
     };
   }

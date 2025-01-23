@@ -68,7 +68,7 @@ let Quiz = Quiz_1 = class Quiz extends BaseModel_1.BaseModel {
         return querable.orderBy("quiz.createdAt", "DESC");
     }
     static async getQuizesPercentage({ userId, startDate, endDate, examsGoal }) {
-        const fullmarkExamsCount = await this.getRepository()
+        const examsCount = await this.getRepository()
             .createQueryBuilder("quiz")
             .leftJoin("quiz.user", "user")
             .where("user.id = :userId", { userId })
@@ -84,7 +84,7 @@ let Quiz = Quiz_1 = class Quiz extends BaseModel_1.BaseModel {
                 .leftJoin("subQuiz.questions", "question")
                 .where("subQuiz.id = quiz.id")
                 .getQuery();
-            return `quiz.mark >= (${subQuery})`;
+            return `quiz.mark >= (${subQuery}) / 2`;
         })
             .getCount();
         const quizPercentages = await Quiz_1.getRepository()
@@ -101,20 +101,9 @@ let Quiz = Quiz_1 = class Quiz extends BaseModel_1.BaseModel {
         const percentages = quizPercentages.map((row) => parseFloat(row.markPercentage));
         const averagePercentage = percentages.reduce((sum, percentage) => sum + percentage, 0) /
             percentages.length || 0;
-        // const subQuery = queryBuilder
-        //   .subQuery()
-        //   .select("quiz.mark * 1.0 / COUNT(question.id)", "markPercentage")
-        //   .from("quiz", "quiz")
-        //   .leftJoin("quiz.questions", "question")
-        //   .groupBy("quiz.id")
-        //   .getQuery();
-        // // حساب المتوسط لجميع النسب المئوية
-        // const averagePercentage = await queryBuilder
-        //   .select(`AVG(${subQuery})`, "averagePercentage")
-        //   .getOne();
         return {
             examsGoal,
-            fullmarkExamsCount,
+            examsCount,
             percentage: averagePercentage,
         };
     }
