@@ -13,9 +13,9 @@ import { httpLogger } from "./utils/logger";
 import DashboardRoutes from "./routes/dashboard";
 
 export default class AppServer {
-  constructor(app: Application) {
+  constructor(private app: Application) {
     this.connectDatabase();
-    this.config(app);
+    // this.config(app);
   }
 
   private config(app: Application) {
@@ -73,6 +73,7 @@ export default class AppServer {
       .initialize()
       .then(() => {
         console.log("data base connected");
+        this.config(this.app);
       })
       .catch((err) => {
         console.error(err.message);
