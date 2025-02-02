@@ -19,6 +19,8 @@ import { getServerIPAddress } from "../../utils/getServerIpAddress";
 import { UsersRoles, UserStatus } from "../../utils/validators/AuthValidator";
 import { verifyUserChangePassword } from "../../utils/verifyUserChangePassword";
 import { trackUserActivity } from "../../utils/trackUsersActivity";
+import { dataSource } from "../../models/dataSource";
+const repository = dataSource.getRepository(User);
 
 interface JwtPayload extends jwt.JwtPayload {
   userId: string;
@@ -27,7 +29,7 @@ interface JwtPayload extends jwt.JwtPayload {
 export const signup = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { username, email, password, image } = req.body;
-    const isUserExist = await User.findOne({
+    const isUserExist = await repository.findOne({
       where: {
         email: Equal(req.body.email),
       },
@@ -37,7 +39,7 @@ export const signup = asyncHandler(
     }
     // 1- Create user
     const cryptedPassword = await bcryptPassword(password);
-    const user = await User.create({
+    const user = await repository.create({
       username,
       email,
       password: cryptedPassword,
@@ -69,7 +71,7 @@ export const signup = asyncHandler(
 
 export const resendVerifyCode = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = await User.findOne({
+    const user = await repository.findOne({
       where: {
         email: req.body.email,
       },
@@ -94,7 +96,7 @@ export const resendVerifyCode = asyncHandler(
 
 export const verifyUserEmail = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = await User.findOne({
+    const user = await repository.findOne({
       where: {
         email: req.body.email,
       },
@@ -121,7 +123,7 @@ export const verifyUserEmail = asyncHandler(
 
 export const signIn = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = await User.findOneBy({ email: Equal(req.body.email) });
+    const user = await repository.findOneBy({ email: Equal(req.body.email) });
 
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
       return next(new ApiError(req.t("IncorrectEmailPasswod"), 401));
@@ -167,7 +169,7 @@ export const refreshToken = (
       if (err) {
         return res.status(403).json({ message: "Invalid refresh token" });
       }
-      const currentUser = await User.findOne({
+      const currentUser = await repository.findOne({
         where: {
           id: decoded?.userId,
         },
@@ -226,7 +228,9 @@ export const protect = asyncHandler(
 
 export const forgotPassword = asyncHandler(async (req, res, next) => {
   // 1) Get user by email
-  const user = await User.findOne({ where: { email: Equal(req.body.email) } });
+  const user = await repository.findOne({
+    where: { email: Equal(req.body.email) },
+  });
   if (!user) {
     return next(
       new ApiError(req.t("emailNotExist", { email: req.body.email }), 404)
@@ -267,7 +271,7 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
 
 export const verifyPassResetCode = asyncHandler(async (req, res, next) => {
   // 1) Get user based on reset code
-  const user = await User.findOne({
+  const user = await repository.findOne({
     where: {
       email: req.body.email,
     },
@@ -298,7 +302,9 @@ export const verifyPassResetCode = asyncHandler(async (req, res, next) => {
 
 export const resetPassword = asyncHandler(async (req, res, next) => {
   // 1) Get user based on email
-  const user = await User.findOne({ where: { email: Equal(req.body.email) } });
+  const user = await repository.findOne({
+    where: { email: Equal(req.body.email) },
+  });
   if (!user) {
     return next(new ApiError(req.t("emailNotExist"), 404));
   }
@@ -336,7 +342,7 @@ const createSocialMediaUser = async ({
   facebookId?: string;
   twitterId?: string;
 }) => {
-  const newUser = User.create({
+  const newUser = repository.create({
     email,
     username,
     imageUrl,
@@ -353,7 +359,7 @@ export const googleAuth = asyncHandler(async (req, res, next) => {
   const { token } = req.body;
   const { email, username, imageUrl, userId } = await verifyGoogleAuth(token);
   let user: User;
-  const isUserExist = await User.findOne({
+  const isUserExist = await repository.findOne({
     where: [
       {
         googleId: userId,
@@ -387,7 +393,7 @@ export const facebookAuth = asyncHandler(async (req, res, next) => {
     token
   );
   let user: User;
-  const isUserExist = await User.findOne({
+  const isUserExist = await repository.findOne({
     where: [
       {
         facebookId: userId,
@@ -421,7 +427,7 @@ export const twitterAuth = asyncHandler(async (req, res, next) => {
     authToken,
     authTokenSecret
   );
-  const isUserExist = await User.findOne({
+  const isUserExist = await repository.findOne({
     where: [
       {
         twitterId: userId,

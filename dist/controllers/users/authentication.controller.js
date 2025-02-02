@@ -42,9 +42,11 @@ const socialMediaAuth_1 = require("../../utils/socialMediaAuth");
 const AuthValidator_1 = require("../../utils/validators/AuthValidator");
 const verifyUserChangePassword_1 = require("../../utils/verifyUserChangePassword");
 const trackUsersActivity_1 = require("../../utils/trackUsersActivity");
+const dataSource_1 = require("../../models/dataSource");
+const repository = dataSource_1.dataSource.getRepository(User_model_1.User);
 exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { username, email, password, image } = req.body;
-    const isUserExist = await User_model_1.User.findOne({
+    const isUserExist = await repository.findOne({
         where: {
             email: (0, typeorm_1.Equal)(req.body.email),
         },
@@ -54,7 +56,7 @@ exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => 
     }
     // 1- Create user
     const cryptedPassword = await (0, bcryptPassword_1.default)(password);
-    const user = await User_model_1.User.create({
+    const user = await repository.create({
         username,
         email,
         password: cryptedPassword,
@@ -77,7 +79,7 @@ exports.signup = (0, express_async_handler_1.default)(async (req, res, next) => 
     res.status(201).json({ message: req.t("sign_up_success") });
 });
 exports.resendVerifyCode = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const user = await User_model_1.User.findOne({
+    const user = await repository.findOne({
         where: {
             email: req.body.email,
         },
@@ -100,7 +102,7 @@ exports.resendVerifyCode = (0, express_async_handler_1.default)(async (req, res,
     res.status(200).json({ message: "email sent success" });
 });
 exports.verifyUserEmail = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const user = await User_model_1.User.findOne({
+    const user = await repository.findOne({
         where: {
             email: req.body.email,
         },
@@ -124,7 +126,7 @@ exports.verifyUserEmail = (0, express_async_handler_1.default)(async (req, res, 
     res.status(200).json({ user, token });
 });
 exports.signIn = (0, express_async_handler_1.default)(async (req, res, next) => {
-    const user = await User_model_1.User.findOneBy({ email: (0, typeorm_1.Equal)(req.body.email) });
+    const user = await repository.findOneBy({ email: (0, typeorm_1.Equal)(req.body.email) });
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
         return next(new ApiError_1.default(req.t("IncorrectEmailPasswod"), 401));
     }
@@ -154,7 +156,7 @@ const refreshToken = (req, res, next) => {
         if (err) {
             return res.status(403).json({ message: "Invalid refresh token" });
         }
-        const currentUser = await User_model_1.User.findOne({
+        const currentUser = await repository.findOne({
             where: {
                 id: decoded === null || decoded === void 0 ? void 0 : decoded.userId,
             },
@@ -206,7 +208,9 @@ exports.protect = (0, express_async_handler_1.default)(async (req, res, next) =>
 });
 exports.forgotPassword = (0, express_async_handler_1.default)(async (req, res, next) => {
     // 1) Get user by email
-    const user = await User_model_1.User.findOne({ where: { email: (0, typeorm_1.Equal)(req.body.email) } });
+    const user = await repository.findOne({
+        where: { email: (0, typeorm_1.Equal)(req.body.email) },
+    });
     if (!user) {
         return next(new ApiError_1.default(req.t("emailNotExist", { email: req.body.email }), 404));
     }
@@ -237,7 +241,7 @@ exports.forgotPassword = (0, express_async_handler_1.default)(async (req, res, n
 });
 exports.verifyPassResetCode = (0, express_async_handler_1.default)(async (req, res, next) => {
     // 1) Get user based on reset code
-    const user = await User_model_1.User.findOne({
+    const user = await repository.findOne({
         where: {
             email: req.body.email,
         },
@@ -260,7 +264,9 @@ exports.verifyPassResetCode = (0, express_async_handler_1.default)(async (req, r
 });
 exports.resetPassword = (0, express_async_handler_1.default)(async (req, res, next) => {
     // 1) Get user based on email
-    const user = await User_model_1.User.findOne({ where: { email: (0, typeorm_1.Equal)(req.body.email) } });
+    const user = await repository.findOne({
+        where: { email: (0, typeorm_1.Equal)(req.body.email) },
+    });
     if (!user) {
         return next(new ApiError_1.default(req.t("emailNotExist"), 404));
     }
@@ -280,7 +286,7 @@ exports.resetPassword = (0, express_async_handler_1.default)(async (req, res, ne
     res.status(200).json({ token });
 });
 const createSocialMediaUser = async ({ email, username, imageUrl, googleId, facebookId, twitterId, }) => {
-    const newUser = User_model_1.User.create({
+    const newUser = repository.create({
         email,
         username,
         imageUrl,
@@ -296,7 +302,7 @@ exports.googleAuth = (0, express_async_handler_1.default)(async (req, res, next)
     const { token } = req.body;
     const { email, username, imageUrl, userId } = await (0, socialMediaAuth_1.verifyGoogleAuth)(token);
     let user;
-    const isUserExist = await User_model_1.User.findOne({
+    const isUserExist = await repository.findOne({
         where: [
             {
                 googleId: userId,
@@ -327,7 +333,7 @@ exports.facebookAuth = (0, express_async_handler_1.default)(async (req, res, nex
     const { token } = req.body;
     const { email, username, imageUrl, userId } = await (0, socialMediaAuth_1.getFacebookUserData)(token);
     let user;
-    const isUserExist = await User_model_1.User.findOne({
+    const isUserExist = await repository.findOne({
         where: [
             {
                 facebookId: userId,
@@ -358,7 +364,7 @@ exports.facebookAuth = (0, express_async_handler_1.default)(async (req, res, nex
 exports.twitterAuth = (0, express_async_handler_1.default)(async (req, res, next) => {
     const { authToken, authTokenSecret } = req.body;
     const { email, username, imageUrl, userId } = await (0, socialMediaAuth_1.getTwitterUserData)(authToken, authTokenSecret);
-    const isUserExist = await User_model_1.User.findOne({
+    const isUserExist = await repository.findOne({
         where: [
             {
                 twitterId: userId,
