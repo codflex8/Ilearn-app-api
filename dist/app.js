@@ -18,9 +18,8 @@ const logger_1 = require("./utils/logger");
 const dashboard_1 = __importDefault(require("./routes/dashboard"));
 class AppServer {
     constructor(app) {
-        this.app = app;
         this.connectDatabase();
-        // this.config(app);
+        this.config(app);
     }
     config(app) {
         app.use("/public", express_1.default.static(path_1.default.join(__dirname, "public")));
@@ -68,7 +67,6 @@ class AppServer {
             .initialize()
             .then(() => {
             console.log("data base connected");
-            this.config(this.app);
         })
             .catch((err) => {
             console.error(err.message);
