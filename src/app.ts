@@ -75,7 +75,7 @@ export default class AppServer {
         console.log("data base connected");
       })
       .catch((err) => {
-        console.error(err.message);
+        console.error(err);
         throw new Error(err);
       });
   }
