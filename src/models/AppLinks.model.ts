@@ -3,13 +3,13 @@ import { BaseModel } from "./BaseModel";
 
 @Entity()
 export class AppLinks extends BaseModel {
-  @Column({ type: "longtext" })
+  @Column({ type: "longtext", nullable: true })
   androidLink: string;
 
   @Column({ nullable: true })
   androidVersion: string;
 
-  @Column({ type: "longtext" })
+  @Column({ type: "longtext", nullable: true })
   appleLink: string;
 
   @Column({ nullable: true })

@@ -16,7 +16,7 @@ let AppLinks = class AppLinks extends BaseModel_1.BaseModel {
 };
 exports.AppLinks = AppLinks;
 __decorate([
-    (0, typeorm_1.Column)({ type: "longtext" }),
+    (0, typeorm_1.Column)({ type: "longtext", nullable: true }),
     __metadata("design:type", String)
 ], AppLinks.prototype, "androidLink", void 0);
 __decorate([
@@ -24,7 +24,7 @@ __decorate([
     __metadata("design:type", String)
 ], AppLinks.prototype, "androidVersion", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "longtext" }),
+    (0, typeorm_1.Column)({ type: "longtext", nullable: true }),
     __metadata("design:type", String)
 ], AppLinks.prototype, "appleLink", void 0);
 __decorate([
