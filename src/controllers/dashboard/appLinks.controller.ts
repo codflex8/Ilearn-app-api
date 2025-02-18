@@ -17,3 +17,19 @@ export const addAppLinks = expressAsyncHandler(
     res.status(200).json({ termsAndPolicy });
   }
 );
+
+export const addAppVersions = expressAsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { androidVersion, appleVersion } = req.body;
+    let appVersions: AppLinks = await AppLinks.findOne({
+      where: {},
+    });
+    if (!appVersions) {
+      appVersions = new AppLinks();
+    }
+    appVersions.androidVersion = androidVersion;
+    appVersions.appleVersion = appleVersion;
+    await appVersions.save();
+    res.status(200).json({ appVersions });
+  }
+);

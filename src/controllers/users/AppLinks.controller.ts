@@ -13,3 +13,15 @@ export const getAppLinks = expressAsync(
     });
   }
 );
+
+export const getAppVersions = expressAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const appLinks = await AppLinks.findOne({ where: {} });
+    res.status(200).json({
+      appLinks: {
+        androidVersion: appLinks?.androidVersion ?? "",
+        appleVersion: appLinks?.appleVersion ?? "",
+      },
+    });
+  }
+);

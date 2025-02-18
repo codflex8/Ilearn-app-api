@@ -18,11 +18,14 @@ const statistics_router_1 = __importDefault(require("./statistics.router"));
 const termsAndPolicy_router_1 = __importDefault(require("./termsAndPolicy.router"));
 const appLinks_router_1 = __importDefault(require("./appLinks.router"));
 const notifications_router_1 = __importDefault(require("./notifications.router"));
+const appVersions_router_1 = __importDefault(require("./appVersions.router"));
 const authentication_controller_1 = require("../../controllers/users/authentication.controller");
 const GroupsChat_controller_1 = require("../../controllers/users/GroupsChat.controller");
 class Routes {
     constructor(app) {
         app.use("/api/v1/auth", authentication_router_1.default);
+        app.use("/api/v1/app-links", appLinks_router_1.default);
+        app.use("/api/v1/app-versions", appVersions_router_1.default);
         app.post("/api/v1/share-app", authentication_controller_1.protect, GroupsChat_controller_1.shareApp);
         app.use("/api/v1", authentication_controller_1.protect, home_router_1.default);
         app.use("/api/v1", authentication_controller_1.protect, users_router_1.default);
@@ -35,9 +38,8 @@ class Routes {
         app.use("/api/v1/bookmarks", authentication_controller_1.protect, bookmarks_router_1.default);
         app.use("/api/v1/groupschat", authentication_controller_1.protect, groupsChat_router_1.default);
         app.use("/api/v1/statistics", authentication_controller_1.protect, statistics_router_1.default);
+        app.use("/api/v1/notifications", authentication_controller_1.protect, notifications_router_1.default);
         app.use("/api/v1", authentication_controller_1.protect, termsAndPolicy_router_1.default);
-        app.use("/api/v1/app-links", appLinks_router_1.default);
-        app.use("/api/v1/notifications", notifications_router_1.default);
     }
 }
 exports.default = Routes;

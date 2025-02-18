@@ -14,13 +14,15 @@ import statisticsRouter from "./statistics.router";
 import termsAndPolicyRouter from "./termsAndPolicy.router";
 import appLinksRouter from "./appLinks.router";
 import notificationRouter from "./notifications.router";
-
+import appVersionsRouter from "./appVersions.router";
 import { protect } from "../../controllers/users/authentication.controller";
 import { shareApp } from "../../controllers/users/GroupsChat.controller";
 
 export default class Routes {
   constructor(app: Application) {
     app.use("/api/v1/auth", AuthRouter);
+    app.use("/api/v1/app-links", appLinksRouter);
+    app.use("/api/v1/app-versions", appVersionsRouter);
     app.post("/api/v1/share-app", protect, shareApp);
     app.use("/api/v1", protect, homeRouter);
     app.use("/api/v1", protect, usersRouter);
@@ -33,8 +35,7 @@ export default class Routes {
     app.use("/api/v1/bookmarks", protect, bookmarksRouter);
     app.use("/api/v1/groupschat", protect, groupChatRouter);
     app.use("/api/v1/statistics", protect, statisticsRouter);
+    app.use("/api/v1/notifications", protect, notificationRouter);
     app.use("/api/v1", protect, termsAndPolicyRouter);
-    app.use("/api/v1/app-links", appLinksRouter);
-    app.use("/api/v1/notifications", notificationRouter);
   }
 }

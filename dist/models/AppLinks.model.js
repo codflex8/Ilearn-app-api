@@ -20,9 +20,17 @@ __decorate([
     __metadata("design:type", String)
 ], AppLinks.prototype, "androidLink", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], AppLinks.prototype, "androidVersion", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: "longtext" }),
     __metadata("design:type", String)
 ], AppLinks.prototype, "appleLink", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], AppLinks.prototype, "appleVersion", void 0);
 exports.AppLinks = AppLinks = __decorate([
     (0, typeorm_1.Entity)()
 ], AppLinks);
