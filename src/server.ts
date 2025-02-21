@@ -72,11 +72,11 @@ io.on("connection", async (socket: Socket) => {
   });
 });
 
-cron.schedule("0 20 * * 4", () => {
-  const logMessage = `Job executed on: ${new Date().toISOString()}\n`;
-  httpLogger.info(logMessage);
-  usersStatisticsReminder();
-});
+// cron.schedule("0 20 * * 4", () => {
+// const logMessage = `Job executed on: ${new Date().toISOString()}\n`;
+// httpLogger.info(logMessage);
+// usersStatisticsReminder();
+// });
 
 process.on("unhandledRejection", (err: Error) => {
   console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);

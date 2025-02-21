@@ -14,8 +14,6 @@ const getUserFromToken_1 = require("./utils/getUserFromToken");
 const ApiError_1 = __importDefault(require("./utils/ApiError"));
 const logger_1 = require("./utils/logger");
 const i18next_1 = __importDefault(require("i18next"));
-const node_cron_1 = __importDefault(require("node-cron"));
-const statistics_controller_1 = require("./controllers/users/statistics.controller");
 const app = (0, express_1.default)();
 new app_1.default(app);
 const httpServer = (0, http_1.createServer)(app);
@@ -64,11 +62,11 @@ io.on("connection", async (socket) => {
         websocket_1.default.removeUser(socket.user);
     });
 });
-node_cron_1.default.schedule("0 20 * * 4", () => {
-    const logMessage = `Job executed on: ${new Date().toISOString()}\n`;
-    logger_1.httpLogger.info(logMessage);
-    (0, statistics_controller_1.usersStatisticsReminder)();
-});
+// cron.schedule("0 20 * * 4", () => {
+// const logMessage = `Job executed on: ${new Date().toISOString()}\n`;
+// httpLogger.info(logMessage);
+// usersStatisticsReminder();
+// });
 process.on("unhandledRejection", (err) => {
     console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
     console.log(err.stack);
